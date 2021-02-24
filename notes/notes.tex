@@ -1,0 +1,377 @@
+
+
+\documentclass[paper=a4, fontsize=11pt]{article}
+\usepackage{amsmath,amsfonts}
+
+\title{
+\textbf{Notes:} Inverse method for detecting subglacial lakes and sticky spots
+}
+
+\author{ Aaron Stubblefield (Columbia University)} % Your name
+
+\date{\small\today} % Today's date or a custom date
+
+\begin{document}
+
+\maketitle % Print the title
+\section*{Model derivation}
+\noindent\textbf{Assumptions.}
+\begin{itemize}
+\item linear viscosity\\
+\item linear sliding law
+\end{itemize}
+\vspace{0.2cm}
+\noindent\textbf{Domain.}
+\begin{itemize}
+\item The unperturbed domain is the infinite strip $\{(x,y,z)\in\mathbb{R}\times\mathbb{R}\times[s,h]\}$ for some constant
+elevations $s$ and $h$.
+\end{itemize}
+\noindent\textbf{Body equations.}\\
+Linear stokes flow:
+\begin{align}
+&-p_x + \eta ( u_{xx} +u_{yy} + u_{zz}) = 0  \\
+&-p_y + \eta ( v_{xx}+v_{yy} + v_{zz}) = 0 \\
+&-p_z + \eta ( w_{xx} +w_{yy} + w_{zz}) = \rho g \\
+&u_x + v_y + w_z = 0
+\end{align}
+\\
+\noindent\textbf{Upper surface BC ($z=h$).}\\
+Stress-free conditions:
+\begin{align}
+&2\eta w_z - p = 0 \\
+&\eta(u_z +w_x) = 0 \\
+&\eta(v_z +w_y) = 0 \\
+\end{align}
+Kinematic equation:
+\begin{align}
+h_t + uh_x + vh_y = w
+\end{align}
+
+\noindent\textbf{Lower surface BC ($z=s$).}\\
+Prescribed vertical velocity and a linear sliding law:
+\begin{align}
+&w  = w_b\\
+&\eta(u_z + w_x) = \alpha u \\
+&\eta(v_z + w_y) = \alpha v
+\end{align}
+\noindent Kinematic equation:
+\begin{align}
+s_t + us_x + vs_y  = w
+\end{align}
+\noindent\textbf{Equilibrium solution:}\\
+We assume the equilibrium solution is either cryostatic or plug flow in the $x$ direction.\\
+Therefore, we choose $h^0=H$ and $s^0=0$ constant, and...
+\begin{align}
+&u^0 = u_0\geq 0\;\;\;\; \text{(constant)} \\
+& v^0 = 0 \\
+&w^0 = 0 \;\;\;\; (w_b^0=0)\\
+&p^0 = \rho g (H-z) \\
+&\alpha^0  = \begin{cases}
+\alpha_0 = 0 & \text{if} \;\; u_0>0 \\
+\alpha_0 \approx \infty & \text{if} \;\; u_0 =0
+\end{cases}
+\end{align}
+
+
+\noindent\textbf{Perturbations:}\\
+We introduce perturbations to the equilibrium state via
+\begin{align}
+&u= u^0 +  u^1 \\
+&v= v^0 +  v^1 \\
+&w =  w^0 + w^1 \;\; (w_b=w_b^0 + w_b^1)\\
+&p = p^0 +  p^1\\
+&s =  s^0 + s^1 \\
+&h = H +  h^1
+\end{align}
+where the perturbations are small ($O(\epsilon)$ where $\epsilon \ll 1$). \\ \\
+\noindent\textbf{Perturbed equations:}\\
+Method: insert perturbations and discard product terms (i.e., $a^1b^1=O(\epsilon^2)$).\\
+Body equations become:
+\begin{align}
+&-p_x^1 + \eta (u_{xx}^1 +u_{yy}^1+ u_{zz}^1) = 0 \\
+&-p_x^1 + \eta (v_{xx}^1 +v_{yy}^1+ v_{zz}^1) = 0 \\
+&-p_z^1 + \eta (w_{xx}^1 +w_{yy}^1+ w_{zz}^1) = 0\\
+&u_x^1 + u_y^1 + w_z^1 = 0
+\end{align}
+Surface kinematic equations become:
+\begin{align}
+&h_t^1 + u_0 h_x^1  = w^1 \label{ht} \\
+&s_t^1  + u_0 s_x^1 = w^1 \label{st}
+\end{align}
+We have to linearize the upper and lower surface equations at $z=H +  h^1$
+and $z= s^1$ onto $z=H$ and $z=0$.
+\\ \\
+To do this, we
+use the $1^\mathrm{st}$-order Taylor expansion in depth for a function $f(z)$:
+$$ f(z^0 + z^1) \approx f(z^0) + f'(z^0)z^1. $$
+\\
+The stress-free condition at $z=H+h^1$ is approximated at $z=H$ by
+\begin{align}
+&2\eta w_z^1 - p^1 = -\rho g h^1 \label{pnorm} \\
+&\eta(u_z^1 +w_x^1) = 0 \\
+&\eta(v_z^1 +w_y^1) = 0
+\end{align}
+Equation (\ref{pnorm}) states that the perturbed normal stress is balanced
+by the perturbed cryostatic stress from the elevation anomaly.
+\\ \\
+BC's at the lower boundary ($z=0$) become:
+\begin{align}
+&w^1  = w_b^1\\
+&\eta(u_z^1 + w_x^1) = \alpha_0 u^1 + u_0\alpha^1 \\
+&\eta(v_z^1 +w_y^1) = \alpha_0 v^1
+\end{align}
+We drop the superscripts below. \\ \\
+\\ \noindent\textbf{Fourier transform approach:}\\
+The 2D Fourier transform of a function $f$ with respect to $x$ and $y$ is
+\begin{align}
+\widehat{f}(k_x,k_y)  = \int_{-\infty}^{+\infty}\int_{-\infty}^{+\infty} f(x,y)e^{-i(k_x x + k_y y)} \; \mathrm{d}x\,\mathrm{d}y,
+\end{align}
+where $k_x$ and $k_y$ are wavenumbers.
+The inverse Fourier transform is given by
+\begin{align}
+{f}(x,y) = \frac{1}{4\pi^2}\int_{-\infty}^{+\infty}\int_{-\infty}^{+\infty} \widehat{f}(k_x,k_y)e^{i(k_x x + k_y y)} \; \mathrm{d}k_x \, \mathrm{d}k_y.
+\end{align}
+Derivatives transform as:
+\begin{align}
+&\widehat{f_x} = ik_x\widehat{f} \\
+&\widehat{f_y} = ik_y\widehat{f} \\
+&\widehat{f_{xx}} + \widehat{f_{yy}} = -k^2 \widehat{f}, \\ &k^2 \equiv k_x^2 + k_y^2.
+\end{align}
+The upper and lower surface kinematic equations (\ref{ht})-(\ref{st}) transform to
+\begin{align}
+\widehat{h}_t + u_0 ik_x \widehat{h} = \widehat{w}\label{hthat}\\
+\widehat{s}_t + u_0 ik_x \widehat{s} = \widehat{w}.\label{sthat}
+\end{align}
+The Stokes flow equation become
+\begin{align}
+&-ik_x\widehat{p} + \eta ( -k^2\widehat{u} + \widehat{u}_{zz}) = 0 \\
+&-ik_y\widehat{p} + \eta ( -k^2\widehat{v} + \widehat{v}_{zz}) = 0 \\
+&-\widehat{p}_z + \eta (-k^2\widehat{w} + \widehat{w}_{zz}) = 0 \\
+&ik_x\widehat{u} + ik_y\widehat{v} + \widehat{w}_z = 0
+\end{align}
+This can be reduced to a fourth-order equation for the transformed vertical velocity:
+\begin{equation}
+\widehat{w}_{zzzz} - 2k^2 \widehat{w}_{zz} + k^4 \widehat{w}=0. \label{ode}
+\end{equation}
+The general solution to (\ref{ode}) is
+\begin{align}
+\widehat{w} = \frac{A}{k}e^{k z} + \frac{B}{k}e^{-k z} + {C}ze^{k z}+ {D}ze^{-k z},
+\end{align}
+where $A,B,C,$ and $D$ depend on $k$.\\ \\
+To determine the coefficients, we rewrite all the BC's in terms of $\widehat{w}$ and its $z$ derivatives.
+The $z$-derivatives of $\widehat{w}$ are:
+\begin{align}
+&\widehat{w}_{z} = {A}e^{k z} - {B}e^{-k z} + {C}e^{k z} + {C}kze^{k z} - {D}kze^{-k z} + {D}e^{-k z} \\
+&\widehat{w}_{zz} = {Ak}e^{k z} + {Bk}e^{-k z} + {2Ck}e^{k z} + {C}k^2 ze^{k z} + {D}k^2ze^{-k z} - {2Dk}e^{-k z} \\
+&\widehat{w}_{zzz} = {Ak^2}e^{k z} - {Bk^2}e^{-k z} + {3Ck^2}e^{k z} + {C}k^3 ze^{k z} - {D}k^3ze^{-k z} + {3Dk^2}e^{-k z}
+\end{align}
+The sliding law becomes
+\begin{align}
+&\eta( \widehat{u}_z + ik_x \widehat{w}) = \alpha_0\widehat{u} + u_0\widehat{\alpha} \\
+&\eta( \widehat{v}_z + ik_y \widehat{w}) = \alpha_0\widehat{v}.
+\end{align}
+Multiplying through by $-ik_x$ and $-ik_y$, summing the equations, and using the transformed incompressibility
+condition reduces this to
+\begin{align}
+\eta(\widehat{w}_{zz} + k^2 \widehat{w}) = \alpha_0 \widehat{w}_z - ik_x   u_0\widehat{\alpha}.
+\end{align}
+Similarly, the shear stress condition at the upper surface becomes
+\begin{align}
+\eta(\widehat{w}_{zz} + k^2 \widehat{w}) =  0.
+\end{align}
+The normal stress condition at the upper surface transforms to
+$
+2\eta \widehat{w}_{z} - \widehat{p} = -\rho g \widehat{h}.
+$
+From the body equations, we can show that
+$-k^2 \widehat{p} = \eta(k^2\widehat{w}_z - \widehat{w}_{zzz}) $, which reduces this to
+\begin{align}
+\eta (3k^2 \widehat{w}_{z}-\widehat{w}_{zzz})  = -k^2 \rho g \widehat{h}.
+\end{align}
+To simplify notation, we define the `aspect ratio' $\nu(k) = kH$.\\ \\
+The upper surface normal stress BC becomes:
+\begin{align}
+{A} e^{\nu} - {B} e^{-\nu} + {C}\nu e^{\nu} - {D}\nu e^{-\nu}
+=- \frac{\rho g }{2\eta }\widehat{h} \label{b1}
+\end{align}
+The upper surface shear-stress BC becomes:
+\begin{align}
+A e^{\nu} + B e^{-\nu} + C(\nu+1) e^{\nu} +D(\nu-1) e^{-\nu} =  0
+\end{align}
+The sliding law BC becomes:
+\begin{align}
+{A(1-\gamma)} + {B(1+\gamma)} + {C(1-\gamma)}  - {D(1+\gamma)} = -\frac{ ik_x }{2\eta k}u_0\widehat{\alpha}
+\end{align}
+where we have defined $\gamma(k) = \alpha_0/(2\eta k)$. \\
+\\ The basal velocity anomaly BC becomes
+\begin{align}
+{A} + {B}  = k\widehat{w}_b \label{b4}
+\end{align}
+Equations (\ref{b1})-(\ref{b4}) lead to a linear system
+...which we solve with SymPy.\\ \\
+We can write the anomaly at the surface as
+\begin{align}
+\widehat{w}|_{z=H} &= \frac{1}{k}\left(e^{\nu} A + { e^{-\nu}}B + \nu e^{\nu} C + {\nu}{ e^{-\nu}} D\right) \\
+&= -\mathcal{R}\widehat{h} + \mathcal{T}_w\widehat{w}_b  +ik_x u_0  \mathcal{T}_{\alpha}  \widehat{\alpha}\label{wRT}
+\end{align}
+According to SymPy, the relaxation frequency $\mathcal{R}$ is given by
+\begin{align}
+\mathcal{R}(k,\nu,\gamma) = \left(\frac{\rho_i g }{2\eta k}\right)\frac{ (1+\gamma)e^{4\nu} -(2+4\gamma\nu)e^{2\nu} +1-\gamma  }{ (1+\gamma)e^{4\nu} + (2\gamma+4\nu+4\gamma\nu^2)e^{2\nu} -1 + \gamma  },
+\end{align}
+and velocity anomaly transfer function $\mathcal{T}_w$ is given by
+\begin{align}
+\mathcal{T}_w(\nu,\gamma) = \frac{2(1+\gamma)(\nu+1)e^{3\nu}+2(1-\gamma)(\nu-1)e^{\nu}  }{(1+\gamma)e^{4\nu} + (2\gamma+4\nu+4\gamma\nu^2)e^{2\nu} -1 + \gamma },
+\end{align}
+and the friction perturbation transfer function is given by
+\begin{align}
+\mathcal{T}_{\alpha}(k,\nu) =  \left(\frac{\nu}{\eta k^2}\right) \frac{e^{3\nu} + e^{\nu}}{e^{4\nu} +4\nu e^{2\nu} -1 }
+\end{align}
+where we have assumed $\gamma=0$  since $u_0>0$ (otherwise the term vanishes).
+ \\ \\ \newpage
+\noindent\textbf{Some limits of $\mathcal{R}$ and $\mathcal{T}_w$.}\\
+\begin{itemize}
+\item \emph{Infinite ice thickness (${\nu}\to\infty$ with k fixed):}
+\begin{align}
+&\lim_{\nu\to\infty} \mathcal{R}({k},\nu,{\gamma}) = \frac{\rho_i g }{2\eta {k}} \\
+&\lim_{\nu\to\infty} \mathcal{T}_w(\nu,{\gamma}) =0
+\end{align}
+For harmonic perturbations, this results in the classical viscous
+relaxation solution given in Turcotte \& Schubert's \emph{Geodynamics} textbook.
+\item \emph{Vanishing ice thickness (${\nu}\to 0$ with k fixed):}
+\begin{align}
+&\lim_{\nu\to 0} \mathcal{R}({k},\nu,{\gamma}) = 0  \\
+&\lim_{\nu\to 0} \mathcal{T}_w(\nu,{\gamma}) = 1
+\end{align}
+In this limit, the surface anomaly corresponds perfectly with the basal anomaly
+and there is no viscous relaxation.
+\item \emph{No-slip at bed (${\gamma}\to \infty$):}
+\begin{align}
+\lim_{\gamma\to\infty} \mathcal{T}_w({\nu},{\gamma}) = \frac{2(1+\nu) e^{\nu} + 2 (1-\nu) e^{-\nu} }{ 2+4\nu^2  + e^{2\nu} +e^{-2\nu}}
+\end{align}
+This is the transfer function (eqn. 21b) from Balise \& Raymond (1985) where no-slip is considered.
+\end{itemize}
+
+\section*{General solutions.}
+In frequency space,
+equations (\ref{wRT}) and (\ref{hthat}) lead to the evolution equation
+\begin{align}
+\frac{\partial \widehat{h}}{\partial t}+ \left[ik_xu_0  + \mathcal{R}\right]\widehat{h} = \mathcal{T}_w\widehat{w}_b+ik_xu_0\mathcal{T}_{\alpha} \widehat{\alpha}. \label{dhhat}
+\end{align}
+\\
+Here we introduce a scaling for (\ref{dhhat}).
+The goal is to rewrite the equations in terms of the nondimensional
+aspect ratio $\nu$.
+We let $h_0$ be a measure of the elevation anomaly magnitude and
+$t_p$ a measure of the filling-draining timescale (e.g., oscillation period).
+We introduce the following scaling and definitions
+\begin{align}
+& h = h_0 h', \;\;\;\; s = h_0 s',\;\;\;\; w_b = w_0 w_{b} , \;\; w_0 = h_0 t_p^{-1} \\
+& x = Hx', \;\;\;\;
+t = t_p t', \;\;\;\;\\
+& k' = \nu = kH , \;\;\;\; k_x' = k_x H,\;\;\;\; k_y' = k_y H
+\end{align}
+We scale the relaxation function as
+\begin{align}
+   &\mathcal{R} = t_r^{-1} \mathcal{R}', \;\;\;\;
+ \mathcal{R}'(\nu) =  \frac{2}{\nu}\frac{ (1+\gamma)e^{4\nu} -(2+4\gamma\nu)e^{2\nu} +1-\gamma  }{ (1+\gamma)e^{4\nu} + (2\gamma+4\nu+4\gamma\nu^2)e^{2\nu} -1 + \gamma  }
+\end{align}
+where
+\begin{align}
+t_r \equiv \frac{4\eta}{\rho_i g H}
+\end{align}
+is the characteristic relaxation time for perturbations with $\pi H$ wavelength.
+The background friction-viscosity ratio $\gamma=\alpha_0/(2\eta k)$ can be written as
+\begin{align}
+   &\gamma = \alpha_0' \nu^{-1}, \;\;\;\; \alpha_0' = \frac{\alpha_0 H}{2\eta}.
+\end{align}
+Similarly, we scale the friction perturbation as
+\begin{align}
+\alpha' = \frac{ \alpha H}{2\eta}.
+\end{align}
+The scaled friction transfer function is
+\begin{align}
+&\mathcal{T}_{\alpha}'(\nu) = \left(\frac{2}{\nu}\right)\frac{e^{3\nu} + e^{\nu}}{e^{4\nu} +4\nu e^{2\nu} -1 }.
+\end{align}
+Note that $\mathcal{T}_w=\mathcal{T}_w'$ is already nondimensional, depending only on $k' = \nu$.
+With this scaling, $0\leq \mathcal{R}' \leq 1$ and $0\leq \mathcal{T}_w' \leq 1$  . \\ \\
+Dropping primes, we can rewrite the system as
+\begin{align}
+\frac{\partial \widehat{h}}{\partial t} +\left[ik_x \bar{u} + \lambda\mathcal{R} \right]\widehat{h} = \mathcal{T}_w\widehat{w}_b +i k_x \bar{u} \mathcal{T}_{\alpha}\widehat{\alpha}, \label{dhhatsc}
+\end{align}
+where
+\begin{align}
+  \lambda \equiv  \frac{t_p}{t_r}
+\end{align}
+is the filling-draining time relative to the relaxtion time and
+\begin{align}
+\bar{u} \equiv \frac{u_0 t_p}{H} = \left(\frac{u_0}{H}\right) / \left(\frac{w_0}{h_0}\right)
+\end{align}
+is the strain rate scale from the background flow relative to the strain rate scale from the basal anomaly.
+\\ \\
+Assuming zero initial displacement, the solution for the transformed elevation anomaly is
+\begin{align}
+\widehat{h} = (\mathcal{T}_w\widehat{w}_b + ik_x\bar{u}\mathcal{T}_{\alpha}\widehat{\alpha}  )* \mathcal{K} \label{hath0}
+\end{align}
+where $*$ denotes convolution with respect to time $t$ and
+the flow/relaxation kernel $\mathcal{K}$ is
+\begin{align}
+\mathcal{K}(t) &= e^{-[ik_x\bar{u}+\lambda \mathcal{R}]t}
+\end{align}
+with modulus $|\mathcal{K}| = e^{-\lambda\mathcal{R}t}$.
+\\ \\
+Some limiting behavior is immediately apparent:
+\begin{itemize}
+\item \emph{Fast oscillation} ($\lambda \to 0$):  \\ In this case, we have
+$\widehat{h} = \mathcal{T}_w\widehat{s} $.
+Therefore, $\widehat{h}$ evolves as some fraction of $\widehat{s}$ (since $\mathcal{T}_w\leq 1$) with no phase lag.
+\item \emph{Slow oscillation} ($\lambda\to \infty$): \\
+In this case, $\widehat{h}=0$. Upper surface is not influenced by lower surface.
+\item \emph{Fast flow} ($\bar{u}\to\infty$) with free slip ($\widehat{\beta}=0$): \\ The kernel
+$\mathcal{K}$ becomes highly oscillatory. Therefore, $\widehat{h}\to 0$ due to the Riemann-Lebesgue lemma.
+\end{itemize}
+The general solution is then obtained as the inverse Fourier transform of (\ref{hath0}).
+
+\section*{Inverse problem}
+We let ${h}^{\mathrm{obs}}(x,t)$ be the the observed elevation anomaly with $t\in[0,T]$.
+The forward operator that maps $(w_b,\alpha)$ to the elevation $h$ is
+\begin{align}
+\mathsf{A}(w_b,\alpha) = \mathsf{F}^{-1} \left( \mathsf{F}({w}_b)*(\mathcal{T}_w \mathcal{K})\right) + \mathsf{F}^{-1}\left( \mathsf{F}(\alpha) * (ik_x\bar{u}\mathcal{T}_{\alpha}\mathcal{K})\right),
+\end{align}
+where $\mathsf{F}$ and $\mathsf{F}^{-1}$ denote the forward and inverse Fourier transforms.
+For now, we will focus on the case $w_b=0$ or $\alpha=0$, so that the
+solution operator takes the form
+\begin{align}
+\mathsf{A}(f) = \mathsf{F}^{-1} \left( \mathcal{K}_0* \mathsf{F}(f)\right)
+\end{align}
+where $f=w_b$ (or $\alpha$) and $\mathcal{K}_0 =\mathcal{T}_w \mathcal{K} $ (or $ik_x\bar{u}\mathcal{T}_{\alpha}\mathcal{K}$).
+The least-squares solution is found by minimizing the functional
+\begin{align}
+\mathsf{J}(f) = \langle \mathsf{A}(f) - h^{\mathrm{obs}} ,\mathsf{A}(f) - h^{\mathrm{obs}} \rangle + \mathsf{R}(f) \label{lsq}
+\end{align}
+where we use the inner product
+\begin{align}
+\langle f,g\rangle = \int_0^T \int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} fg \;\mathrm{d}x\,\mathrm{d}y\,\mathrm{d}t,
+\end{align}
+which is associated with the norm
+\begin{align}
+\| f \| = \sqrt{\langle f,f\rangle}.
+\end{align}
+The adjoint of $\mathsf{A}$, i.e. the
+operator $\mathsf{A}^\dagger$  satisfying $\langle \mathsf{A}(f_1),f_2 \rangle = \langle f_1, \mathsf{A}^\dagger(f_2) \rangle$,
+is
+\begin{align}
+\mathsf{A}^\dagger (f) = \mathsf{F}^{-1} \left( \mathcal{K}_0 \star \mathsf{F}(f)\right),
+\end{align}
+where $\star$ denotes the cross-correlation operator.
+This can be proven by noting that $\mathsf{F}$ is the adjoint of $\mathsf{F}^{-1}$ (w.r.t. the $x$ and $y$ integrals)
+and $\star$ is the adjoint of $*$ (w.r.t. the $t$ integral).\\ \\
+Supposing that the first variation of (\ref{lsq}) vanishes, we obtain the
+(infinite-dimensional) normal equations
+\begin{align}
+\mathsf{A}^\dagger (\mathsf{A}(f)) + \delta\mathsf{R}(f) = \mathsf{A}^\dagger (h^{\mathrm{obs}}), \label{normal}
+\end{align}
+where $\delta\mathsf{R}$ denotes the variational derivative of $\mathsf{R}$.
+Provided that $\delta\mathsf{R}$ is linear in $f$, we can solve (\ref{normal})
+with the conjugate gradient method.
+
+\end{document}
