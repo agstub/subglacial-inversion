@@ -90,6 +90,7 @@ The main physical parameters are
 relative to the characteristic relaxation time,  
 - `U`: the background horizontal flow speed (normalized by the vertical velocity scale)
 - `beta0`: background basal friction coefficient (relative to the ice viscosity)
+
 See the notes for a description of the parameters.
 
 Synthetic data for the test problems can be set/modified in **synthetic_data.py**.
