@@ -1,33 +1,42 @@
 # this file creates synthetic data for inversion examples
 
-from params import U,L,noise_level,x,y,t,Nt,Nx,Ny,inv_w,inv_beta
-from operators import forward
+from params import U,L,noise_level,x,y,t,Nt,Nx,Ny,inv_w,inv_beta,inv_m
+from operators import forward_w,forward_m,forward_beta
 import numpy as np
 
 #------------------------ create synthetic data --------------------------------
+sigma = L/3          # standard deviation for Gaussians used in default examples
 
-# create synthetic velocity anomaly "true solution":
-# a Gaussian bump with time-oscillating amplitude
-sigma = 2*L/6.0
+# (1) VERTICAL VELOCITY ANOMALY
+# *EXAMPLE 1
+# Subglacial lake : Oscillating Gaussian
+w_true = np.exp(-0.5*(sigma**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*np.sin(2*np.pi*t)
+w_true[np.abs(w_true)<0.1] = 0
 
-# Oscillationg Gaussian
-w_lake = inv_w*np.exp(-0.5*(sigma**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*np.sin(t)
-w_lake[np.abs(w_lake)<0.1] = 0
+# *EXAMPLE 2
+# Bed bump: w = u*ds/dx
+# bed = np.exp(-0.5*(sigma**(-2))*(np.abs(x+2*L)**2+np.abs(y-2*L)**2 ))
+# bed_x = -(x/(sigma**2))*np.exp(-0.5*(sigma**(-2))*(np.abs(x+2*L)**2+np.abs(y-2*L)**2 ))
+# w_true = U*bed_x
 
-
-# Gaussian bed bump: w = u*ds/dx
-bed = 0*np.exp(-0.5*(sigma**(-2))*(np.abs(x+2*L)**2+np.abs(y-2*L)**2 ))
-bed_x = -0*(x/(sigma**2))*np.exp(-0.5*(sigma**(-2))*(np.abs(x+2*L)**2+np.abs(y-2*L)**2 ))
-w_bed = U*bed_x
-
-w_true = w_lake + w_bed
-
+# (2) SLIPPERINESS ANOMALY
 # Gaussian friction perturbation
-beta_true = inv_beta*np.exp(-0.5*(sigma**(-2))*(np.abs(x-0*L)**2+np.abs(y+0*L)**2 ))
-beta_true[beta_true<0.1] = 0
+beta_true = inv_beta*1e-7*np.exp(-0.5*(sigma**(-2))*(np.abs(x)**2+np.abs(y)**2 ))
 
-#solve state equation with "true solution"
-h_true = forward(w_true,beta_true)
+# (3) MELTING ANOMALY (sub-shelf)
+m_true = np.exp(-0.5*(sigma**(-2))*(np.abs(x)**2+np.abs(y)**2 ))
+m_true[np.abs(m_true)<0.1] = 0
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# solve state equation with "true solution"
+
+if inv_w == 1:
+    h_true = forward_w(w_true)
+elif inv_beta == 1:
+    h_true = forward_beta(beta_true)
+elif inv_m == 1:
+    h_true = forward_m(m_true)
 
 h_max = np.max(h_true)
 

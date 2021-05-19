@@ -5,43 +5,67 @@ from scipy.fft import fftfreq
 
 # --------------------inversion options ---------------------------------------
 # set either = 1 (on) or = 0 (off)
-inv_w = int(1)                      # invert for w
-inv_beta = int(0)                   # invert for beta
+# inversion for one field at a time is supported; only set one of these to 1.
+inv_w = int(1)                      # invert for w     (basal vertical velocity)
+inv_beta = int(0)                   # invert for beta  (slipperiness)
+inv_m = int(0)                      # invert for m     (melt rate)
 
-inv_couple = inv_w*inv_beta         # 1 for simultaneous inversion, zero otherwise
+if inv_w+inv_beta+inv_m != int(1):
+   raise ValueError('Set only one of inv_w, inv_beta, or inv_m equal to 1.')
 
 #----------------------------regularization-------------------------------------
-eps_w = 1e-2 * inv_w                 # w L2 regularization parameter
-eps_beta = 1e-2 * inv_beta           # grad(beta) L2 regularization parameter
+# reguarization parameters for each inversion type
+eps_w = 1e-3
+eps_beta = 1e-3
+eps_m = 1e-6
 
 # Regularization options: L2 and H1 (see regularizations.py)
 w_reg = 'L2'            # regularization type for w
-beta_reg = 'L2'         # regularization type for beta
-
+beta_reg = 'H1'         # regularization type for beta
+m_reg = 'L2'            # regularization type for m
 
 #---------------------- physical parameters ------------------------------------
 
-lamda = 1                  # filling/draining timescale relative to
-                           # surface relaxation timescale
-                           # see notes for definition
+# dimensional parameters
+H = 1000                   # ice thickness
+h_sc = 1                   # elevation anomaly scale
+asp = h_sc/H               # aspect ratio
 
-U = 1                      # "background" horizontal strain rate relative to
+t_sc = 3.154e7             # observational timescale (s)
+eta = 1e13                 # Newtonian ice viscosity (Pa s)
+
+rho_i = 917                # ice density (kg/m^3)
+rho_w = 1000               # water density
+g = 9.81                   # gravitational acceleration
+
+u_e = 100/3.154e7          # background horizontal flow speed (m/s)
+
+beta_e = 0                 # background basal friction coeffcieint (Pa s/m)
+
+t_r = 4*np.pi*eta/(rho_i*g*H) # viscous relaxation time
+
+# nondimensional parameters
+lamda = t_sc/t_r           # process timescale relative to
+                           # surface relaxation timescale
+
+U = u_e*t_sc/H             # "background" horizontal strain rate relative to
                            # vertical strain rate:
                            # U = (u/H) / (w/h0),
                            # where u = dimensional horizontal flow speed
                            #       H = ice thickness
                            #       w = vertical velocity anomaly scale
                            #       h0 = elevation anomaly scale
-                           # see notes for all definitions
 
-beta0 = 0                  # ~bed frictional coefficient relative to linearized
-                           # ice viscosity. see notes for definition
+beta0 = beta_e*H/(2*eta)   # friction coefficient relative to ice viscosity
+
+delta = rho_w/rho_i-1      # density ratio
 
 noise_level = 0.01         # noise level (scaled relative to elevation anomaly amplitude)
                            # used to create synthetic data
 
+
 #---------------------- numerical parameters------------------------------------
-cg_tol = 1e-5                      # stopping tolerance for conjugate gradient solver
+cg_tol = 1e-9                      # stopping tolerance for conjugate gradient solver
 
 max_cg_iter =  1000                # maximum conjugate gradient iterations
 
@@ -51,7 +75,7 @@ Ny = 20                            # number of grid points in y-direction
 Nt = 100                           # number of time steps
 
 L = 10                             # horizontal x-y domain is an 8L x 8L square
-t_final = 2*np.pi                  # final time
+t_final = 1                        # final time
 
 t0 = np.linspace(0,t_final,num=Nt) # time array
 
@@ -65,8 +89,8 @@ dy = np.abs(y0[1]-y0[0])           # grid size in y direction
 kx0 =  fftfreq(Nx,dx)
 ky0 =  fftfreq(Ny,dy)
 
-# set zero frequency to small number because the integral kernels
-# have an integrable singularity at the zero frequency
+# set zero frequency to small number because some of the integral kernels
+# have integrable or removable singularities at the zero frequency
 
 kx0[0] = 1e-10
 ky0[0] = 1e-10

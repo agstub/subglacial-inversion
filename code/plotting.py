@@ -1,11 +1,11 @@
 # this file plots a png image of the solution at each timestep
-# make a directory 'pngs' before running the script
+# *make a directory 'pngs' before running the script
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from params import x,y,x0,y0,t0,L,inv_couple,inv_w,inv_beta,w_reg
-from synthetic_data import beta_true,w_bed,bed,w_lake
+from params import x,y,x0,y0,t0,L,inv_w,inv_beta,inv_m
+from synthetic_data import beta_true,w_true,m_true
 
 mpl.rcParams['xtick.major.size'] = 4
 mpl.rcParams['xtick.major.width'] = 2
@@ -17,18 +17,12 @@ mpl.rcParams['ytick.minor.size'] = 2
 mpl.rcParams['ytick.minor.width'] = 1
 
 
-def plot_results(h,h_obs,w,beta,i):
+def plot_results(sol,h,h_obs,i):
 
     # normalizations for plotting (h,w,beta)
-    h_max = np.max(h_obs)
-    w_max = np.max(w_lake)
-    beta_max = np.max(beta_true)
+    h_max = np.max(np.abs(h_obs))
+    sol_max = np.max(np.abs(sol))
 
-    # avoid dividing by zero in case w_true or beta_true is set to zero
-    if w_max<1e-5:
-        w_max = 1
-    if beta_max<1e-5:
-        beta_max = 1
 
     levels0 = [-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1]
     levels = np.linspace(-1,1,9)
@@ -63,10 +57,14 @@ def plot_results(h,h_obs,w,beta,i):
     plt.subplot(223)
     if inv_w == 1:
         plt.annotate(r'$w_b$',xy=(-3.9*L,3.15*L),fontsize=18)
-        p2 = plt.contourf(x0,y0,w[i,:,:].T/w_max,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+        p2 = plt.contourf(x0,y0,sol[i,:,:].T/sol_max,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
     elif inv_beta == 1:
         plt.annotate(r'$\beta$',xy=(-3.9*L,3.15*L),fontsize=18)
-        p2 = plt.contourf(x0,y0,beta[i,:,:].T/beta_max,cmap='Blues',vmin=0,vmax=1,levels=np.linspace(0,1,9),extend='both')
+        p2 = plt.contourf(x0,y0,sol[i,:,:].T/sol_max,cmap='Blues',vmin=0,vmax=1,levels=np.linspace(0,1,9),extend='both')
+
+    elif inv_m == 1:
+        plt.annotate(r'$m$',xy=(-3.9*L,3.15*L),fontsize=18)
+        p2 = plt.contourf(x0,y0,sol[i,:,:].T/sol_max,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     plt.ylabel(r'$y$',fontsize=20)
     plt.xlabel(r'$x$',fontsize=20)
@@ -77,10 +75,14 @@ def plot_results(h,h_obs,w,beta,i):
     plt.subplot(224)
     if inv_w == 1:
         plt.annotate(r'$w_b^{\mathrm{true}}$',xy=(-3.9*L,2.9*L),fontsize=18)
-        p2 = plt.contourf(x0,y0,w_lake[i,:,:].T/w_max,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+        p2 = plt.contourf(x0,y0,w_true[i,:,:].T/sol_max,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
     elif inv_beta == 1:
         plt.annotate(r'$\beta^{\mathrm{true}}$',xy=(-3.9*L,2.9*L),fontsize=18)
-        p2 = plt.contourf(x0,y0,beta_true[i,:,:].T/beta_max,cmap='Blues',vmin=0,vmax=1,levels=np.linspace(0,1,9),extend='both')
+        p2 = plt.contourf(x0,y0,beta_true[i,:,:].T/sol_max,cmap='Blues',vmin=0,vmax=1,levels=np.linspace(0,1,9),extend='both')
+
+    elif inv_m == 1:
+        plt.annotate(r'$m^{\mathrm{true}}$',xy=(-3.9*L,2.9*L),fontsize=18)
+        p2 = plt.contourf(x0,y0,m_true[i,:,:].T/sol_max,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     plt.xlabel(r'$x$',fontsize=20)
     plt.xticks(fontsize=16)
@@ -90,7 +92,7 @@ def plot_results(h,h_obs,w,beta,i):
 
     fig.subplots_adjust(right=0.85)
     cbar_ax = fig.add_axes([0.875, 0.15, 0.03, 0.25])
-    if inv_w == 1:
+    if inv_w == 1 or inv_m==1:
         cbar = fig.colorbar(p2,cax=cbar_ax,orientation='vertical',ticks=levels0)
     elif inv_beta == 1:
         cbar = fig.colorbar(p2,cax=cbar_ax,orientation='vertical',ticks=[0,0.25,0.5,0.75,1])

@@ -3,11 +3,11 @@ subglacial-inversion
 Author: Aaron Stubblefield (Columbia University, LDEO).
 
 # Overview
-This program inverts for a basal velocity anomaly "w" or the basal friction
-field "beta" given the observed surface elevation change "h_obs" by solving
-a least-squares minimization problem
+This program inverts for (1) basal velocity anomaly "w", (2) the basal friction
+field "beta", or (3) the sub-shelf melt rate "m" given the observed surface elevation
+change "h_obs" by solving a least-squares minimization problem
 
-The main model assumptions are (1) linear viscous ice flow, (2) a linear basal sliding law,
+The main model assumptions are (1) Newtonian viscous ice flow, (2) a linear basal sliding law,
 and (3) that all fields are small perturbations of a uniform background flow.
 These assumptions allow for efficient solution of the forward model: 2D (map-plane)
 Fourier transforms and convolution in time are the main operations.
@@ -57,18 +57,18 @@ The *notes* directory contains a description of the model derivation
 and inverse problem (see **notes.tex**).
 
 
-# Running the test problem
-To run the test problem for the basal velocity anomaly inversion:
-
-1. From the *code* directory, `mkdir pngs`
-
-2. Run `python3 main.py`
+# Running the test problems
+To run the test problem for the basal velocity anomaly inversion
+just run `python3 main.py`
 
 Upon completion, the code should produce a png image of the inversion at each timestep
 in the *pngs* directory.
 
 To run the test problem for the basal friction anomaly, first
-set `inv_beta = 1` and `inv_w=0` in **params.py**, and then run those commands.
+set `inv_beta = 1`, `inv_w=0`, and `inv_m=0` in **params.py**, and then run the code.
+
+To run the test problem for the sub-shelf melt rate anomaly, first
+set `inv_m = 1`, `inv_w=0`, and `inv_beta=0` in **params.py**, and then run the code.
 
 To make a movie from the png's, change to the *pngs* directory and
 run an FFmpeg command like:
@@ -78,21 +78,20 @@ run an FFmpeg command like:
 
 Inversion options and parameters are set in the **params.py** file.
 
-The main option
-is whether to invert for the basal vertical velocity anomaly w (set `inv_w = 1`, `inv_beta=0`) or the friction
-anomaly beta (set `inv_beta = 1`, `inv_w=0`). Simultaneous inversion
-does not usually produce good solutions because the problem is "very" underdetermined---for example,
-including velocity data in the future may be a way to remedy this.
-The regularization options are also set in **params.py**.
+The main option is whether to invert for the basal vertical velocity anomaly w, the friction
+anomaly beta, or sub-shelf melt rate m.
+
+Regularization options are also set in **params.py**.
 
 The main physical parameters are
-- `lamda`: the lake oscillation timescale
-relative to the characteristic relaxation time,  
+- `lamda`: the process timescale relative to the characteristic relaxation time,  
 - `U`: the background horizontal flow speed (normalized by the vertical velocity scale)
 - `beta0`: background basal friction coefficient (relative to the ice viscosity)
 
 See the notes for a description of the parameters.
 
 Synthetic data for the test problems can be set/modified in **synthetic_data.py**.
-The synthetic data is created by solving the forward problem (given w and beta) for the elevation anomaly, and then adding
-some noise. The added noise is proportional to the maximum elevation anomaly, scaled by the `noise_level` parameter in **params.py**.
+The synthetic data is created by solving the forward problem (given w, beta, or m)
+for the elevation anomaly, and then adding
+some noise. The added noise is proportional to the maximum elevation anomaly,
+scaled by the `noise_level` parameter in **params.py**.

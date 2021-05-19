@@ -4,7 +4,6 @@
 from operators import adj_fwd
 from params import dx,dy,dt,cg_tol,max_cg_iter
 from scipy.integrate import trapz
-from synthetic_data import w_true,beta_true
 import numpy as np
 
 # ------------ define inner products and norms ---------------------------------
@@ -12,12 +11,7 @@ import numpy as np
 def prod(a,b):
     # inner product for the optimization problem: L^2(0,T;L^2) space-time inner product
 
-    if np.size(np.shape(a)) == 4: # i.e., if there are two 3-dimensional arrays
-        # inner product for vector-valued functions, used when inverting for
-        # w and beta simultaneously
-        int = a[0]*b[0] + a[1]*b[1]
-    else:
-        int = a*b
+    int = a*b
 
     p = trapz( trapz(trapz(int,dx=dx,axis=-2),dx=dy,axis=-1) ,dx=dt,axis=0)
 
@@ -50,7 +44,7 @@ def cg_solve(b,X0):
 
     while norm(r) > cg_tol:
         if j%20 == 0:
-            print("CG iter. "+str(j)+': norm = '+"{:.2e}".format(norm(r))+',  tol = '+"{:.2e}".format(cg_tol))
+            print("CG iter. "+str(j)+': residual norm = '+"{:.2e}".format(norm(r))+',  tol = '+"{:.2e}".format(cg_tol))
 
         rnorm0 = prod(r,r)
 

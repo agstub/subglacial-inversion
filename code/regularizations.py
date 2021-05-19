@@ -1,6 +1,7 @@
 # this file contains the regularization options
-# * these are just standard Tikhonov regularizations of the functions ("L2") and their
-#   gradients ("H1")
+# * these are just standard Tikhonov regularizations of either
+# (1) the function ("L2"), or
+# (2) gradients of the functions ("H1")
 
 
 from params import k,x,y
