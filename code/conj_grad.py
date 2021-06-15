@@ -10,9 +10,7 @@ import numpy as np
 
 def prod(a,b):
     # inner product for the optimization problem: L^2(0,T;L^2) space-time inner product
-
     int = a*b
-
     p = trapz( trapz(trapz(int,dx=dx,axis=-2),dx=dy,axis=-1) ,dx=dt,axis=0)
 
     return p

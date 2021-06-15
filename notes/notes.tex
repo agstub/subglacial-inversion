@@ -4,11 +4,11 @@
 \usepackage[ruled,vlined]{algorithm2e}
 
 \title{
-Inversion of altimetry timeseries for basal perturbations: theory
+Inversion of altimetry time series for basal perturbations: theory
 and synthetic experiments
 }
 
-\author{ Aaron Stubblefield (Columbia University)} % Your name
+\author{Aaron Stubblefield (Columbia University)} % Your name
 
 \date{\small\today} % Today's date or a custom date
 
@@ -19,6 +19,7 @@ and synthetic experiments
 \section*{Overview}
 \subsection*{Scope}
 Inverting altimetry data for basal properties with linearized Stokes models.
+Also analyzing the behavior of these models.
 
 \subsection*{Assumptions}
 \begin{itemize}
@@ -62,6 +63,13 @@ The inverse Fourier transform is given by
 We will also denote the Fourier transform operator and its inverse by $\mathsf{F}$ and
 $\mathsf{F}^{-1}$, respectively.
 \\ \\
+We will also rely on the convolution operation with respect to time $t$:
+\begin{align}
+f*g = \int_0^t f(\tau)g(t-\tau)\;\mathrm{d}\tau,
+\end{align}
+which is the same as the usual definition $f*g = \int_{-\infty}^{+\infty} f(\tau)g(t-\tau)\;\mathrm{d}\tau$
+when $f$ and $g$ are zero for $t<0$.
+\\ \\
 \textbf{Grounded ice.} Fourier-transformed evolution equation for grounded ice is
 \begin{align}
 \frac{\partial \widehat{h}}{\partial t}+ \left[ik_xu_0  + \mathcal{R}_g\right]\widehat{h} = \mathcal{T}_w\widehat{w}_b+ik_xu_0\mathcal{T}_{\beta} \widehat{\beta}.
@@ -89,11 +97,11 @@ The Fourier transformed elevations evolve as
 &\frac{\partial \widehat{h}}{\partial t}+ \left[ik_xu_0  + \mathcal{R}_f\right]\widehat{h} = -\delta\mathcal{B}\widehat{s}\label{hf}\\
 &\frac{\partial \widehat{s}}{\partial t}+ [ik_xu_0 + \delta\mathcal{R}_f]\widehat{s} = \widehat{m} - \mathcal{B} \widehat{h}, \label{sf}
 \end{align}
-where $\delta = \rho_w/\rho_i -1$,
+where $\delta = \rho_w/\rho_i -1$, the relaxation function for floating ice is
 \begin{align}
-\mathcal{R}_f = \left(\frac{\rho_i g}{2\eta k}\right) \frac{e^{4\nu} +4\nu e^{2\nu} -1 }{e^{4\nu} -2(1+2\nu^2)e^{2\nu} +1} \label{Rf}
+\mathcal{R}_f = \left(\frac{\rho_i g}{2\eta k}\right) \frac{e^{4\nu} +4\nu e^{2\nu} -1 }{e^{4\nu} -2(1+2\nu^2)e^{2\nu} +1}, \label{Rf}
 \end{align}
-is the relaxation function for floating ice, and
+and
 \begin{align}
 \mathcal{B} = \left(\frac{\rho_i g}{2\eta k}\right) \frac{ 2(\nu+1)e^{3\nu}+2(\nu-1)e^{\nu} }{e^{4\nu} -2(1+2\nu^2)e^{2\nu} +1} \label{B}
 \end{align}
@@ -107,21 +115,21 @@ We let $h_0$ be a measure of the elevation anomaly magnitude and
 $t_0$ a measure of the observational timescale (e.g., lake oscillation period).
 We introduce the following scaling and definitions
 \begin{align}
-& h = h_0 h', \;\;\;\; s = h_0 s',\;\;\;\; w_b = w_0 w_{b} , \;\; w_0 = h_0 t_0^{-1} \\
-& m = w_0 m',\;\;\;\; x = Hx', \;\;\;\;
+& h = h_0 h', \;\;\;\; w_b = w_0 w_{b}' , \;\; w_0 = h_0 t_0^{-1} \\
+&  x = Hx', \;\;\;\;
 t = t_p t', \;\;\;\;\\
 & k' = \nu = kH , \;\;\;\; k_x' = k_x H,\;\;\;\; k_y' = k_y H
 \end{align}
 We scale the relaxation function as
 \begin{align}
    &\mathcal{R}_g = t_r^{-1} \mathcal{R}', \;\;\;\;
- \mathcal{R}_g'(k') =  \frac{2\pi}{k'}\frac{ (1+\gamma)e^{4k'} -(2+4\gamma k')e^{2 k'} +1-\gamma  }{ (1+\gamma)e^{4 k'} + (2\gamma+4 k'+4\gamma (k')^2)e^{2 k'} -1 + \gamma  }
+ \mathcal{R}_g'(k') =  \frac{1}{k'}\frac{ (1+\gamma)e^{4k'} -(2+4\gamma k')e^{2 k'} +1-\gamma  }{ (1+\gamma)e^{4 k'} + (2\gamma+4 k'+4\gamma (k')^2)e^{2 k'} -1 + \gamma  }
 \end{align}
 where
 \begin{align}
-t_r \equiv \frac{4\pi\eta}{\rho_i g H}
+t_r \equiv \frac{2\eta}{\rho_i g H}
 \end{align}
-is the characteristic relaxation time for perturbations with wavelength equal to the ice thickness $H$.
+is the characteristic relaxation time for perturbations with $H^{-1}$ wavenumber.
 The background friction-viscosity ratio $\gamma=\beta/(2\eta k)$ can be written as
 \begin{align}
    &\gamma = \beta_0' (k')^{-1}, \;\;\;\; \beta_0' = \frac{\beta_0 H}{2\eta}.
@@ -136,7 +144,7 @@ and define the scaled friction transfer function to be
 \end{align}
 Note that $\mathcal{T}_w$ is already nondimensional, depending only on $k' = \nu$.
 \\
-Dropping primes, we can rewrite the system as
+Dropping primes, the non-dimensionalized equation becomes
 \begin{align}
 \frac{\partial \widehat{h}}{\partial t} +\left[ik_x \bar{u} + \lambda\mathcal{R}_g \right]\widehat{h} = \mathcal{T}_w\widehat{w}_b +  \tfrac{1}{\epsilon} {ik_x\bar{u}}\mathcal{T}_{\beta}\widehat{\beta}, \label{dhhatsc}
 \end{align}
@@ -156,17 +164,22 @@ is the horizontal strain-rate scale from the background flow relative to the ver
 scale from the basal anomaly.
 \\ \\
 \textbf{Floating ice:}
+With the same definitions as in the previous section, we scale the melt rate anomaly
+and lower surface elevation as
+\begin{align}
+m = w_0 m',\;\;\;\; s = h_0 s'.
+\end{align}
 As with the grounded ice, we scale the relaxation function for floating ice as
 \begin{align}
    &\mathcal{R}_f(k') = t_r^{-1} \mathcal{R}'_f, \;\;\;\;
- \mathcal{R}_f'(k') =  \frac{2\pi}{k'}\frac{e^{4k'} +4k' e^{2k'} -1 }{e^{4k'} -2(1+2(k')^2)e^{2k'} +1}. \label{Rfsc}
+ \mathcal{R}_f'(k') =  \frac{1}{k'}\frac{e^{4k'} +4k' e^{2k'} -1 }{e^{4k'} -2(1+2(k')^2)e^{2k'} +1}. \label{Rfsc}
 \end{align}
 Similarly, we scale the buoyancy transfer function as
 \begin{align}
    &\mathcal{B} =  t_r^{-1} \mathcal{B}', \;\;\;\;
- \mathcal{B}'(k') =   \frac{2\pi}{k'}\frac{ 2(k'+1)e^{3k'}+2(k'-1)e^{k'} }{e^{4k'} -2(1+2(k')^2)e^{2k'} +1}. \label{Bsc}
+ \mathcal{B}'(k') =   \frac{1}{k'}\frac{ 2(k'+1)e^{3k'}+2(k'-1)e^{k'} }{e^{4k'} -2(1+2(k')^2)e^{2k'} +1}. \label{Bsc}
 \end{align}
-Dropping primes, the free surface equations become
+Dropping primes, the non-dimensionalized free-surface equations become
 \begin{align}
 \frac{\partial \widehat{h}}{\partial t}+ \left[ik_x \bar{u}  + \lambda \mathcal{R}_f\right]\widehat{h} = -\lambda \delta\mathcal{B}\widehat{s}\label{hfsc}\\
 \frac{\partial \widehat{s}}{\partial t}+ [ik_x\bar{u}  + \lambda\delta \mathcal{R}_f]\widehat{s} = \widehat{m} - \lambda \mathcal{B} \widehat{h}.\label{sfsc}
@@ -183,9 +196,12 @@ the flow/relaxation kernel $\mathcal{K}_g$ for grounded ice is
 \begin{align}
 \mathcal{K}_g(t) &= e^{-[ik_x\bar{u}+\lambda \mathcal{R}_g]t}.
 \end{align}
-One can show that the equilibrium solutions are stable attractors
-(for $w_b$ and $\beta$ not varying in time).
 The physical-space solution is then obtained from (\ref{hath0}) with the inverse Fourier transform.
+\subsubsection*{Linear stability}
+One can show that the equilibrium solutions are stable attractors
+(for $w_b$ and $\beta$ not varying in time), since the modulus of the kernel is
+$|\mathcal{K}_g| = e^{-\lambda \mathcal{R}_gt}$.
+
 
 \subsection*{Floating ice}
 We define
@@ -245,13 +261,14 @@ The solution for the ice-surface elevation anomaly is
 \widehat{h} &= \widehat{m} * \mathcal{K}_f\\
 \mathcal{K}_f(t)  &=  \frac{c\delta}{\mu}(e^{\Lambda_+ t}-e^{\Lambda_-t}).
 \end{align}
+\subsubsection*{Linear stability}
 For $m$ not varying in time, equilibrium solutions are also stable for this problem.
 To see this, note that $\mathrm{Re}(\Lambda_-)<0$ follows immediately
 from (\ref{Amat}), (\ref{mu}), and (\ref{Lambda}).
 For the other eigenvalue, we have
 \begin{align}
 \mathrm{Re}(\Lambda_+) = -\frac{\delta+1}{2}\lambda\mathcal{R}_f + \frac{\mu}{2}
-= \frac{\lambda}{2}\left(-(\delta+1)\mathcal{R}_f+\sqrt{4\delta\mathcal{B}^2 + (\delta-1)^2\mathcal{R}_f^2 } \right). \label{RLp}
+= \frac{\lambda}{2}\left(-(\delta+1)\mathcal{R}_f+\sqrt{4\delta\mathcal{B}^2 + (\delta-1)^2\mathcal{R}_f^2 } \,\right). \label{RLp}
 \end{align}
 It follows from (\ref{RLp}) that $\mathrm{Re}(\Lambda_+)<0$ if and only if
 \begin{align}
@@ -265,8 +282,8 @@ Therefore, the stability criterion for a given wavevector is
 \end{align}
 which states that viscous relaxation must exceed the bouyancy force
 in order for the equilibrium to be stable (i.e., no runaway growth). \\ \\
-\textbf{From the definitions (\ref{Rfsc}) and (\ref{Bsc}), a remarkable result is that
-the condition (\ref{stability}) holds for all $k>0$.}
+\textbf{From (\ref{Rfsc}) and (\ref{Bsc}),
+the condition (\ref{stability}) holds for all $k>0$!}
 \\ \\
 Caveat: Of course, nonlinear
 effects or other physics (e.g., fracture) not considered here could lead to instability.
@@ -294,13 +311,17 @@ which is associated with the norm
 where $T$ is the final time.
 The adjoint of $\mathsf{S}$, i.e. the operator $\mathsf{S}^\dagger$  satisfying
 $\langle \mathsf{S}(f_1),f_2 \rangle = \langle f_1, \mathsf{S}^\dagger(f_2)
-\rangle$ for all $f_1$ and $f_2$, is
+\rangle$ for all $f_1$ and $f_2$, is,
 \begin{align}
 \mathsf{S}^\dagger (f) = \mathsf{F}^{-1} \left( \mathcal{K} \star \mathsf{F}(f)\right),
 \end{align}
 where $\star$ denotes the cross-correlation operator.
-This can be proven by noting that $\mathsf{F}$ is the adjoint of $\mathsf{F}^{-1}$ (w.r.t. the $x$ and $y$ integrals)
-and $\star$ is the adjoint of $*$ (w.r.t. the $t$ integral).\\ \\
+This can be proven by noting that ${4\pi^2}\mathsf{F}^{-1}$ is the adjoint of $\mathsf{F}$ (w.r.t. the $x$ and $y$ integrals)
+and $\star$ is the adjoint of $*$ (w.r.t. the $t$ integral).
+\\
+{\footnotesize{\noindent
+\emph{Note:} we are using a non-unitary FT definition, but the scale factors
+cancel out here.}} \\ \\
 Supposing that the first variation of (\ref{lsq}) vanishes, we obtain the
 (infinite-dimensional) normal equations
 \begin{align}
@@ -310,6 +331,8 @@ where $\mathsf{R}'$ denotes the variational derivative of $\mathsf{R}$.
 Provided that $\mathsf{R}'$ is linear in $f$ (and self-adjoint, continuous, positive-definite),
 we can solve (\ref{normal})
 efficiently with the conjugate gradient method (Algorithm 1).
+See Atkinson and Han (2009, \S 5.6) or Hanke (2017, ch. 15) for a discussion
+of the CG method applied to infinite-dimensional operator equations.
 Here, we consider Tikhonov regularizations on $f$ or its spatial gradient,
 \begin{align}
 \mathsf{R}(f)&=\frac{\varepsilon}{2}\|f\|^2,\;\;\;\; \text{or}\\
@@ -346,11 +369,59 @@ initialize maximum iteration, $j_\mathrm{max}$, and stopping tolerance, $\mathrm
  \caption{CG method for solving $\mathsf{A}(x)=b$ }
 \end{algorithm}
 
+\section*{More analysis: \emph{A priori} estimate}
+Recent work has shown the difficulty of estimating subglacial-lake
+volume-change (Stubblefield et al., \emph{GRL} submission) and
+sub-shelf melt rates (Wearing et al., \emph{GRL} submission) from
+surface elevation-change alone. The simple estimate derived here reinforces these results. \\ \\
+Again, we are studying the abstract problem of inferring the parameter $f$
+from elevation change $h$, which are related via
+\begin{align*}
+\widehat{h} = \widehat{f}*\mathcal{K}_\lambda,
+\end{align*}
+where we are emphasizing the dependence of the kernel $\mathcal{K}_\lambda$ on $\lambda$:\\
+$|\mathcal{K}_\lambda|\to 0$ as $\lambda\to \infty$ (for all $k$) for all of the problems herein.
+\\ \\
+We rely on two well-known results:
+\begin{enumerate}
+\item \textbf{Plancherel's theorem:} $$\int_{-\infty}^{+\infty}\int_{-\infty}^{+\infty} f(x,y) \;\mathrm{d}x\,\mathrm{d}y = \frac{1}{(2\pi)^2}
+\int_{-\infty}^{+\infty}\int_{-\infty}^{+\infty} \widehat{f}(k_x,k_y) \;\mathrm{d}k_x\,\mathrm{d}k_y$$
+{\footnotesize{\noindent \emph{Note:} the $\frac{1}{(2\pi)^2}$ factor arises because we are using a non-unitary
+Fourier transform definition.}}
+\item \textbf{Young's convolution inequality:}
+$$\int_0^T |f*g|^2 \;\mathrm{d}t \leq \left(\int_0^T |f|^2 \;\mathrm{d}t\right)
+\left(\int_0^T |g| \;\mathrm{d}t\right)^2 $$
+{\footnotesize{\noindent
+\emph{Note:} typically this is stated where convolution is defined as
+$f*g = \int_{-\infty}^{+\infty} f(\tau)g(t-\tau)\;\mathrm{d}\tau$, but this
+is equivalent to our definition when $f$ and $g$ are zero for $t<0$.
+(So just extend $f$ and $\mathcal{K}_\lambda$ by zero for $t<0$ and use the
+original theorem to show this).}}
+\end{enumerate}
+Using the same norm as in the previous section, we can show
+\begin{align*}
+\|h\| = \frac{1}{2\pi}\|\widehat{h}\|
+= \frac{1}{2\pi}\|\widehat{f}*\mathcal{K}_\lambda \|
+\leq \frac{1}{2\pi} \|\widehat{f}\| \left(\int_{-\infty}^{+\infty}\int_{-\infty}^{+\infty}\left(\int_0^T |\mathcal{K}_\lambda| \;\mathrm{d}t\right)^2 \;\mathrm{d}k_x\,\mathrm{d}k_y \right),
+\end{align*}
+so that
+\begin{align}
+\|h\| \leq C_\lambda \|{f}\|, \label{est}
+\end{align}
+where
+\begin{align*}
+C_\lambda \equiv \left(\int_{-\infty}^{+\infty}\int_{-\infty}^{+\infty}\left(\int_0^T |\mathcal{K}_\lambda| \;\mathrm{d}t\right)^2 \;\mathrm{d}k_x\,\mathrm{d}k_y \right)\to 0 \;\; \text{as} \;\;\lambda\to\infty.
+\end{align*}
+The estimate (\ref{est}) shows that $\|{h}\|$ can be significantly smaller
+than $\|f\|$ when $\lambda$ is large. While that was probably obvious
+at this point, one could in principle calculate $C_\lambda $ numerically
+to quantify this for a given set of parameters. From a writing perspective,
+this section would be shortened and appear earlier for motivation if it is included.
 
 \newpage
 
 \section*{Appendix: Model derivation}
-The assumptions are stated at the beginning of the document.\\
+The assumptions are stated at the beginning of the document.\\ \\
 \noindent\textbf{Body equations.}\\
 Newtonian Stokes flow:
 \begin{align}
@@ -369,9 +440,10 @@ Stress-free conditions:
 \end{align}
 Kinematic equation:
 \begin{align}
-h_t + uh_x + vh_y = w
+h_t + uh_x + vh_y = w,
 \end{align}
-
+neglecting SMB here because I don't consider accumulation/ablation perturbations below.
+\\  \\
 \noindent\textbf{Lower surface BC ($z=s$).}\\
 \textbf{Grounded ice:}
 Prescribed vertical velocity and a linear sliding law:
@@ -393,7 +465,7 @@ s_t + us_x + vs_y  = w + m
 \end{align}
 where $m$ is the melt rate.\\ \\
 \noindent\textbf{Equilibrium solution:}\\
-We assume the equilibrium solution is either cryostatic or plug flow in the $x$ direction.
+We assume the equilibrium solution is either cryostatic or uniform flow in the $x$ direction.
 Therefore, we choose $h^0=H$ and $s^0=0$ constant, $\ell=(\rho/\rho_w)H$, and...
 \begin{align}
 &u^0 = u_0\geq 0\;\;\;\; \text{(constant)} \\
@@ -462,9 +534,9 @@ The hydrostatic condition becomes
 \begin{align}
 2\eta w_z^1 - p^1 = \Delta\rho g s^1
 \end{align}
-where $\Delta\rho = \rho_w-\rho_i$
-We drop the superscripts below. \\ \\
-\\ \section*{Fourier transform approach}
+where $\Delta\rho = \rho_w-\rho_i$.
+We drop the superscripts below.
+\section*{Fourier transform approach}
 \subsection*{Grounded ice}
 We start with the grounded ice because it is simpler.
 Derivatives transform as:
@@ -475,8 +547,8 @@ Derivatives transform as:
 \end{align}
 The upper and lower surface kinematic equations (\ref{ht})-(\ref{st}) transform to
 \begin{align}
-\widehat{h}_t + u_0 ik_x \widehat{h} = \widehat{w}\label{hthat}\\
-\widehat{s}_t + u_0 ik_x \widehat{s} = \widehat{w}.\label{sthat}
+&\widehat{h}_t + u_0 ik_x \widehat{h} = \widehat{w}\label{hthat}\\
+&\widehat{s}_t + u_0 ik_x \widehat{s} = \widehat{w}+\widehat{m}.\label{sthat}
 \end{align}
 The Stokes flow equation become
 \begin{align}
@@ -554,13 +626,13 @@ According to SymPy, the relaxation frequency $\mathcal{R}_g$ for grounded ice is
 \begin{align}
 \mathcal{R}_g = \left(\frac{\rho_i g }{2\eta k}\right)\frac{ (1+\gamma)e^{4\nu} -(2+4\gamma\nu)e^{2\nu} +1-\gamma  }{ (1+\gamma)e^{4\nu} + (2\gamma+4\nu+4\gamma\nu^2)e^{2\nu} -1 + \gamma  },
 \end{align}
-and velocity anomaly transfer function $\mathcal{T}_w$ is given by
+the velocity anomaly transfer function $\mathcal{T}_w$ is given by
 \begin{align}
 \mathcal{T}_w = \frac{2(1+\gamma)(\nu+1)e^{3\nu}+2(1-\gamma)(\nu-1)e^{\nu}  }{(1+\gamma)e^{4\nu} + (2\gamma+4\nu+4\gamma\nu^2)e^{2\nu} -1 + \gamma },
 \end{align}
 and the friction perturbation transfer function is given by
 \begin{align}
-\mathcal{T}_{\beta} =  \left(\frac{\nu}{\eta k^2}\right) \frac{e^{3\nu} + e^{\nu}}{e^{4\nu} +4\nu e^{2\nu} -1 }
+\mathcal{T}_{\beta} =  \left(\frac{\nu}{\eta k^2}\right) \frac{e^{3\nu} + e^{\nu}}{e^{4\nu} +4\nu e^{2\nu} -1 },
 \end{align}
 where we have assumed $\gamma=0$  since $u_0>0$ (otherwise the term vanishes).
 In frequency space,

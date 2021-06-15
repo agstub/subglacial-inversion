@@ -6,8 +6,8 @@ from scipy.fft import fftfreq
 # --------------------inversion options ---------------------------------------
 # set either = 1 (on) or = 0 (off)
 # inversion for one field at a time is supported; only set one of these to 1.
-inv_w = int(1)                      # invert for w     (basal vertical velocity)
-inv_beta = int(0)                   # invert for beta  (slipperiness)
+inv_w = int(0)                      # invert for w     (basal vertical velocity)
+inv_beta = int(1)                   # invert for beta  (slipperiness)
 inv_m = int(0)                      # invert for m     (melt rate)
 
 if inv_w+inv_beta+inv_m != int(1):
@@ -16,7 +16,7 @@ if inv_w+inv_beta+inv_m != int(1):
 #----------------------------regularization-------------------------------------
 # reguarization parameters for each inversion type
 eps_w = 1e-3
-eps_beta = 1e-3
+eps_beta = 1e2
 eps_m = 1e-6
 
 # Regularization options: L2 and H1 (see regularizations.py)
@@ -38,11 +38,11 @@ rho_i = 917                # ice density (kg/m^3)
 rho_w = 1000               # water density
 g = 9.81                   # gravitational acceleration
 
-u_e = 100/3.154e7          # background horizontal flow speed (m/s)
+u_e = 500/3.154e7          # background horizontal flow speed (m/s)
 
 beta_e = 0                 # background basal friction coeffcieint (Pa s/m)
 
-t_r = 4*np.pi*eta/(rho_i*g*H) # viscous relaxation time
+t_r = 2*eta/(rho_i*g*H)    # viscous relaxation time
 
 # nondimensional parameters
 lamda = t_sc/t_r           # process timescale relative to
@@ -70,8 +70,8 @@ cg_tol = 1e-9                      # stopping tolerance for conjugate gradient s
 max_cg_iter =  1000                # maximum conjugate gradient iterations
 
 # discretization parameters
-Nx = 20                            # number of grid points in x-direction
-Ny = 20                            # number of grid points in y-direction
+Nx = 100                           # number of grid points in x-direction
+Ny = 100                           # number of grid points in y-direction
 Nt = 100                           # number of time steps
 
 L = 10                             # horizontal x-y domain is an 8L x 8L square

@@ -4,23 +4,29 @@ Author: Aaron Stubblefield (Columbia University, LDEO).
 
 # Overview
 This program inverts for (1) basal velocity anomaly "w", (2) the basal friction
-field "beta", or (3) the sub-shelf melt rate "m" given the observed surface elevation
-change "h_obs" by solving a least-squares minimization problem
+field "beta", or (3) the sub-shelf melt rate "m" given the observed surface
+elevation change "h_obs" by solving a least-squares minimization problem
 
-The main model assumptions are (1) Newtonian viscous ice flow, (2) a linear basal sliding law,
-and (3) that all fields are small perturbations of a uniform background flow.
-These assumptions allow for efficient solution of the forward model: 2D (map-plane)
-Fourier transforms and convolution in time are the main operations.
-See notes.tex (in *notes* directory) for a description of the model and numerical method.
+The main model assumptions are (1) Newtonian viscous ice flow, (2) a linear
+basal sliding law, and (3) that all fields are small perturbations of a uniform
+background flow. These assumptions allow for efficient solution of the forward
+model: 2D (map-plane) Fourier transforms and convolution in time are the main
+operations. See notes.tex (in *notes* directory) for a description of the model
+and numerical method.
 
 # Dependencies
 ## Required dependencies
-As of this commit, this code runs with the latest SciPy (https://www.scipy.org/) release.
+As of this commit, this code runs with the latest SciPy (https://www.scipy.org/)
+release.
 
 
 ## Optional dependencies
-FFmpeg (https://www.ffmpeg.org/) can be used
-to create a video of the results. See description below.
+FFmpeg (https://www.ffmpeg.org/) can be used to create a video of the results.
+See description below.
+
+SymPy (https://www.sympy.org/) is also used in **algebra.py** (*notes*
+directory) to symbolically derive the relaxation and transfer functions--see
+notes and the python file for a description.
 
 # Contents
 
@@ -48,14 +54,15 @@ operators depend on.
 
 8. **synthetic_data.py** defines synthetic elevation anomalies for the test problems.
 
-9. **plotting.py** creates png images of the inversion. Note that a 'pngs'
-subdirectory should be created to use this.
-
+9. **plotting.py** creates png images of the inversion.
 
 ## 2. Notes
 The *notes* directory contains a description of the model derivation
-and inverse problem (see **notes.tex**).
+and inverse problem (see **notes.tex**). These notes depend on some AMS packages,
+as well as Algorithm2e.
 
+A python file, **algebra.py** is also included. This program uses SymPy
+to symbolically derive the relaxation and transfer functions recorded in the notes.
 
 # Running the test problems
 To run the test problem for the basal velocity anomaly inversion
@@ -72,7 +79,7 @@ set `inv_m = 1`, `inv_w=0`, and `inv_beta=0` in **params.py**, and then run the 
 
 To make a movie from the png's, change to the *pngs* directory and
 run an FFmpeg command like:
-`ffmpeg -r 10 -f image2 -s 1920x1080 -i %01d.png -vcodec libx264 -pix_fmt yuv420p -vf scale=1280:-2 movie.mp4`
+`ffmpeg -r 20 -f image2 -s 1920x1080 -i %01d.png -vcodec libx264 -pix_fmt yuv420p -vf scale=1280:-2 movie.mp4`
 
 # Model options
 

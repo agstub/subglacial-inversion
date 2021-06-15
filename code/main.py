@@ -22,6 +22,7 @@ from params import Nt
 from synthetic_data import h_obs_synth
 from inversion import invert
 from plotting import plot_results
+import os
 
 # synthetic data example (see synthetic_data.py)
 h_obs = h_obs_synth
@@ -30,7 +31,8 @@ sol,h = invert(h_obs) # solve the inverse problem
 
 #* save a png image of the solution at each timestep
 #* need to make a directory called 'pngs' first!
-import os
-os.mkdir('pngs')    # make a directory for the results.
+if os.path.isdir('pngs')==False:
+    os.mkdir('pngs')    # make a directory for the results.
+
 for i in range(Nt):
     plot_results(sol,h,h_obs,i)

@@ -7,7 +7,7 @@ def R(k):
     # Ice surface relaxation function for grounded ice
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
     g = beta0/n
-    R1 =  (2*np.pi/n)*((1+g)*np.exp(4*n) - (2+4*g*n)*np.exp(2*n) + 1 -g)
+    R1 =  (1/n)*((1+g)*np.exp(4*n) - (2+4*g*n)*np.exp(2*n) + 1 -g)
     D = (1+g)*np.exp(4*n) + (2*g+4*n+4*g*(n**2))*np.exp(2*n) -1 + g
 
     return R1/D
@@ -34,7 +34,7 @@ def F(k,kx):
 def Rf(k):
     # relaxation function for floating ice
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
-    R1 =  (2*np.pi/n)*(np.exp(4*n) + (4*n)*np.exp(2*n) - 1 )
+    R1 =  (1/n)*(np.exp(4*n) + (4*n)*np.exp(2*n) - 1 )
     D = np.exp(4*n) -2*(1+2*n**2)*np.exp(2*n) + 1
 
     return R1/D
@@ -43,7 +43,7 @@ def Rf(k):
 def B(k):
     # buoyancy transfer function for floating ice
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
-    B1 =  (2*np.pi/n)*( 2*(n+1)*np.exp(3*n) + 2*(n-1)*np.exp(n))
+    B1 =  (1/n)*( 2*(n+1)*np.exp(3*n) + 2*(n-1)*np.exp(n))
     D = np.exp(4*n) -2*(1+2*n**2)*np.exp(2*n) + 1
 
     return B1/D

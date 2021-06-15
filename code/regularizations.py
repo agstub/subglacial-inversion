@@ -4,8 +4,9 @@
 # (2) gradients of the functions ("H1")
 
 
-from params import k,x,y
+from params import k,x,y,dt
 from scipy.fft import ifft2,fft2
+import numpy as np
 
 def lap(f):
     # negative Laplacian computed via Fourier transform
@@ -15,7 +16,7 @@ def lap(f):
 def reg(f,reg_type):
     # first variation of regularization functional
     if reg_type == 'H1':
-        R = lap(f)
+        R = f+lap(f)       # note: adding the L2 term here seems to help with convergence
     elif reg_type == 'L2':
         R = f
     return R
