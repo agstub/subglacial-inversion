@@ -1,6 +1,6 @@
 # this file creates synthetic data for inversion examples
 
-from params import U,L,noise_level,x,y,t,Nt,Nx,Ny,inv_w,inv_beta,inv_m,t_final
+from params import L,noise_level,x,y,t,Nt,Nx,Ny,inv_w,inv_beta,inv_m,t_final
 from operators import forward_w,forward_m,forward_beta
 import numpy as np
 
@@ -22,7 +22,6 @@ w_true = 15*np.exp(-0.5*(sigma**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*np.s
 # (2) SLIPPERINESS ANOMALY
 # Gaussian friction perturbation (constant in time)
 beta_true = 2e-2*np.exp(-0.5*((sigma)**(-2))*(np.abs(x)**2+np.abs(y)**2 ))
-
 
 # (3) MELTING ANOMALY (sub-shelf)
 # travelling Gaussian melt 'wave'

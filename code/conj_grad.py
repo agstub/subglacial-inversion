@@ -2,15 +2,19 @@
 # the normal equations that arise from the least-squares minimization problem
 
 from operators import adj_fwd
-from params import dx,dy,dt,cg_tol,max_cg_iter
+from params import dx,dy,dt,cg_tol,max_cg_iter,dim
 from scipy.integrate import trapz
 import numpy as np
 
-# ------------ define inner products and norms ---------------------------------
+# ------------ define inner products and norms for CG method--------------------
 
 def prod(a,b):
     # inner product for the optimization problem: L^2(0,T;L^2) space-time inner product
-    int = a*b
+    if dim == 1:
+        int = a*b
+    elif dim == 2:
+        int = a[0]*b[0] + a[1]*b[1]    
+
     p = trapz( trapz(trapz(int,dx=dx,axis=-2),dx=dy,axis=-1) ,dx=dt,axis=0)
 
     return p

@@ -6,12 +6,13 @@ from scipy.fft import fftfreq
 # --------------------inversion options ---------------------------------------
 # set either = 1 (on) or = 0 (off)
 # inversion for one field at a time is supported; only set one of these to 1.
-inv_w = int(0)                      # invert for w     (basal vertical velocity)
-inv_beta = int(1)                   # invert for beta  (slipperiness)
+inv_w = int(1)                      # invert for w     (basal vertical velocity)
+inv_beta = int(0)                   # invert for beta  (slipperiness)
 inv_m = int(0)                      # invert for m     (melt rate)
 
-if inv_w+inv_beta+inv_m != int(1):
-   raise ValueError('Set only one of inv_w, inv_beta, or inv_m equal to 1.')
+dim = inv_w + inv_beta
+
+inv_couple = dim-1
 
 #----------------------------regularization-------------------------------------
 # reguarization parameters for each inversion type
@@ -48,13 +49,16 @@ t_r = 2*eta/(rho_i*g*H)    # viscous relaxation time
 lamda = t_sc/t_r           # process timescale relative to
                            # surface relaxation timescale
 
-U = u_e*t_sc/H             # "background" horizontal strain rate relative to
+theta = u_e*t_sc/H             # "background" horizontal strain rate relative to
                            # vertical strain rate:
                            # U = (u/H) / (w/h0),
                            # where u = dimensional horizontal flow speed
                            #       H = ice thickness
                            #       w = vertical velocity anomaly scale
                            #       h0 = elevation anomaly scale
+
+xi = u_e*t_sc/h_sc         # coefficient on friction terms
+                           # = horizontal velocity scale/vertical velocity scale
 
 beta0 = beta_e*H/(2*eta)   # friction coefficient relative to ice viscosity
 

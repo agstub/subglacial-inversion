@@ -6,7 +6,7 @@
 
 import numpy as np
 from kernel_fcns import R,T,F,Rf,B
-from params import U,lamda,eps_beta,eps_w,eps_m,w_reg,beta_reg,m_reg,t,k,kx,inv_w,inv_beta,inv_m,delta,Nt
+from params import theta,lamda,eps_beta,eps_w,eps_m,w_reg,beta_reg,m_reg,t,k,kx,inv_w,inv_beta,inv_m,delta,Nt
 from scipy.signal import fftconvolve
 from scipy.fft import ifft2,fft2
 from regularizations import reg
@@ -19,7 +19,7 @@ def forward_w(w):
 
     rhs = T(k)*w_ft
 
-    lhs = 1j*(2*np.pi*kx)*U+lamda*R(k)
+    lhs = 1j*(2*np.pi*kx)*theta+lamda*R(k)
 
     ker = np.exp(-lhs*t)
 
@@ -35,7 +35,7 @@ def forward_beta(beta):
 
     rhs = F(k,kx)*beta_ft
 
-    lhs = 1j*(2*np.pi*kx)*U+lamda*R(k)
+    lhs = 1j*(2*np.pi*kx)*theta+lamda*R(k)
 
     ker = np.exp(-lhs*t)
 
@@ -51,8 +51,8 @@ def forward_m(m):
 
     mu = np.sqrt(4*delta*(lamda*B(k))**2 + ((delta-1)**2)*(lamda*Rf(k))**2)
 
-    ker0 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*U-lamda*0.5*(delta+1)*Rf(k)+0.5*mu)*t)
-    ker1 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*U-lamda*0.5*(delta+1)*Rf(k)-0.5*mu)*t)
+    ker0 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*theta-lamda*0.5*(delta+1)*Rf(k)+0.5*mu)*t)
+    ker1 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*theta-lamda*0.5*(delta+1)*Rf(k)-0.5*mu)*t)
 
     S = ifft2((1/Nt)*fftconvolve(-m_ft,ker0-ker1,mode='full',axes=0)).real[0:Nt,:,:]
 
@@ -65,8 +65,8 @@ def adjoint_m(m):
 
     mu = np.sqrt(4*delta*(lamda*B(k))**2 + ((delta-1)**2)*(lamda*Rf(k))**2)
 
-    ker0 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*U-lamda*0.5*(delta+1)*Rf(k)+0.5*mu)*t)
-    ker1 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*U-lamda*0.5*(delta+1)*Rf(k)-0.5*mu)*t)
+    ker0 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*theta-lamda*0.5*(delta+1)*Rf(k)+0.5*mu)*t)
+    ker1 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*theta-lamda*0.5*(delta+1)*Rf(k)-0.5*mu)*t)
 
     ker = np.conjugate(ker0-ker1)
 
@@ -80,7 +80,7 @@ def adjoint_w(f):
 
     f_ft = fft2(f)
 
-    lhs = -1j*(2*np.pi*kx)*U+lamda*R(k)
+    lhs = -1j*(2*np.pi*kx)*theta+lamda*R(k)
 
     ker = T(k)*np.exp(-lhs*t)
 
@@ -93,7 +93,7 @@ def adjoint_beta(f):
 
     f_ft = fft2(f)
 
-    lhs = -1j*(2*np.pi*kx)*U+lamda*R(k)
+    lhs = -1j*(2*np.pi*kx)*theta+lamda*R(k)
 
     ker = np.conjugate(F(k,kx))*np.exp(-lhs*t)
 

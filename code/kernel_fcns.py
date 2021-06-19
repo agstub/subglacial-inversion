@@ -1,7 +1,7 @@
 # this file contains the integral kernel functions that are used for applying the
 # forward and adjoint operators
 import numpy as np
-from params import k,kx,beta0,U,asp,delta
+from params import k,kx,beta0,xi,delta
 
 def R(k):
     # Ice surface relaxation function for grounded ice
@@ -26,7 +26,7 @@ def F(k,kx):
     # Friction transfer function
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
     nx = 2*np.pi*kx
-    F1 =  (U/asp)*(2*1j*nx)*(np.exp(3*n) + np.exp(n))
+    F1 =  xi*(2*1j*nx)*(np.exp(3*n) + np.exp(n))
     D = n*(np.exp(4*n) + 4*n*np.exp(2*n) -1)
 
     return F1/D
