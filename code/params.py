@@ -96,8 +96,8 @@ ky0 =  fftfreq(Ny,dy)
 # set zero frequency to small number because some of the integral kernels
 # have integrable or removable singularities at the zero frequency
 
-kx0[0] = 1e-10
-ky0[0] = 1e-10
+kx0[0] = 1e-9
+ky0[0] = 1e-9
 
 # mesh grids for physical space domain
 t,x,y = np.meshgrid(t0,x0,y0,indexing='ij')

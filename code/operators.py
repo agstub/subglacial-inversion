@@ -5,8 +5,9 @@
 #       (composition of forward and adjoint operators plus regularization terms)
 
 import numpy as np
-from kernel_fcns import R,T,F,Rf,B
-from params import theta,lamda,eps_beta,eps_w,eps_m,w_reg,beta_reg,m_reg,t,k,kx,inv_w,inv_beta,inv_m,delta,Nt
+from kernel_fcns import R,T,F,Rf,B,Uw,Uh,Ub,Vw,Vh,Vb
+from params import (theta,lamda,eps_beta,eps_w,eps_m,w_reg,beta_reg,m_reg,t,k,kx,ky,
+                    inv_w,inv_beta,inv_m,delta,Nt,xi)
 from scipy.signal import fftconvolve
 from scipy.fft import ifft2,fft2
 from regularizations import reg
@@ -74,6 +75,29 @@ def adjoint_m(m):
 
     return S
 
+def forward_u(w,beta):
+    w_ft = fft2(w)
+    beta_ft = fft2(beta)
+    h = forward_w(w) + forward_beta(beta)
+    h_ft = fft2(h)
+
+    F = 0*xi*Ub(k,kx)*beta_ft+1j*(2*np.pi*kx)*(lamda*Uh(k)*h_ft - Uw(k)*w_ft)
+
+    S = ifft2(F).real
+
+    return S
+
+def forward_v(w,beta):
+    w_ft = fft2(w)
+    beta_ft = fft2(beta)
+    h = forward_w(w) + forward_beta(beta)
+    h_ft = fft2(h)
+
+    F = 0*xi*Vb(k,kx,ky)*beta_ft+1j*(2*np.pi*ky)*(lamda*Vh(k)*h_ft - Vw(k)*w_ft)
+
+    S = ifft2(F).real
+
+    return S
 
 def adjoint_w(f):
     # adjoint of the basal vertical velocity forward operator

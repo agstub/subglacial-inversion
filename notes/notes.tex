@@ -779,104 +779,97 @@ As noted before,
 \end{align}
 We substitute this into the integrals above
 and integrate the $w_{zzz}$ term by parts twice.
-To this end, we will use the identity
+To this end, we use the identity
 \begin{align}
-\int_0^z \frac{1}{k^2} w_{zzz} e^{\pm kz'} - w_{z} e^{\pm kz'}\;\mathrm{d}z'
-= \frac{1}{k^2} \left[e^{\pm kz'}w_{zz}\right]_0^z - \frac{\pm k}{k^2}\left[w_ze^{\pm kz'} \right]_0^z.
+\int_0^z \left( \frac{1}{k^2} w_{zzz} - w_{z}\right) e^{\pm kz'}\;\mathrm{d}z'
+= \frac{1}{k^2} \left[e^{\pm kz'}w_{zz}\right]_0^z - \frac{\pm k}{k^2}\left[w_ze^{\pm kz'} \right]_0^z
 \end{align}
-Therefore, we find that the pressure integrals reduce to
+and find that the pressure integrals reduce to
 \begin{align}
-e^{kz}\int_0^z \widehat{p}(z')e^{-kz'}\;\mathrm{d}z' -
-  e^{-kz}\int_0^z \widehat{p}(z')e^{kz'}\;\mathrm{d}z'
-  = \frac{2\eta}{k} \left[\widehat{w}_z\right]_0^z
+&e^{kz}\int_0^z \widehat{p}(z')e^{-kz'}\;\mathrm{d}z' -
+  e^{-kz}\int_0^z \widehat{p}(z')e^{kz'}\;\mathrm{d}z' \nonumber
+  \\ &= \frac{2\eta}{k} \left( \widehat{w}_z-\widehat{w}_z|_{z=0}\cosh(kz) - \frac{1}{k} \widehat{w}_{zz}|_{z=0}\sinh(kz)  \right)
 \end{align}
 Therefore, we obtain
 \begin{align}
-\widehat{u}(z) = \frac{ik_x }{k^2} \left[\widehat{w}_z\right]_0^z
+&\widehat{u}(z) = \frac{ik_x }{k^2} P(z)
 + E e^{kz} + F e^{-kz} \\
-\widehat{v}(z) = \frac{ik_y }{k^2} \left[\widehat{w}_z\right]_0^z + G e^{kz} + H e^{-kz}.
+&\widehat{v}(z) = \frac{ik_y }{k^2} P(z) + G e^{kz} + H e^{-kz} \\
+&P(z) = \widehat{w}_z-\widehat{w}_z|_{z=0}\cosh(kz) - \frac{1}{k} \widehat{w}_{zz}|_{z=0}\sinh(kz)
 \end{align}
 We can determine the constants $\{E,F,G,H\}$ from the sliding law and stress-free
-condition at the upper surface.
+upper-surface condition.
 First we note that
 \begin{align}
-\widehat{u}_z(z) = \frac{ik_x }{k^2} \widehat{w}_{zz}
+&\widehat{u}_z(z) = \frac{ik_x }{k^2} P_z(z)
 + E k e^{kz} - F k e^{-kz} \\
-\widehat{v}_z(z) = \frac{ik_y }{k^2} \widehat{w}_{zz} + G k  e^{kz} - H k e^{-kz}.
+&\widehat{v}_z(z) = \frac{ik_y }{k^2} P_z(z) + G k  e^{kz} - H k e^{-kz} \\
+&P_z(z) = \widehat{w}_{zz}-\widehat{w}_z|_{z=0}k\sinh(kz) - \widehat{w}_{zz}|_{z=0}\cosh(kz)\\
+&P_z(0) = 0 = P(0).
 \end{align}
 The stress free condition at $z=H$ (i.e., $\widehat{u}_z = -ik_x \widehat{w}$, etc.)
 implies
 \begin{align}
- E  e^{\nu} - F  e^{-\nu} &= -\frac{ik_x}{k} \left(\widehat{w}+\frac{1}{k^2}\widehat{w}_{zz}\right)\nonumber \\
- &= -\frac{2ik_x}{k} \left(\widehat{w}+ \frac{C}{k}e^{\nu} - \frac{D}{k}e^{-\nu} \right)\nonumber \\
-  &= -2\frac{ik_x}{k^2} \left(b_3 + {C}e^{\nu} - {D}e^{-\nu} \right) \equiv b_4 \\
-  G  e^{\nu} - H  e^{-\nu} &= -2\frac{ik_y}{k^2} \left(b_3+ {C}e^{\nu} - {D}e^{-\nu} \right) \equiv b_4'.
+ E  e^{\nu} - F  e^{-\nu} &= -\frac{ik_x}{k^2} \left(k\widehat{w}+\frac{1}{k}P_{z}(H)\right)\equiv b_4 \\
+  G  e^{\nu} - H  e^{-\nu} &= -\frac{ik_y}{k^2} \left(k\widehat{w}+\frac{1}{k}P_{z}(H)\right) \equiv b_4'.
 \end{align}
 Note that $b_4=b_4'$ except for the $k_x$ and $k_y$ coefficients.
 We rearrange the sliding law as $\widehat{u}_z - \frac{\beta_0}{\eta}\widehat{u}=\frac{u_0}{\eta}\widehat{\beta}
 -ik_x\widehat{w}_b$, and do some algebra to find
 \begin{align}
-E (1-2\gamma) - F (1+2\gamma) &= \frac{u_0}{\eta k}\widehat{\beta}
--\frac{ik_x}{k}\left(\widehat{w}_b+ \frac{1}{k^2}\widehat{w}_{zz}|_{z=0}\right) \nonumber \\
-&= \frac{u_0}{\eta k}\widehat{\beta} -2\frac{ik_x}{k^2}\left(k\widehat{w}_b + C-D\right) \nonumber \\
-&= -\frac{2}{ik_x}b_2-2\frac{ik_x}{k^2}\left(b_3 + C-D\right)\nonumber\\
-&= -2\frac{ik_x}{k^2}\left( -\kappa b_2 + b_3 + C-D\right) \equiv b_5
+&E (1-2\gamma) - F (1+2\gamma) =
+\frac{ik_x}{k^2}\left(2\kappa b_2 - b_3 \right)  \equiv b_5 \\
+&\kappa = {k}^2/k_x^2
 \end{align}
-(where $\kappa = {k^2}/{k_x^2}$) and similarly
+and similarly
 \begin{align}
-G (1-2\gamma) -H (1+2\gamma) = -2\frac{ik_y}{k^2}\left(b_3 + C-D \right) \equiv b_5',
+G (1-2\gamma) -H (1+2\gamma) = -\frac{ik_y}{k^2}b_3 \equiv b_5',
 \end{align}
 which is analogous to $b_5$ but with $\kappa=0$.
-At this point, we can solve symbolically for $\{E,F,G,H\}$ and determine the velocities.
-First, we state the identity
+At this point, we can solve symbolically for $\{E,F,G,H\}$.
+Then, we can solve for the velocity solutions via
 \begin{align}
-[\widehat{w}_z]_0^H = A(e^\nu - 1) + B(1-e^{-\nu}) + C(e^\nu (1+\nu)-1) +D(e^{-\nu}(1-\nu)-1),
-\end{align}
-so that
-\begin{align}
-\widehat{u}|_{z=H} =&  \frac{ik_x }{k^2} [A(e^\nu - 1) + B(1-e^{-\nu}) + C(e^\nu (1+\nu)-1) \nonumber \\ &+D(e^{-\nu}(1-\nu)-1) ] + E e^{\nu} + F e^{-\nu}  \\
-\widehat{v}|_{z=H} =& \frac{ik_y }{k^2} [A(e^\nu - 1) + B(1-e^{-\nu}) + C(e^\nu (1+\nu)-1) \nonumber \\ &+D(e^{-\nu}(1-\nu)-1) ] + G e^{\nu} + H e^{-\nu}.
+\widehat{u}|_{z=H} =&  \frac{ik_x }{k^2} P(H) + E e^{\nu} + F e^{-\nu}  \\
+\widehat{v}|_{z=H} =& \frac{ik_y }{k^2} P(H)+ G e^{\nu} + H e^{-\nu}.
 \end{align}
 Using SymPy, these can be written in terms of $\{\widehat{h},\widehat{w},\widehat{\beta}\}$ as
 \begin{align}
-\widehat{u}_H =    \mathcal{U}_{\beta} \widehat{\beta} -ik_x\left(\mathcal{U}_h\widehat{h} +  \mathcal{U}_w\widehat{w}_b\right) \label{uH}\\
-\widehat{v}_H =  \mathcal{V}_{\beta} \widehat{\beta}-ik_y\left(\mathcal{V}_h\widehat{h} +  \mathcal{V}_w\widehat{w}_b\right)\label{vH}
+\widehat{u}_H =    \mathcal{U}_{\beta} \widehat{\beta} +ik_x\left(\mathcal{U}_h\widehat{h} -  \mathcal{U}_w\widehat{w}_b\right) \label{uH}\\
+\widehat{v}_H =  \mathcal{V}_{\beta} \widehat{\beta}+ik_y\left(\mathcal{V}_h\widehat{h} -  \mathcal{V}_w\widehat{w}_b\right)\label{vH}
 \end{align}
 where the response functions for the $u-$component are given by...
 \begin{align}
-& \mathcal{U}_h   =  \frac{\rho g}{\eta k^2} \bigg(e^{6\nu} -\nu e^{5\nu}+(2\nu-1)e^{4\nu} - (2\nu+1)e^{2\nu}+\nu e^{\nu} + 1  \bigg)\mathcal{D}^{-1}  \\
-& \mathcal{U}_w  =  \frac{2}{k} \bigg(e^{6\nu}-(\nu+2)e^{5\nu}+(2\nu^2+4\nu+1)e^{4\nu}-6\nu e^{3\nu}  \nonumber \\ & \quad\quad\quad\quad\quad\quad\quad\quad - (2\nu^2-4\nu+1)e^{2\nu} - (\nu-2)e^{\nu}-1 \bigg)\mathcal{D}^{-1} \\
-& \mathcal{U}_\beta  =  \frac{u_0 k_x^2}{2\eta k^3}\bigg(e^{6\nu}-2(\nu+2\kappa-1)e^{5\nu}+(4\nu^2+1)e^{4\nu}-4\nu(4\kappa-1)e^{3\nu} \nonumber \\ &
-\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad -(4\nu^2+1)e^{2\nu}-2(\nu-2\kappa+1)e^{\nu}-1  \bigg)\mathcal{D}^{-1} \\
-& \mathcal{D}^{-1}  =  e^{6\nu} + (4\nu-1)e^{4\nu}- (4\nu+1)e^{2\nu}+1
+& \mathcal{U}_h   =  \frac{\rho g}{2\eta k^2} \left(2\nu (1-e^{2\nu}) e^{\nu} \right)\mathcal{D}^{-1}  \\
+& \mathcal{U}_w  = \frac{1}{k}\nu\left( e^{4\nu} - 2e^{2\nu}+1 \right)\mathcal{D}^{-1} \\
+& \mathcal{U}_\beta  = \frac{u_0 k_x^2}{2\eta k^3}\left((\nu-2\kappa+1)e^{4\nu} +2\nu(3-4\kappa)e^{2\nu} + \nu+2\kappa-1\right)\mathcal{D}^{-1}  \\
+& \mathcal{D}  =  (e^{6\nu} + (4\nu-1)e^{4\nu}- (4\nu+1)e^{2\nu}+1)/(2e^{\nu})
 \end{align}
 and those for the $v$-component are given by
 \begin{align}
   & \mathcal{V}_h = \mathcal{U}_h\\
   & \mathcal{V}_w = \mathcal{U}_w\\
-  & \mathcal{V}_\beta  =  \frac{u_0 k_x k_y}{2\eta k^3}\bigg(e^{6\nu}-2(\nu-1)e^{5\nu}+(4\nu^2+1)e^{4\nu}+4\nu e^{3\nu} \nonumber \\ &
-  \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad -(4\nu^2+1)e^{2\nu}-2(\nu+1)e^{\nu}-1  \bigg)\mathcal{D}^{-1}.
+  & \mathcal{V}_\beta  =  \frac{u_0 k_x k_y}{2\eta k^3}\left((\nu+1)e^{4\nu} +6\nu e^{2\nu} + \nu-1\right)\mathcal{D}^{-1} .
 \end{align}
 In recording these response functions, we have assumed $\gamma=\beta_0=0$
-because the joint inversion is only applicable beneath ice streams (otherwise $u_0=0$
+because our focus is on joint beneath ice streams (otherwise $u_0=0$
 and the friction perturbation term vanishes). However, the solutions are available
-for general $\gamma>0$, just look a bit more complicated (run the \textbf{algebra.py} SymPy code
-to see). \\ \\
+for general $\gamma>0$, just look a bit more complicated (run the \textbf{algebra.py} SymPy code). \\ \\
 We scale the velocity equations (\ref{uH}) and (\ref{vH}) via
 \begin{align}
-u = w_0 u', \;\;\;\; v = w_0v'
+u = w_0 u', \;\;\;\; v = w_0v'.
 \end{align}
-because the perturbations are probably not $O(u_0)$ for ice streams.
 With this scaling, the nondimensional equations are (dropping primes)
 \begin{align}
-\widehat{u}_H =    \xi\mathcal{U}_{\beta} \widehat{\beta} -ik_x\left(\lambda\mathcal{U}_h\widehat{h} +  \mathcal{U}_w\widehat{w}_b\right) \label{uHsc}\\
-\widehat{v}_H =  \xi\mathcal{V}_{\beta} \widehat{\beta}-ik_y\left(\lambda\mathcal{V}_h\widehat{h} +  \mathcal{V}_w\widehat{w}_b\right)\label{vHsc}
+\widehat{u}_H =    \xi\mathcal{U}_{\beta} \widehat{\beta} +ik_x\left(\lambda\mathcal{U}_h\widehat{h} -  \mathcal{U}_w\widehat{w}_b\right) \label{uHsc}\\
+\widehat{v}_H =  \xi\mathcal{V}_{\beta} \widehat{\beta}+ik_y\left(\lambda\mathcal{V}_h\widehat{h} -  \mathcal{V}_w\widehat{w}_b\right)\label{vHsc}
 \end{align}
 where the response functions become
 \begin{align}
-&\mathcal{U}_h =   \frac{2}{k^2} \times (\text{big quotient}) = \mathcal{V}_h \\
-&\mathcal{U}_w =  \frac{2}{k} \times (\text{big quotient}) = \mathcal{V}_w  \\
-&\mathcal{U}_\beta =   \frac{k_x^2}{k^3} \times (\text{big quotient})\\
-&\mathcal{V}_\beta =  \frac{k_x k_y}{k^3} \times (\text{big quotient})
+&\mathcal{U}_h =   \frac{1}{k^2}  \left(2k (1-e^{2k}) e^{k} \right)\mathcal{D}^{-1}   = \mathcal{V}_h \\
+&\mathcal{U}_w =  \left( e^{4k} - 2e^{2k}+1 \right)\mathcal{D}^{-1}  = \mathcal{V}_w \\
+&\mathcal{U}_\beta =   \frac{k_x^2}{k^3} \left((k-2\kappa+1)e^{4k} +2\nu(3-4\kappa)e^{2k} + \nu+2\kappa-1\right)\mathcal{D}^{-1}   \\
+&\mathcal{V}_\beta =  \frac{k_x k_y}{k^3} \left((k+1)e^{4k} +6k e^{2k} + k-1\right)\mathcal{D}^{-1}\\
+& \mathcal{D}  =  (e^{6k} + (4k-1)e^{4k}- (4k+1)e^{2k}+1)/(2e^{k})
 \end{align}
+with $k=\nu$ ($k_x \gets Hk_x$, $k_y \gets Hk_y$) in the scaled equations.
 \end{document}

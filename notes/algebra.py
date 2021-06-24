@@ -43,31 +43,50 @@ w_h = mu*sol[0] + (1/mu)*sol[1] + nu*mu*sol[2] + (nu/mu)*sol[3]
 #sp.pprint(sp.collect(sp.collect(sp.collect(sp.simplify(w_b),b1),b3),mu) )
 
 
+
+#-------------------------------------------------------------------------------
+
+A = sol[0]
+B = sol[1]
+C = sol[2]
+D = sol[3]
+
+
+k = sp.Symbol('k')
+
+kap = sp.Symbol('kappa')
+
+wh = (A*mu + B/mu + nu*mu*C + nu*D/mu)/k # correct
+
+wz0 = A-B+C+D           # correct
+
+wzh = A*mu -B/mu +C*mu +C*nu*mu -D*nu/mu + D/mu # correct
+
+wzzh = A*k*mu + B*k/mu + 2*C*k*mu + C*k*nu*mu + D*k*nu/mu  -2*D*k/mu # correct
+
+wzz0 = k*(A+B+2*C-2*D) # correct
+
+Ph = wzh - wz0*(mu+1/mu)/2- wzz0*(1/k)*(mu-1/mu)/2   # P(H) CORRECT
+
+Pzh = wzzh - wz0*k*(mu-1/mu)/2 - wzz0*(mu+1/mu)/2    # P_z(H) CORRECT
+
+b4 = -(k*wh + Pzh/k)                               # first rhs vector entry
+
+b5 = -(b3 -2*kap*b2)                               # 2nd rhs vector entry
+
 # For horizontal surface velocity solutions
 # matrix for grounded ice
 M2 = sp.Matrix(( [mu, -1/mu],[1-2*gamma, -(1+2*gamma)]))
 
-theta = sp.Symbol('theta')
-
-
-b4 = -2*(b3 + sol[2]*mu - sol[3]/mu)                   # 1st rhs vector entry
-b5 = -2*(-theta*b2 + b3 + sol[2] - sol[3])                              # 2nd rhs vector entry
-
 # solution vector
 E,F = sp.symbols('E,F')
-
 
 # rhs vector for grounded ice:
 d = sp.Matrix(2,1,[b4,b5])
 
 sol2, = sp.linsolve((M2,d),[E,F])
 
-uh0 = sol2[0]*mu + sol2[1]/mu
-uh1 = K*(sol[0]*(mu-1) + sol[1]*(1-1/mu) + sol[2]*(mu*(1+nu)-1) + sol[3]*((1-nu)/mu - 1))
-
-uh = uh0 + uh1
+uh = Ph + sol2[0]*mu + sol2[1]/mu
 
 ## print velocity response functions
-#sp.pprint( sp.simplify(sp.collect( sp.collect(sp.collect(sp.collect(sp.simplify(uh),b1),b2),b3),mu) ))
-
-#sp.pprint(sp.simplify(sp.collect(sp.collect(sp.simplify(uh),b1),mu)) )
+sp.pprint( sp.simplify(sp.collect( sp.collect(sp.collect(sp.collect(sp.simplify(uh),b1),b2),b3),mu)))
