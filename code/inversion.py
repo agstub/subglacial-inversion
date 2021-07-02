@@ -1,33 +1,56 @@
 # this file contains the invert() function that defines the right-side
 # vector of the normal equations and calls the conjugate-gradient solver
 
-from params import inv_w,inv_beta,inv_m
+from params import inv_w,inv_beta,inv_m,dim
 from conj_grad import cg_solve
-from operators import forward_w,forward_beta,forward_m,adjoint_w,adjoint_beta,adjoint_m
+from operators import (forward_w,forward_beta,forward_m,adjoint_w,adjoint_beta,adjoint_m,Hc,
+                        adjoint_Ub,adjoint_Uw,adjoint_Vb,adjoint_Vw,forward_u,forward_v,vel_wt,vel_data)
 import numpy as np
 
-def invert(h_obs):
+def invert(data):
     # invert for w, beta, or m given the observed elevation change h_obs
 
-    sol = 0*h_obs
-
     print('Solving normal equations with CG....\n')
-    if inv_w == 1:
-        b = adjoint_w(h_obs)
-        X0 = sol
+    if inv_w == 1 and dim==1:
+        if vel_data == 0:
+            b = adjoint_w(data)
+        elif vel_data == 1:
+            b = adjoint_w(data[0])+vel_wt*(adjoint_Uw(data[1])+adjoint_Vw(data[2]))
+        X0 = 0*b
         sol = cg_solve(b,X0)
-        h = forward_w(sol)
+        fwd = forward_w(sol)
 
-    elif inv_beta == 1:
-        b = adjoint_beta(h_obs)
-        X0 = sol
+    elif inv_beta == 1 and dim==1:
+        if vel_data == 0:
+            b = adjoint_beta(data)
+        elif vel_data == 1:
+            b = adjoint_beta(data[0])+vel_wt*(adjoint_Ub(data[1])+adjoint_Vb(data[2]))
+        X0 = 0*b
         sol = cg_solve(b,X0)
-        h = forward_beta(sol)
+        fwd = forward_beta(sol)
 
-    elif inv_m == 1:
-        b = adjoint_m(h_obs)
-        X0 = sol
+    elif inv_m == 1 and dim==1:
+        b = adjoint_m(data)
+        X0 = 0*b
         sol = cg_solve(b,X0)
-        h = forward_m(sol)
+        fwd = forward_m(sol)
+        # need to add velocity data option here
 
-    return sol,h
+    elif dim == 2:
+        # data = [h_obs,u_obs,v_obs]
+        if vel_data == 1:
+            b1 = adjoint_w(data[0])+vel_wt*(adjoint_Uw(data[1])+adjoint_Vw(data[2]))
+            b2 = adjoint_beta(data[0])+vel_wt*(adjoint_Ub(data[1])+adjoint_Vb(data[2]))
+        elif vel_data == 0:
+            b1 = adjoint_w(data)
+            b2 = adjoint_beta(data)
+
+        b = np.array([b1,b2])
+        X0 = 0*b
+        sol = cg_solve(b,X0)
+        h = Hc(sol)
+        u = forward_u(sol[0],sol[1])
+        v = forward_v(sol[0],sol[1])
+        fwd = np.array([h,u,v])
+
+    return sol,fwd

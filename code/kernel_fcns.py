@@ -26,8 +26,9 @@ def F(k,kx):
     # Friction transfer function
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
     nx = 2*np.pi*kx
+    g = beta0/n
     F1 =  xi*(2*1j*nx)*(np.exp(3*n) + np.exp(n))
-    D = n*(np.exp(4*n) + 4*n*np.exp(2*n) -1)
+    D = (1+g)*np.exp(4*n) + (2*g+4*n+4*g*(n**2))*np.exp(2*n) -1 + g
 
     return F1/D
 
@@ -51,32 +52,39 @@ def B(k):
 def Uw(k):
     # Horizontal velocity w-response function
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
+    g = beta0/n
 
-    N = np.exp(4*n) - 2*np.exp(2*n)+1
+    N = 2*g**2 - 3*g + 2*(2*g**2-1)*np.exp(2*n)+(2*g**2 + 3*g + 1)*np.exp(4*n)+1
 
-    D = (np.exp(6*n) + (4*n-1)*np.exp(4*n) - (4*n+1)*np.exp(2*n)+1)/(2*np.exp(n))
+    D = ((2*g**2+3*g+1)*np.exp(6*n) + (6*g**2+4*g*(n**2)*(2*g+1)+4*n*(2*g+1)+3*g-1 )*np.exp(4*n)\
+    + (6*g**2 + 4*g*(n**2)*(2*g-1) +4*n*(2*g-1)-3*g-1)*np.exp(2*n)+2*g**2-3*g+1)/(2*np.exp(n))
 
     return N/D
 
 def Uh(k):
     # Horizontal velocity h-response function
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
+    g = beta0/n
 
-    N = n*(1-np.exp(2*n))*np.exp(n)
+    N = 2*n*(g*n+1)*(2*g+(2*g+1)*np.exp(2*n)-1)*np.exp(n)
 
-    D = (np.exp(6*n) + (4*n-1)*np.exp(4*n) - (4*n+1)*np.exp(2*n)+1)/(2*np.exp(n))
+    D = ((2*g**2+3*g+1)*np.exp(6*n) + (6*g**2+4*g*(n**2)*(2*g+1)+4*n*(2*g+1)+3*g-1 )*np.exp(4*n)\
+    + (6*g**2 + 4*g*(n**2)*(2*g-1) +4*n*(2*g-1)-3*g-1)*np.exp(2*n)+2*g**2-3*g+1)/(2*np.exp(n))
 
-    return (2/n**2)*N/D
+    return (1/n**2)*N/D
 
 def Ub(k,kx):
     # Horizontal velocity beta-response function
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
     nx = 2*np.pi*kx
     kap = (n/nx)**2
+    g = beta0/n
 
-    N = ((n-2*kap+1)*np.exp(4*n) + 2*n*(3-4*kap)*np.exp(2*n)+n+2*kap-1)
+    N = 2*kap*(g-1)+n*(2*g-1) + 2*(2*g*kap+4*g*n**2*(kap-1)+n*(4*kap-3))*np.exp(2*n)\
+        +(2*kap*(g+1)-n*(2*g+1)-1)*np.exp(4*n)+1
 
-    D = (np.exp(6*n) + (4*n-1)*np.exp(4*n) - (4*n+1)*np.exp(2*n)+1)/(2*np.exp(n))
+    D = ((2*g**2+3*g+1)*np.exp(6*n) + (6*g**2+4*g*(n**2)*(2*g+1)+4*n*(2*g+1)+3*g-1 )*np.exp(4*n)\
+    + (6*g**2 + 4*g*(n**2)*(2*g-1) +4*n*(2*g-1)-3*g-1)*np.exp(2*n)+2*g**2-3*g+1)/(2*np.exp(n))
 
     return (nx**2/n**3)*N/D
 
@@ -91,9 +99,12 @@ def Vb(k,kx,ky):
     nx = 2*np.pi*kx
     ny = 2*np.pi*ky
     kap = 0
+    g = beta0/n
 
-    N = (n-2*kap+1)*np.exp(4*n) + 2*n*(3-4*kap)*np.exp(2*n)+n+2*kap-1
+    N = 2*kap*(g-1)+n*(2*g-1) + 2*(2*g*kap+4*g*n**2*(kap-1)+n*(4*kap-3))*np.exp(2*n)\
+        +(2*kap*(g+1)-n*(2*g+1)-1)*np.exp(4*n)+1
 
-    D = (np.exp(6*n) + (4*n-1)*np.exp(4*n) - (4*n+1)*np.exp(2*n)+1)/(2*np.exp(n))
+    D = ((2*g**2+3*g+1)*np.exp(6*n) + (6*g**2+4*g*(n**2)*(2*g+1)+4*n*(2*g+1)+3*g-1 )*np.exp(4*n)\
+    + (6*g**2 + 4*g*(n**2)*(2*g-1) +4*n*(2*g-1)-3*g-1)*np.exp(2*n)+2*g**2-3*g+1)/(2*np.exp(n))
 
-    return (nx*ny/(n**3))*N/D
+    return (nx*ny/n**3)*N/D

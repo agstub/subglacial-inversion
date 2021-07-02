@@ -3,8 +3,8 @@
 import sympy as sp
 nu = sp.Symbol('nu')
 mu = sp.exp(nu)
-#gamma = sp.Symbol('gamma')
-gamma = 0 # set background friction to zero for ice shelf or ice stream problems
+gamma = sp.Symbol('gamma')
+#gamma = 0 # set background friction to zero for ice shelf or ice stream problems
 
 # matrix for grounded ice
 M = sp.Matrix(( [mu, -1/mu, nu*mu,-nu/mu], [mu, 1/mu, mu*(nu+1),(nu-1)/mu], [1-gamma, 1+gamma, 1-gamma,-1-gamma],[1,1,0,0] ))
@@ -32,7 +32,7 @@ sol, = sp.linsolve((M,b),[A,B,C,D])
 w_h = mu*sol[0] + (1/mu)*sol[1] + nu*mu*sol[2] + (nu/mu)*sol[3]
 
 # print the result (modulo a 1/k factor) for grounded ice:
-#sp.pprint(sp.collect( sp.collect(sp.collect(sp.collect(sp.simplify(w_h),b1),b2),b3),mu) )
+sp.pprint(sp.collect( sp.collect(sp.collect(sp.collect(sp.simplify(w_h),b1),b2),b3),mu) )
 
 # print the result (modulo a 1/k factor) for floating ice:
 #sp.pprint(sp.collect(sp.collect(sp.collect(sp.simplify(w_h),b1),b3),mu) )
@@ -89,4 +89,4 @@ sol2, = sp.linsolve((M2,d),[E,F])
 uh = Ph + sol2[0]*mu + sol2[1]/mu
 
 ## print velocity response functions
-sp.pprint( sp.simplify(sp.collect( sp.collect(sp.collect(sp.collect(sp.simplify(uh),b1),b2),b3),mu)))
+#sp.pprint( sp.simplify(sp.collect(sp.collect( sp.collect(sp.collect(sp.collect(sp.simplify(uh),b1),b2),b3),mu),nu)))

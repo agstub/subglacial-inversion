@@ -1,6 +1,5 @@
 \documentclass[paper=a4, fontsize=11pt]{article}
-\usepackage{amsmath,amsfonts}
-\usepackage{amsthm}
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
 \usepackage[ruled,vlined]{algorithm2e}
 
 \title{
@@ -24,13 +23,14 @@ Also analyzing the behavior of these models.
 \subsection*{Assumptions}
 \begin{itemize}
 \item Newtonian viscosity $\eta$
-\item linear sliding law at the base for grounded ice, with friction coefficient $\beta_0$
+\item linear sliding law at the base for grounded ice, with friction coefficient $\beta$
 \item hydrostatic normal stress at the ice-ocean interface for floating ice
 \item The unperturbed domain is the infinite strip $\{(x,y,z)\in\mathbb{R}\times\mathbb{R}\times[0,H]\}$ for a
 constant ice thickness $H$
 \item We assume that the solutions are small perturbations of an equilibrium state
-that is a uniform flow in the $x$ direction, with flow velocity $u_0\geq 0$.
-In the case $u_0>0$, we require that $\beta_0=0$.
+that is a simple shear flow in the $x$ direction, $u_0(z) = u_s + z\frac{u_h-u_s}{H} $,
+where $u_s$ is the sliding velocity and $u_h$ is the surface velocity.
+For these simple shear solutions, the background friction coefficient is $\beta_0 = (\eta/H)\times(u_h/u_s - 1)$.
 \end{itemize}
 
 \subsection*{Parameters of interest}
@@ -72,13 +72,16 @@ when $f$ and $g$ are zero for $t<0$.
 \\ \\
 \textbf{Grounded ice.} Fourier-transformed evolution equation for grounded ice is
 \begin{align}
-\frac{\partial \widehat{h}}{\partial t}+ \left[ik_xu_0  + \mathcal{R}_g\right]\widehat{h} = \mathcal{T}_w\widehat{w}_b+ik_xu_0\mathcal{T}_{\beta} \widehat{\beta}.
+\frac{\partial \widehat{h}}{\partial t}+ \left[ik_xu_h  + \mathcal{R}_g\right]\widehat{h} = \mathcal{T}_w\widehat{w}_b+ik_xu_s\mathcal{T}_{\beta} \widehat{\beta}.
 \end{align}
 The relaxation frequency $\mathcal{R}_g$ for grounded ice is given by
 \begin{align}
 \mathcal{R}_g = \left(\frac{\rho_i g }{2\eta k}\right)\frac{ (1+\gamma)e^{4\nu} -(2+4\gamma\nu)e^{2\nu} +1-\gamma  }{ (1+\gamma)e^{4\nu} + (2\gamma+4\nu+4\gamma\nu^2)e^{2\nu} -1 + \gamma  },
 \end{align}
-where $\nu = kH$, $k=\sqrt{k_x^2+k_y^2}$, and $\gamma = \beta_0/(2\eta k)$.
+where $\nu = kH$, $k=\sqrt{k_x^2+k_y^2}$, $\gamma = \beta_0/(2\eta k)$, and
+\begin{align}
+\beta_0  = \frac{\eta}{H}\left(\frac{u_h}{u_b} -1\right).
+\end{align}
 The learned reader will recognize $\frac{\rho_i g }{2\eta k}$ from Turcotte and Schubert's \emph{Geodynamics} text.
 The velocity anomaly transfer function $\mathcal{T}_w$ is given by
 \begin{align}
@@ -86,16 +89,15 @@ The velocity anomaly transfer function $\mathcal{T}_w$ is given by
 \end{align}
 and the friction perturbation transfer function is given by
 \begin{align}
-\mathcal{T}_{\beta} =  \left(\frac{\nu}{\eta k^2}\right) \frac{e^{3\nu} + e^{\nu}}{e^{4\nu} +4\nu e^{2\nu} -1 },
+\mathcal{T}_{\beta} =  \left(\frac{\nu}{\eta k^2}\right) \frac{e^{3\nu} + e^{\nu}}{ (1+\gamma)e^{4\nu} + (2\gamma+4\nu+4\gamma\nu^2)e^{2\nu} -1 + \gamma  }.
 \end{align}
-where we have assumed $\gamma=\beta_0=0$  since $u_0>0$ (otherwise the term vanishes).
 \\ \\
 \textbf{Floating ice.} Here, the evolution of the ice-water interface anomaly, $s$,
-is also part of the solution.
+is also part of the solution. Here, we assume a uniform background flow with $u_s = u_h$.
 The Fourier transformed elevations evolve as
 \begin{align}
-&\frac{\partial \widehat{h}}{\partial t}+ \left[ik_xu_0  + \mathcal{R}_f\right]\widehat{h} = -\delta\mathcal{B}\widehat{s}\label{hf}\\
-&\frac{\partial \widehat{s}}{\partial t}+ [ik_xu_0 + \delta\mathcal{R}_f]\widehat{s} = \widehat{m} - \mathcal{B} \widehat{h}, \label{sf}
+&\frac{\partial \widehat{h}}{\partial t}+ \left[ik_x u_h  + \mathcal{R}_f\right]\widehat{h} = -\delta\mathcal{B}\widehat{s}\label{hf}\\
+&\frac{\partial \widehat{s}}{\partial t}+ [ik_xu_h + \delta\mathcal{R}_f]\widehat{s} = \widehat{m} - \mathcal{B} \widehat{h}, \label{sf}
 \end{align}
 where $\delta = \rho_w/\rho_i -1$, the relaxation function for floating ice is
 \begin{align}
@@ -140,7 +142,7 @@ Similarly, we scale the friction perturbation as
 \end{align}
 and define the scaled friction transfer function to be
 \begin{align}
-\mathcal{T}_{\beta}'(k') =  \frac{2}{k'}\frac{e^{3k'} + e^{k'}}{e^{4 k'} +4 k' e^{2 k'} -1 }.
+\mathcal{T}_{\beta}'(k') =  \frac{2}{k'}\frac{e^{3k'} + e^{k'}}{ (1+\gamma)e^{4 k'} + (2\gamma+4 k'+4\gamma (k')^2)e^{2 k'} -1 + \gamma  }.
 \end{align}
 Note that $\mathcal{T}_w$ is already nondimensional, depending only on $k' = \nu$.
 \\
@@ -154,11 +156,11 @@ where
 \end{align}
 is the observational timescale relative to the relaxation time,
 \begin{align}
-\xi \equiv \frac{u_0 t_0}{h_0} = \frac{u_0}{w_0}
+\xi \equiv \frac{u_s t_0}{h_0} = \frac{u_s}{w_0}
 \end{align}
-is the horizontal velocity relative to the vertical velocity, and
+is the background sliding velocity relative to the vertical velocity, and
 \begin{align}
-\theta \equiv \frac{u_0 t_0}{H} = \left(\frac{u_0}{H}\right) / \left(\frac{w_0}{h_0}\right)
+\theta \equiv \frac{u_h t_0}{H} = \left(\frac{u_h}{H}\right) / \left(\frac{w_0}{h_0}\right)
 \end{align}
 is the horizontal strain-rate scale from the background flow relative to the vertical strain-rate
 scale from the basal anomaly.
@@ -318,6 +320,7 @@ which is associated with the norm
 \| f \| = \sqrt{\langle f,f\rangle},
 \end{align}
 where $T$ is the final time.
+\\ \\
 The adjoint of $\mathsf{H}_\varphi$, i.e. the operator $\mathsf{H}_\varphi^\dagger$  satisfying
 $\langle \mathsf{H}_\varphi(f_1),f_2 \rangle = \langle f_1, \mathsf{H}_\varphi^\dagger(f_2)
 \rangle$ for all $f_1$ and $f_2$, is,
@@ -379,14 +382,15 @@ initialize maximum iteration, $j_\mathrm{max}$, and stopping tolerance, $\mathrm
 \end{algorithm}
 
 \subsection*{Joint velocity-altimetry inversions}
-For the ice stream problem ($u_0>0$ and $\gamma=0$), equation (\ref{hath0})
-shows that both $w_b$ and $\beta$ can influence the surface elevation anomaly.
+Equation (\ref{hath0}) shows that both $w_b$ and $\beta$ can influence the surface elevation anomaly.
 Joint inversion for these parameters requires incorporation of horziontal surface
 velocity data. Expressions for the surface velocity solutions are derived
-in the Appendix. The (coupled) surface velocity solution operators take the form
+in the Appendix.
+\\ \\
+The (coupled) surface velocity solution operators take the form
 \begin{align}
-\mathsf{U}_c(w_b,\beta) =  \mathsf{F}^{-1}(\xi\mathcal{U}_{\beta} \mathsf{F}({\beta}) -ik_x\left(\lambda\mathcal{U}_h\mathsf{F}( \mathsf{H}_c(w_b,\beta) ) +  \mathcal{U}_w\mathsf{F}(w_b)\right)) \label{U}\\
-\mathsf{V}_c(w_b,\beta) =  \mathsf{F}^{-1}(\xi\mathcal{V}_{\beta} \mathsf{F}({\beta}) -ik_y\left(\lambda\mathcal{V}_h\mathsf{F}( \mathsf{H}_c(w_b,\beta) ) +  \mathcal{V}_w\mathsf{F}(w_b)\right))\label{V},
+\mathsf{U}_c(w_b,\beta) =  \mathsf{F}^{-1}(-\xi\mathcal{U}_{\beta} \mathsf{F}({\beta}) -ik_x\left(\lambda\mathcal{U}_h\mathsf{F}( \mathsf{H}_c(w_b,\beta) ) +  \mathcal{U}_w\mathsf{F}(w_b)\right)) \label{U}\\
+\mathsf{V}_c(w_b,\beta) =  \mathsf{F}^{-1}(-\xi\mathcal{V}_{\beta} \mathsf{F}({\beta}) -ik_y\left(\lambda\mathcal{V}_h\mathsf{F}( \mathsf{H}_c(w_b,\beta) ) +  \mathcal{V}_w\mathsf{F}(w_b)\right))\label{V},
 \end{align}
 where $\mathcal{U}_\ell$ and $\mathcal{V}_\ell$ are response functions, and
 \begin{align}
@@ -408,39 +412,63 @@ which have adjoints
 +  \mathsf{F}^{-1}(ik_y{\mathcal{V}_w}\mathsf{F}(f))\\
 &\mathsf{U}_{\beta}^\dagger (f) =
 \mathsf{H}_{\beta}^{\dagger}(\mathsf{F}^{-1}( ik_x\lambda\mathcal{U}_h\mathsf{F}( f )))
-+  \mathsf{F}^{-1}(\xi{\mathcal{U}_\beta}\mathsf{F}(f)) \\
++  \mathsf{F}^{-1}(-\xi{\mathcal{U}_\beta}\mathsf{F}(f)) \\
 &\mathsf{V}_{\beta}^\dagger (f) =
 \mathsf{H}_{\beta}^{\dagger}(\mathsf{F}^{-1}( ik_y\lambda\mathcal{V}_h\mathsf{F}( f )))
-+  \mathsf{F}^{-1}(\xi{\mathcal{V}_\beta}\mathsf{F}(f)),
++  \mathsf{F}^{-1}(-\xi{\mathcal{V}_\beta}\mathsf{F}(f)),
 \end{align}
 where we used the fact that all of the response functions $\{\mathcal{U}_\ell,\mathcal{V}_\ell\}$
 are real-valued.\\ \\
-We let $u^\mathrm{obs}$ and $v^\mathrm{obs}$ be the horizontal surface velocity data.
-Similar to before, the least-squares solution is found by minimizing the regularized misfit functional
+The adjoints of the coupled solution operators are the vector-valued operators
 \begin{align}
-\mathsf{J}_c(w_b,\beta)  =  \frac{1}{2}\|& \mathsf{H}_c(w_b,\beta) - h^{\mathrm{obs}} \|^2 +
- \frac{1}{2}\| \mathsf{U}_c(w_b,\beta) - u^{\mathrm{obs}} \|^2 \\ & +
-  \frac{1}{2}\| \mathsf{V}_c(w_b,\beta) - v^{\mathrm{obs}} \|^2 +
+\mathsf{H}_c^\dagger(f) = \begin{bmatrix}
+ \mathsf{H}_{w_b}^\dagger(f) \\ \mathsf{H}_\beta^\dagger(f)
+\end{bmatrix}, \;\;\;\;
+\mathsf{U}_c^\dagger(f) = \begin{bmatrix}
+ \mathsf{U}_{w_b}^\dagger(f) \\ \mathsf{U}_\beta^\dagger(f)
+\end{bmatrix},\;\;\;\;
+\mathsf{V}_c^\dagger(f) = \begin{bmatrix}
+ \mathsf{V}_{w_b}^\dagger(f) \\ \mathsf{V}_\beta^\dagger(f)
+\end{bmatrix}
+\end{align}
+which satisfy $\langle\mathsf{H}_c(\pmb{p}),q  \rangle = \langle\pmb{p},\mathsf{H}_c^\dagger(q) \rangle$ for all vector-valued functions $\pmb{p}$ (e.g., $[w_b,\beta]^T$) and scalar-valued functions $q$ (e.g., $h$),
+where the inner product for vector-valued functions is just $\langle\pmb{a},\pmb{b} \rangle
+= \langle a_1,b_1 \rangle + \langle a_2,b_2 \rangle $.
+\\ \\
+We let $u^\mathrm{obs}$ and $v^\mathrm{obs}$ be the horizontal surface velocity data.
+Here, we consider a weighted least-squares objective functional:
+\begin{align}
+\mathsf{J}_c(w_b,\beta)  =  \frac{\alpha_h}{2}\|& \mathsf{H}_c(w_b,\beta) - h^{\mathrm{obs}} \|^2 +
+ \frac{\alpha_u}{2}\| \mathsf{U}_c(w_b,\beta) - u^{\mathrm{obs}} \|^2 \\ & +
+  \frac{\alpha_v}{2}\| \mathsf{V}_c(w_b,\beta) - v^{\mathrm{obs}} \|^2 +
 \mathsf{R}_{w_b}(w_b) +\mathsf{R}_\beta(\beta) \label{lsq}
 \end{align}
+where $\alpha_\ell$ are weights on the individual misfit terms.
 Supposing that the first variations with respect to $w_b$ and $\beta$ vanish,
 we obtain the system
 
 \begin{align}
 \begin{cases}
-\mathsf{H}_{w_b}^\dagger (\mathsf{H}_c(w_b,\beta))
-+\mathsf{U}_{w_b}^\dagger (\mathsf{U}_c(w_b,\beta))
-+\mathsf{V}_{w_b}^\dagger (\mathsf{V}_c(w_b,\beta))  + \mathsf{R}_{w_b}'(w_b)   \\
-= \mathsf{H}_{w_b}^\dagger (h^{\mathrm{obs}}) + \mathsf{U}_{w_b}^\dagger (u^{\mathrm{obs}})
-+\mathsf{V}_{w_b}^\dagger (v^{\mathrm{obs}}) \\ \\
-\mathsf{H}_{\beta}^\dagger (\mathsf{H}_c(w_b,\beta))
-+\mathsf{U}_{\beta}^\dagger (\mathsf{U}_c(w_b,\beta))
-+\mathsf{V}_{\beta}^\dagger (\mathsf{V}_c(w_b,\beta))  + \mathsf{R}_{\beta}'(\beta)   \\
-= \mathsf{H}_{\beta}^\dagger (h^{\mathrm{obs}}) + \mathsf{U}_{\beta}^\dagger (u^{\mathrm{obs}})
-+\mathsf{V}_{\beta}^\dagger (v^{\mathrm{obs}})
+\alpha_h \mathsf{H}_{w_b}^\dagger (\mathsf{H}_c(w_b,\beta))
++\alpha_u \mathsf{U}_{w_b}^\dagger (\mathsf{U}_c(w_b,\beta))
++\alpha_v \mathsf{V}_{w_b}^\dagger (\mathsf{V}_c(w_b,\beta))  + \mathsf{R}_{w_b}'(w_b)   \\
+= \alpha_h \mathsf{H}_{w_b}^\dagger (h^{\mathrm{obs}}) + \alpha_u\mathsf{U}_{w_b}^\dagger (u^{\mathrm{obs}})
++\alpha_v\mathsf{V}_{w_b}^\dagger (v^{\mathrm{obs}}) \\ \\
+\alpha_h\mathsf{H}_{\beta}^\dagger (\mathsf{H}_c(w_b,\beta))
++\alpha_u\mathsf{U}_{\beta}^\dagger (\mathsf{U}_c(w_b,\beta))
++\alpha_v\mathsf{V}_{\beta}^\dagger (\mathsf{V}_c(w_b,\beta))  + \mathsf{R}_{\beta}'(\beta)   \\
+= \alpha_h\mathsf{H}_{\beta}^\dagger (h^{\mathrm{obs}}) +\alpha_u\mathsf{U}_{\beta}^\dagger (u^{\mathrm{obs}})
++\alpha_v\mathsf{V}_{\beta}^\dagger (v^{\mathrm{obs}})
 \end{cases},
 \end{align}
-which we also solve with the conjugate gradient method (Algorithm 1).
+which can be written as
+\begin{align}
+\alpha_h \mathsf{H}_c^\dagger(\mathsf{H}_c(w_b,\beta))+\alpha_u\mathsf{U}_c^\dagger(\mathsf{U}_c(w_b,\beta))
++\alpha_v\mathsf{V}_c^\dagger(\mathsf{V}_c(w_b,\beta)) + \mathsf{R}'(w_b,\beta)\nonumber \\ =
+\alpha_h\mathsf{H}_{c}^\dagger (h^{\mathrm{obs}}) + \alpha_u\mathsf{U}_{c}^\dagger (u^{\mathrm{obs}})
++\alpha_v\mathsf{V}_{c}^\dagger (v^{\mathrm{obs}}).
+\end{align}
+We also solve this system with the conjugate gradient method (Algorithm 1).
 
 \newpage
 \section*{Appendix A: \emph{A priori} estimate}
@@ -489,8 +517,7 @@ C_\lambda \equiv \left(\int_{-\infty}^{+\infty}\int_{-\infty}^{+\infty}\left(\in
 The estimate (\ref{est}) shows that $\|{h}\|$ can be significantly smaller
 than $\|f\|$ when $\lambda$ is large. While that was probably obvious
 at this point, one could in principle calculate $C_\lambda $ numerically
-to quantify this for a given set of parameters. From a writing perspective,
-this section would be shortened and appear earlier for motivation if it is included.
+to quantify this for a given set of parameters.
 
 \section*{Appendix B: Model derivation}
 The assumptions are stated at the beginning of the document.\\ \\
@@ -536,24 +563,21 @@ which is equivalent to setting $\beta=0$ in (\ref{sl1})-(\ref{sl2}).
 s_t + us_x + vs_y  = w + m
 \end{align}
 where $m$ is the melt rate.\\ \\
-\noindent\textbf{Equilibrium solution:}\\
-We assume the equilibrium solution is either cryostatic or uniform flow in the $x$ direction.
+\noindent\textbf{Background state:}\\
+We assume the background state is a simple shear flow in the $x$ direction.
 Therefore, we choose $h^0=H$ and $s^0=0$ constant, $\ell=(\rho/\rho_w)H$, and...
 \begin{align}
-&u^0 = u_0\geq 0\;\;\;\; \text{(constant)} \\
+&u^0 = u_s + z\frac{u_h-u_s}{H}  \\
 & v^0 = 0 \\
 &w^0 = 0 \;\;\;\; (w_b^0=0)\\
 &p^0 = \rho g (H-z) \\
 & m^0 = 0\\
-&\beta^0  = \begin{cases}
-\beta_0 = 0 & \text{if} \;\; u_0>0 \\
-\beta_0 \geq 0 & \text{if} \;\; u_0 =0
-\end{cases}
+&\beta^0  = \frac{\eta}{H}\left(\frac{u_h}{u_b} -1\right)
 \end{align}
-
+where $u_b$ is the basal velocity and $u_h$ is the surface velocity.\\
 
 \noindent\textbf{Perturbations:}\\
-We introduce perturbations to the equilibrium state via
+We introduce perturbations to the background state via
 \begin{align}
 &u= u^0 +  u^1 \\
 &v= v^0 +  v^1 \\
@@ -572,12 +596,12 @@ Body equations become:
 &-p_x^1 + \eta (u_{xx}^1 +u_{yy}^1+ u_{zz}^1) = 0 \\
 &-p_x^1 + \eta (v_{xx}^1 +v_{yy}^1+ v_{zz}^1) = 0 \\
 &-p_z^1 + \eta (w_{xx}^1 +w_{yy}^1+ w_{zz}^1) = 0\\
-&u_x^1 + u_y^1 + w_z^1 = 0
+&u_x^1 + v_y^1 + w_z^1 = 0
 \end{align}
 Surface kinematic equations become:
 \begin{align}
-&h_t^1 + u_0 h_x^1  = w^1 \label{ht} \\
-&s_t^1  + u_0 s_x^1 = w^1 + m^1 \label{st}
+&h_t^1 + u_h h_x^1  = w^1 \label{ht} \\
+&s_t^1  + u_s s_x^1 = w^1 + m^1 \label{st}
 \end{align}
 We have to linearize the upper and lower surface equations at $z=H +  h^1$
 and $z= s^1$ onto $z=H$ and $z=0$.
@@ -598,7 +622,7 @@ BC's at the lower boundary ($z=0$) become:\\
 \textbf{Grounded ice:}
 \begin{align}
 &w^1  = w_b^1\\
-&\eta(u_z^1 + w_x^1) = \beta_0 u^1 + u_0\beta^1 \\
+&\eta(u_z^1 + w_x^1) = \beta_0 u^1 + u_s\beta^1 \\
 &\eta(v_z^1 +w_y^1) = \beta_0 v^1
 \end{align}
 \textbf{Floating ice:}
@@ -619,8 +643,8 @@ Derivatives transform as:
 \end{align}
 The upper and lower surface kinematic equations (\ref{ht})-(\ref{st}) transform to
 \begin{align}
-&\widehat{h}_t + u_0 ik_x \widehat{h} = \widehat{w}\label{hthat}\\
-&\widehat{s}_t + u_0 ik_x \widehat{s} = \widehat{w}+\widehat{m}.\label{sthat}
+&\widehat{h}_t + u_h ik_x \widehat{h} = \widehat{w}\label{hthat}\\
+&\widehat{s}_t + u_s ik_x \widehat{s} = \widehat{w}+\widehat{m}.\label{sthat}
 \end{align}
 The Stokes flow equation become
 \begin{align}
@@ -647,13 +671,13 @@ The $z$-derivatives of $\widehat{w}$ are:
 \end{align}
 The sliding law becomes
 \begin{align}
-&\eta( \widehat{u}_z + ik_x \widehat{w}) = \beta_0\widehat{u} + u_0\widehat{\beta} \\
+&\eta( \widehat{u}_z + ik_x \widehat{w}) = \beta_0\widehat{u} + u_s\widehat{\beta} \\
 &\eta( \widehat{v}_z + ik_y \widehat{w}) = \beta_0\widehat{v}.
 \end{align}
 Multiplying through by $-ik_x$ and $-ik_y$, summing the equations, and using the transformed incompressibility
 condition reduces this to
 \begin{align}
-\eta(\widehat{w}_{zz} + k^2 \widehat{w}) = \beta_0 \widehat{w}_z - ik_x   u_0\widehat{\beta}.
+\eta(\widehat{w}_{zz} + k^2 \widehat{w}) = \beta_0 \widehat{w}_z - ik_x   u_s\widehat{\beta}.
 \end{align}
 Similarly, the shear stress condition at the upper surface becomes
 \begin{align}
@@ -680,7 +704,7 @@ A e^{\nu} + B e^{-\nu} + C(\nu+1) e^{\nu} +D(\nu-1) e^{-\nu} =  0
 \end{align}
 The sliding law BC becomes:
 \begin{align}
-{A(1-\gamma)} + {B(1+\gamma)} + {C(1-\gamma)}  - {D(1+\gamma)} = -\frac{ ik_x }{2\eta k}u_0\widehat{\beta}\equiv b_2
+{A(1-\gamma)} + {B(1+\gamma)} + {C(1-\gamma)}  - {D(1+\gamma)} = -\frac{ ik_x }{2\eta k}u_s\widehat{\beta}\equiv b_2
 \end{align}
 where we have defined $\gamma(k) = \beta_0/(2\eta k)$. \\
 \\ The basal velocity anomaly BC becomes
@@ -692,7 +716,7 @@ Equations (\ref{b1})-(\ref{b4}) lead to a linear system
 We can write the anomaly at the surface as
 \begin{align}
 \widehat{w}|_{z=H} &= \frac{1}{k}\left(e^{\nu} A + { e^{-\nu}}B + \nu e^{\nu} C + {\nu}{ e^{-\nu}} D\right) \\
-&= -\mathcal{R}_g\widehat{h} + \mathcal{T}_w\widehat{w}_b  +ik_x u_0  \mathcal{T}_{\beta}  \widehat{\beta}\label{wRT}
+&= -\mathcal{R}_g\widehat{h} + \mathcal{T}_w\widehat{w}_b  +ik_x u_s  \mathcal{T}_{\beta}  \widehat{\beta}\label{wRT}
 \end{align}
 According to SymPy, the relaxation frequency $\mathcal{R}_g$ for grounded ice is given by
 \begin{align}
@@ -704,13 +728,12 @@ the velocity anomaly transfer function $\mathcal{T}_w$ is given by
 \end{align}
 and the friction perturbation transfer function is given by
 \begin{align}
-\mathcal{T}_{\beta} =  \left(\frac{\nu}{\eta k^2}\right) \frac{e^{3\nu} + e^{\nu}}{e^{4\nu} +4\nu e^{2\nu} -1 },
+\mathcal{T}_{\beta} =  \left(\frac{\nu}{\eta k^2}\right) \frac{e^{3\nu} + e^{\nu}}{ (1+\gamma)e^{4\nu} + (2\gamma+4\nu+4\gamma\nu^2)e^{2\nu} -1 + \gamma  }.
 \end{align}
-where we have assumed $\gamma=0$  since $u_0>0$ (otherwise the term vanishes).
 In frequency space,
 equations (\ref{wRT}) and (\ref{hthat}) lead to the evolution equation
 \begin{align}
-\frac{\partial \widehat{h}}{\partial t}+ \left[ik_xu_0  + \mathcal{R}_g\right]\widehat{h} = \mathcal{T}_w\widehat{w}_b+ik_xu_0\mathcal{T}_{\beta} \widehat{\beta}. \label{dhhat}
+\frac{\partial \widehat{h}}{\partial t}+ \left[ik_x u_h  + \mathcal{R}_g\right]\widehat{h} = \mathcal{T}_w\widehat{w}_b+ik_x u_s\mathcal{T}_{\beta} \widehat{\beta}. \label{dhhat}
 \end{align}
 
 \subsection*{Floating ice}
@@ -741,19 +764,20 @@ the buoyancy transfer function is given by
 and $\delta = \rho_w/\rho_i -1$.
 The upper surface therefore evolves as
 \begin{align}
-\frac{\partial \widehat{h}}{\partial t}+ \left[ik_xu_0  + \mathcal{R}_f\right]\widehat{h} = -\delta\mathcal{B}\widehat{s}.
+\frac{\partial \widehat{h}}{\partial t}+ \left[ik_x u_s  + \mathcal{R}_f\right]\widehat{h} = -\delta\mathcal{B}\widehat{s}
 \end{align}
-We also have to determine the evolution of the lower surface, which evolves in frequency space as
+\\ We also have to determine the evolution of the lower surface, which evolves in frequency space as
 \begin{align}
-\frac{\partial \widehat{s}}{\partial t}+ ik_xu_0 \widehat{s} = \widehat{m} + \widehat{w}. \label{stfreq}
+\frac{\partial \widehat{s}}{\partial t}+ ik_x u_h \widehat{s} = \widehat{m} + \widehat{w}, \label{stfreq}
 \end{align}
+assuming $u_h=u_s$ (uniform background flow).
 Using $\widehat{w}|_{z=0}= \frac{1}{k}(A+B)$, we can find
 \begin{align}
 \widehat{w}|_{z=0} = -\delta\mathcal{R}_f\widehat{s} - \mathcal{B} \widehat{h}.
 \end{align}
 Therefore, (\ref{stfreq}) becomes
 \begin{align}
-\frac{\partial \widehat{s}}{\partial t}+ [ik_xu_0 + \delta\mathcal{R}_f]\widehat{s} = \widehat{m} - \mathcal{B} \widehat{h}.
+\frac{\partial \widehat{s}}{\partial t}+ [ik_xu_h + \delta\mathcal{R}_f]\widehat{s} = \widehat{m} - \mathcal{B} \widehat{h}.
 \end{align}
 
 \subsection*{Velocity solutions}
@@ -834,16 +858,16 @@ Then, we can solve for the velocity solutions via
 \end{align}
 Using SymPy, these can be written in terms of $\{\widehat{h},\widehat{w},\widehat{\beta}\}$ as
 \begin{align}
-\widehat{u}_H =    \mathcal{U}_{\beta} \widehat{\beta} +ik_x\left(\mathcal{U}_h\widehat{h} -  \mathcal{U}_w\widehat{w}_b\right) \label{uH}\\
-\widehat{v}_H =  \mathcal{V}_{\beta} \widehat{\beta}+ik_y\left(\mathcal{V}_h\widehat{h} -  \mathcal{V}_w\widehat{w}_b\right)\label{vH}
+\widehat{u}_H =    -\mathcal{U}_{\beta} \widehat{\beta} -ik_x\left(\mathcal{U}_h\widehat{h} +  \mathcal{U}_w\widehat{w}_b\right) \label{uH}\\
+\widehat{v}_H =  -\mathcal{V}_{\beta} \widehat{\beta}-ik_y\left(\mathcal{V}_h\widehat{h} +  \mathcal{V}_w\widehat{w}_b\right)\label{vH}
 \end{align}
 where the response functions for the $u-$component are given by...
-\begin{align}
-& \mathcal{U}_h   =  \frac{\rho g}{2\eta k^2} \left(2\nu (1-e^{2\nu}) e^{\nu} \right)\mathcal{D}^{-1}  \\
-& \mathcal{U}_w  = \frac{1}{k}\nu\left( e^{4\nu} - 2e^{2\nu}+1 \right)\mathcal{D}^{-1} \\
-& \mathcal{U}_\beta  = \frac{u_0 k_x^2}{2\eta k^3}\left((\nu-2\kappa+1)e^{4\nu} +2\nu(3-4\kappa)e^{2\nu} + \nu+2\kappa-1\right)\mathcal{D}^{-1}  \\
-& \mathcal{D}  =  (e^{6\nu} + (4\nu-1)e^{4\nu}- (4\nu+1)e^{2\nu}+1)/(2e^{\nu})
-\end{align}
+\begin{align*}
+& \mathcal{U}_h   =  \frac{\rho g}{2\eta k^2} \bigg(2\nu(\gamma\nu+1)(2\gamma+(2\gamma+1)e^{2\nu}-1)e^\nu \bigg)\mathcal{D}^{-1}  \\
+& \mathcal{U}_w  = \frac{1}{k}\nu\bigg(2\gamma^2-3\gamma+2(2\gamma^2-1)e^{2\nu}+(2\gamma^2+3\gamma+1)e^{4\nu} + 1  \bigg)\mathcal{D}^{-1} \\
+& \mathcal{U}_\beta  = \frac{u_0 k_x^2}{2\eta k^3}\bigg(2\kappa(\gamma-1) + \nu(2\gamma-1)+2(2\gamma\kappa+4\gamma\nu^2(\kappa-1)+\nu(4\kappa-3))e^{2\nu} \\ &+ (2\kappa(\gamma+1)-\nu(2\gamma+1)-1)e^{4\nu}+1 \bigg)\mathcal{D}^{-1}  \\
+& \mathcal{D}  =  \bigg((2\gamma^2+3\gamma+1)e^{6\nu} + (6\gamma^2 + 4\gamma\nu^2(2\gamma+1) + 4\nu(2\gamma+1)+ 3\gamma -1 )e^{4\nu} \\ &+ (6\gamma^2 + 4\gamma\nu^2(2\gamma-1)+ 4\nu(2\gamma-1)-3\gamma -1)e^{2\nu} +2\gamma^2-3\gamma + 1\bigg)/(2e^{\nu})
+\end{align*}
 and those for the $v$-component are given by
 \begin{align}
   & \mathcal{V}_h = \mathcal{U}_h\\
@@ -860,16 +884,16 @@ u = w_0 u', \;\;\;\; v = w_0v'.
 \end{align}
 With this scaling, the nondimensional equations are (dropping primes)
 \begin{align}
-\widehat{u}_H =    \xi\mathcal{U}_{\beta} \widehat{\beta} +ik_x\left(\lambda\mathcal{U}_h\widehat{h} -  \mathcal{U}_w\widehat{w}_b\right) \label{uHsc}\\
-\widehat{v}_H =  \xi\mathcal{V}_{\beta} \widehat{\beta}+ik_y\left(\lambda\mathcal{V}_h\widehat{h} -  \mathcal{V}_w\widehat{w}_b\right)\label{vHsc}
+\widehat{u}_H =    -\xi\mathcal{U}_{\beta} \widehat{\beta} -ik_x\left(\lambda\mathcal{U}_h\widehat{h} +  \mathcal{U}_w\widehat{w}_b\right) \label{uHsc}\\
+\widehat{v}_H =  -\xi\mathcal{V}_{\beta} \widehat{\beta}-ik_y\left(\lambda\mathcal{V}_h\widehat{h} +  \mathcal{V}_w\widehat{w}_b\right)\label{vHsc}
 \end{align}
 where the response functions become
 \begin{align}
-&\mathcal{U}_h =   \frac{1}{k^2}  \left(2k (1-e^{2k}) e^{k} \right)\mathcal{D}^{-1}   = \mathcal{V}_h \\
-&\mathcal{U}_w =  \left( e^{4k} - 2e^{2k}+1 \right)\mathcal{D}^{-1}  = \mathcal{V}_w \\
-&\mathcal{U}_\beta =   \frac{k_x^2}{k^3} \left((k-2\kappa+1)e^{4k} +2\nu(3-4\kappa)e^{2k} + \nu+2\kappa-1\right)\mathcal{D}^{-1}   \\
-&\mathcal{V}_\beta =  \frac{k_x k_y}{k^3} \left((k+1)e^{4k} +6k e^{2k} + k-1\right)\mathcal{D}^{-1}\\
-& \mathcal{D}  =  (e^{6k} + (4k-1)e^{4k}- (4k+1)e^{2k}+1)/(2e^{k})
+&\mathcal{U}_h =   \frac{1}{k^2} \bigstar   = \mathcal{V}_h \\
+&\mathcal{U}_w =  \bigstar  = \mathcal{V}_w \\
+&\mathcal{U}_\beta =   \frac{k_x^2}{k^3} \bigstar   \\
+&\mathcal{V}_\beta =  \frac{k_x k_y}{k^3} \bigstar
 \end{align}
-with $k=\nu$ ($k_x \gets Hk_x$, $k_y \gets Hk_y$) in the scaled equations.
+with $k=\nu$ ($k_x \gets Hk_x$, $k_y \gets Hk_y$) in the scaled equations
+and $\bigstar = \bigg(\text{...}\bigg)$ functions of $\nu$ in big parentheses above.
 \end{document}

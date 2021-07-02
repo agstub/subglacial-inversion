@@ -5,14 +5,20 @@ from scipy.fft import fftfreq
 
 # --------------------inversion options ---------------------------------------
 # set either = 1 (on) or = 0 (off)
-# inversion for one field at a time is supported; only set one of these to 1.
+# inversion for one field at a time is supported
 inv_w = int(1)                      # invert for w     (basal vertical velocity)
 inv_beta = int(0)                   # invert for beta  (slipperiness)
 inv_m = int(0)                      # invert for m     (melt rate)
 
-dim = inv_w + inv_beta
+# NOTE: joint inversion for w and beta (e.g., beneath ice streams) benefits from
+#       supplying horizontal surface velocity data-otherwise, the results tend to
+#       look very bad.
 
-inv_couple = dim-1
+vel_data = int(0)                   # indicate whether horizontal surface velocity
+                                    # data is provided as a constraint
+
+dim = inv_w + inv_beta              # 'dimensionality' of inverse problem
+
 
 #----------------------------regularization-------------------------------------
 # reguarization parameters for each inversion type
@@ -22,7 +28,7 @@ eps_m = 1e-6
 
 # Regularization options: L2 and H1 (see regularizations.py)
 w_reg = 'L2'            # regularization type for w
-beta_reg = 'H1'         # regularization type for beta
+beta_reg = 'L2'         # regularization type for beta
 m_reg = 'L2'            # regularization type for m
 
 #---------------------- physical parameters ------------------------------------
@@ -39,9 +45,10 @@ rho_i = 917                # ice density (kg/m^3)
 rho_w = 1000               # water density
 g = 9.81                   # gravitational acceleration
 
-u_e = 500/3.154e7          # background horizontal flow speed (m/s)
+u_h = 500/3.154e7          # background horizontal surface velocity (m/s)
+u_s = 450/3.154e7          # background sliding velocity (m/s)
 
-beta_e = 0                 # background basal friction coeffcieint (Pa s/m)
+beta_e = (eta/H)*(u_h/u_s-1) # background basal friction coeffcieint (Pa s/m)
 
 t_r = 2*eta/(rho_i*g*H)    # viscous relaxation time
 
@@ -49,7 +56,7 @@ t_r = 2*eta/(rho_i*g*H)    # viscous relaxation time
 lamda = t_sc/t_r           # process timescale relative to
                            # surface relaxation timescale
 
-theta = u_e*t_sc/H             # "background" horizontal strain rate relative to
+theta = u_h*t_sc/H         # "background" horizontal strain rate relative to
                            # vertical strain rate:
                            # U = (u/H) / (w/h0),
                            # where u = dimensional horizontal flow speed
@@ -57,25 +64,27 @@ theta = u_e*t_sc/H             # "background" horizontal strain rate relative to
                            #       w = vertical velocity anomaly scale
                            #       h0 = elevation anomaly scale
 
-xi = u_e*t_sc/h_sc         # coefficient on friction terms
-                           # = horizontal velocity scale/vertical velocity scale
+xi = u_s*t_sc/h_sc         # coefficient on friction terms
+                           # = sliding velocity scale/vertical velocity scale
 
 beta0 = beta_e*H/(2*eta)   # friction coefficient relative to ice viscosity
 
 delta = rho_w/rho_i-1      # density ratio
 
-noise_level = 0.01         # noise level (scaled relative to elevation anomaly amplitude)
+noise_level = 0.0         # noise level (scaled relative to elevation anomaly amplitude)
                            # used to create synthetic data
 
 
 #---------------------- numerical parameters------------------------------------
-cg_tol = 1e-9                      # stopping tolerance for conjugate gradient solver
+vel_wt = 0.01
 
-max_cg_iter =  1000                # maximum conjugate gradient iterations
+cg_tol = 1e-5                      # stopping tolerance for conjugate gradient solver
+
+max_cg_iter =  5000                # maximum conjugate gradient iterations
 
 # discretization parameters
-Nx = 100                           # number of grid points in x-direction
-Ny = 100                           # number of grid points in y-direction
+Nx = 100                            # number of grid points in x-direction
+Ny = 100                            # number of grid points in y-direction
 Nt = 100                           # number of time steps
 
 L = 10                             # horizontal x-y domain is an 8L x 8L square
@@ -98,6 +107,7 @@ ky0 =  fftfreq(Ny,dy)
 
 kx0[0] = 1e-9
 ky0[0] = 1e-9
+
 
 # mesh grids for physical space domain
 t,x,y = np.meshgrid(t0,x0,y0,indexing='ij')

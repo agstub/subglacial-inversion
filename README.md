@@ -8,7 +8,7 @@ field "beta", or (3) the sub-shelf melt rate "m" given the observed surface
 elevation change "h_obs" by solving a least-squares minimization problem
 
 The main model assumptions are (1) Newtonian viscous ice flow, (2) a linear
-basal sliding law, and (3) that all fields are small perturbations of a uniform
+basal sliding law, and (3) that all fields are small perturbations of a simple shear
 background flow. These assumptions allow for efficient solution of the forward
 model: 2D (map-plane) Fourier transforms and convolution in time are the main
 operations. See notes.tex (in *notes* directory) for a description of the model
