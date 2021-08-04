@@ -47,6 +47,7 @@ For floating ice, we will also need to solve for the perturbation
 in ice-water elevation, $s$. \\ \\
 A derivation of the evolution equations is provided in the appendix.
 \\ \\
+\subsection*{Main operations}
 The solution method relies on the 2D Fourier transform, which for a function $f$
 is given by
 \begin{align}
@@ -93,7 +94,7 @@ and the friction perturbation transfer function is given by
 \end{align}
 \\ \\
 \textbf{Floating ice.} Here, the evolution of the ice-water interface anomaly, $s$,
-is also part of the solution. Here, we assume a uniform background flow with $u_s = u_h$.
+is also part of the solution. We assume a uniform background flow with $u_s = u_h$.
 The Fourier transformed elevations evolve as
 \begin{align}
 &\frac{\partial \widehat{h}}{\partial t}+ \left[ik_x u_h  + \mathcal{R}_f\right]\widehat{h} = -\delta\mathcal{B}\widehat{s}\label{hf}\\
@@ -253,16 +254,28 @@ The matrix exponential $e^{{A}t}$ is
 \begin{align}
 e^{{A}t} = {P}e^{{D}t}{P}^{-1}.
 \end{align}
-Luckily we only need to compute the $(1,2)$-component:
 Assuming zero initial displacement, the full solution can be computed as
 \begin{align}
 \pmb{y}(t) = \int_0^t e^{{A}(t-\tau)} \pmb{b}(\tau)\;\mathrm{d}\tau. \label{ysol}
 \end{align}
 The solution for the ice-surface elevation anomaly is
 \begin{align}
-\widehat{h} &= \widehat{m} * \mathcal{K}_f\\
-\mathcal{K}_f(t)  &=  \frac{c\delta}{\mu}(e^{\Lambda_+ t}-e^{\Lambda_-t}).
+\widehat{h} &= \widehat{m} * \overline{\mathcal{K}}_f\\
+\overline{\mathcal{K}}_f(t)  &\equiv  \frac{c\delta}{\mu}(e^{\Lambda_+ t}-e^{\Lambda_-t}).
 \end{align}
+Similarly, the solution for the lower surface perturbation is
+\begin{align}
+  &\widehat{s} = \widehat{m} * \underline{\mathcal{K}}_f\\
+ &\underline{\mathcal{K}}_f(t)  \equiv  \frac{1}{2\mu}[(\mu+\chi)e^{\Lambda_- t}+(\mu-\chi)e^{\Lambda_+t}]\\
+  &\chi \equiv (1-\delta)b = -(1-\delta)\lambda\mathcal{R}_f
+\end{align}
+
+\subsubsection*{Long-wavelength limit}
+Use $\mathcal{R}_f/\mathcal{B}\to 1$ ($a\to b$)
+and $e^{\Lambda_-}\to 0$ (since $\mathrm{Re}(\Lambda_-)\to-\infty$) to show that $\widehat{h}\to -\delta\widehat{s}$ (hydrostatic)
+in the limit $\nu\to 0$. This follows from $-\delta\underline{\mathcal{K}}_f \to  \overline{\mathcal{K}}_f$
+and, in particular, $\mu-\chi \to -2c$.
+
 \subsubsection*{Linear stability}
 For $m$ not varying in time, equilibrium solutions are also stable for this problem.
 To see this, note that $\mathrm{Re}(\Lambda_-)<0$ follows immediately
@@ -285,7 +298,7 @@ Therefore, the stability criterion for a given wavevector is
 which states that viscous relaxation must exceed the bouyancy force
 in order for the equilibrium to be stable (i.e., no runaway growth). \\ \\
 \textbf{From (\ref{Rfsc}) and (\ref{Bsc}),
-the condition (\ref{stability}) holds for all $k>0$!}
+the condition (\ref{stability}) holds for all $k\geq 0$!}
 \\ \\
 Caveat: Of course, nonlinear
 effects or other physics (e.g., fracture) not considered here could lead to instability.
@@ -594,7 +607,7 @@ Method: insert perturbations and discard product terms (i.e., $a^1b^1=O(\epsilon
 Body equations become:
 \begin{align}
 &-p_x^1 + \eta (u_{xx}^1 +u_{yy}^1+ u_{zz}^1) = 0 \\
-&-p_x^1 + \eta (v_{xx}^1 +v_{yy}^1+ v_{zz}^1) = 0 \\
+&-p_y^1 + \eta (v_{xx}^1 +v_{yy}^1+ v_{zz}^1) = 0 \\
 &-p_z^1 + \eta (w_{xx}^1 +w_{yy}^1+ w_{zz}^1) = 0\\
 &u_x^1 + v_y^1 + w_z^1 = 0
 \end{align}
@@ -746,7 +759,7 @@ Analogous to above, the hydrostatic condition becomes
 \end{align}
 Upon substituting the definition of $\widehat{w}$, this reduces to
 \begin{align}
-A-B = \frac{\Delta \rho g}{2\eta}\widehat{s},
+A-B = \frac{\Delta \rho g}{2\eta}\widehat{s}\equiv b_3',
 \end{align}
 which replaces equation (\ref{b4}).
 Following the same approach as before, the velocity at the upper surface is then given by
@@ -794,9 +807,9 @@ e^{-kz}\int_0^z \widehat{p}(z')e^{kz'}\;\mathrm{d}z'\right)
 + E e^{kz} + F e^{-kz} \\
 \widehat{v}(z) = \frac{ik_y }{2\eta k} \left(e^{kz}\int_0^z \widehat{p}(z')e^{-kz'}\;\mathrm{d}z' -
 e^{-kz}\int_0^z \widehat{p}(z')e^{kz'}\;\mathrm{d}z'\right)
-+ G e^{kz} + H e^{-kz}
++ G e^{kz} + I e^{-kz}
 \end{align}
-where $\{E,F,G,H\}$ depend on the boundary conditions.
+where $\{E,F,G,I\}$ depend on the boundary conditions.
 As noted before,
 \begin{align}
 \widehat{p} = \eta\left(\frac{1}{k^2}\widehat{w}_{zzz}-\widehat{w}_z \right).
@@ -818,7 +831,7 @@ Therefore, we obtain
 \begin{align}
 &\widehat{u}(z) = \frac{ik_x }{k^2} P(z)
 + E e^{kz} + F e^{-kz} \\
-&\widehat{v}(z) = \frac{ik_y }{k^2} P(z) + G e^{kz} + H e^{-kz} \\
+&\widehat{v}(z) = \frac{ik_y }{k^2} P(z) + G e^{kz} + I e^{-kz} \\
 &P(z) = \widehat{w}_z-\widehat{w}_z|_{z=0}\cosh(kz) - \frac{1}{k} \widehat{w}_{zz}|_{z=0}\sinh(kz)
 \end{align}
 We can determine the constants $\{E,F,G,H\}$ from the sliding law and stress-free
@@ -827,41 +840,42 @@ First we note that
 \begin{align}
 &\widehat{u}_z(z) = \frac{ik_x }{k^2} P_z(z)
 + E k e^{kz} - F k e^{-kz} \\
-&\widehat{v}_z(z) = \frac{ik_y }{k^2} P_z(z) + G k  e^{kz} - H k e^{-kz} \\
+&\widehat{v}_z(z) = \frac{ik_y }{k^2} P_z(z) + G k  e^{kz} - I k e^{-kz} \\
 &P_z(z) = \widehat{w}_{zz}-\widehat{w}_z|_{z=0}k\sinh(kz) - \widehat{w}_{zz}|_{z=0}\cosh(kz)\\
 &P_z(0) = 0 = P(0).
 \end{align}
 The stress free condition at $z=H$ (i.e., $\widehat{u}_z = -ik_x \widehat{w}$, etc.)
 implies
 \begin{align}
- E  e^{\nu} - F  e^{-\nu} &= -\frac{ik_x}{k^2} \left(k\widehat{w}+\frac{1}{k}P_{z}(H)\right)\equiv b_4 \\
-  G  e^{\nu} - H  e^{-\nu} &= -\frac{ik_y}{k^2} \left(k\widehat{w}+\frac{1}{k}P_{z}(H)\right) \equiv b_4'.
+ E  e^{\nu} - F  e^{-\nu} &= -\frac{ik_x}{k^2} \left(k\widehat{w}_h+\frac{1}{k}P_{z}(H)\right)\equiv b_4 \\
+  G  e^{\nu} - I  e^{-\nu} &= -\frac{ik_y}{k^2} \left(k\widehat{w}_h+\frac{1}{k}P_{z}(H)\right) \equiv b_4'.
 \end{align}
 Note that $b_4=b_4'$ except for the $k_x$ and $k_y$ coefficients.
 We rearrange the sliding law as $\widehat{u}_z - \frac{\beta_0}{\eta}\widehat{u}=\frac{u_0}{\eta}\widehat{\beta}
 -ik_x\widehat{w}_b$, and do some algebra to find
 \begin{align}
 &E (1-2\gamma) - F (1+2\gamma) =
-\frac{ik_x}{k^2}\left(2\kappa b_2 - b_3 \right)  \equiv b_5 \\
+-\frac{ik_x}{k^2}\left(k\widehat{w}_b-2\kappa b_2 \right)  \equiv b_5 \\
 &\kappa = {k}^2/k_x^2
 \end{align}
 and similarly
 \begin{align}
-G (1-2\gamma) -H (1+2\gamma) = -\frac{ik_y}{k^2}b_3 \equiv b_5',
+G (1-2\gamma) -I (1+2\gamma) = -\frac{ik_y}{k^2}(k\widehat{w}_b) \equiv b_5',
 \end{align}
 which is analogous to $b_5$ but with $\kappa=0$.
-At this point, we can solve symbolically for $\{E,F,G,H\}$.
+At this point, we can solve symbolically for $\{E,F,G,I\}$.
 Then, we can solve for the velocity solutions via
 \begin{align}
 \widehat{u}|_{z=H} =&  \frac{ik_x }{k^2} P(H) + E e^{\nu} + F e^{-\nu}  \\
 \widehat{v}|_{z=H} =& \frac{ik_y }{k^2} P(H)+ G e^{\nu} + H e^{-\nu}.
 \end{align}
-Using SymPy, these can be written in terms of $\{\widehat{h},\widehat{w},\widehat{\beta}\}$ as
+\subsubsection*{Response functions for grounded ice}
+Using SymPy, the velocities can be written in terms of $\{\widehat{h},\widehat{w},\widehat{\beta}\}$ as
 \begin{align}
-\widehat{u}_H =    -\mathcal{U}_{\beta} \widehat{\beta} -ik_x\left(\mathcal{U}_h\widehat{h} +  \mathcal{U}_w\widehat{w}_b\right) \label{uH}\\
-\widehat{v}_H =  -\mathcal{V}_{\beta} \widehat{\beta}-ik_y\left(\mathcal{V}_h\widehat{h} +  \mathcal{V}_w\widehat{w}_b\right)\label{vH}
+\widehat{u}_h =    -\mathcal{U}_{\beta} \widehat{\beta} -ik_x\left(\mathcal{U}_h\widehat{h} +  \mathcal{U}_w\widehat{w}_b\right) \label{uH}\\
+\widehat{v}_h =  -\mathcal{V}_{\beta} \widehat{\beta}-ik_y\left(\mathcal{V}_h\widehat{h} +  \mathcal{V}_w\widehat{w}_b\right)\label{vH}
 \end{align}
-where the response functions for the $u-$component are given by...
+The response functions for the $u-$component are given by...
 \begin{align*}
 & \mathcal{U}_h   =  \frac{\rho g}{2\eta k^2} \bigg(2\nu(\gamma\nu+1)(2\gamma+(2\gamma+1)e^{2\nu}-1)e^\nu \bigg)\mathcal{D}^{-1}  \\
 & \mathcal{U}_w  = \frac{1}{k}\nu\bigg(2\gamma^2-3\gamma+2(2\gamma^2-1)e^{2\nu}+(2\gamma^2+3\gamma+1)e^{4\nu} + 1  \bigg)\mathcal{D}^{-1} \\
@@ -874,10 +888,22 @@ and those for the $v$-component are given by
   & \mathcal{V}_w = \mathcal{U}_w\\
   & \mathcal{V}_\beta  =  \frac{u_0 k_x k_y}{2\eta k^3}\left((\nu+1)e^{4\nu} +6\nu e^{2\nu} + \nu-1\right)\mathcal{D}^{-1} .
 \end{align}
-In recording these response functions, we have assumed $\gamma=\beta_0=0$
-because our focus is on joint beneath ice streams (otherwise $u_0=0$
-and the friction perturbation term vanishes). However, the solutions are available
-for general $\gamma>0$, just look a bit more complicated (run the \textbf{algebra.py} SymPy code). \\ \\
+\subsubsection*{Response functions for floating ice}
+Using SymPy, the velocities can be written in terms of $\{\widehat{h},\widehat{s}\}$ as
+\begin{align}
+\widehat{u}_h =  ik_x\left(\mathcal{U}_h\widehat{h} +  \mathcal{U}_s\delta\widehat{s}\right) \label{uHf}\\
+\widehat{v}_h = ik_y\left(\mathcal{V}_h\widehat{h} +  \mathcal{V}_s\delta\widehat{s}\right)\label{vHf}
+\end{align}
+where the response functions are given by
+\begin{align}
+&\mathcal{U}_h = \frac{\rho_i g}{2\eta k^2} \left( 2\nu e^{\nu} \right)/\mathcal{D}=\mathcal{V}_h\\
+&\mathcal{U}_s = \frac{\rho_i g}{2\eta k^2} \left( e^{2\nu}-1 \right)/\mathcal{D}=\mathcal{V}_s\\
+&\mathcal{D} = \left(e^{4\nu} -2(2\nu^2+1)e^{2\nu} +1 \right)/(2\nu e^{\nu})
+\end{align}
+\textbf{To Do:} In the limit $\nu\to 0$, the problem is singular but there is a consistent
+set of solutions since the long-wavelength component is hydrostatic: $\lim_{\nu\to 0 }\widehat{h} = \lim_{\nu\to 0 }(-\delta\widehat{s}) $.
+
+\subsection*{Scaling}
 We scale the velocity equations (\ref{uH}) and (\ref{vH}) via
 \begin{align}
 u = w_0 u', \;\;\;\; v = w_0v'.

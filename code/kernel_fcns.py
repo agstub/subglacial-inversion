@@ -108,3 +108,24 @@ def Vb(k,kx,ky):
     + (6*g**2 + 4*g*(n**2)*(2*g-1) +4*n*(2*g-1)-3*g-1)*np.exp(2*n)+2*g**2-3*g+1)/(2*np.exp(n))
 
     return (nx*ny/n**3)*N/D
+
+
+
+def Uhf(k):
+    # Horizontal velocity h-response function
+    n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
+
+    N = 2*n*np.exp(n)
+    D = (np.exp(4*n) - 2*(2*n**2+1)*np.exp(2*n)+1 )/(2*n*np.exp(n))
+
+    return (1/n**2)*N/D
+
+
+def Usf(k):
+    # Horizontal velocity h-response function
+    n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
+
+    N = np.exp(2*n)-1
+    D = (np.exp(4*n) - 2*(2*n**2+1)*np.exp(2*n)+1 )/(2*n*np.exp(n))
+
+    return (1/n**2)*N/D

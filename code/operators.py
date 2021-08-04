@@ -5,9 +5,9 @@
 #       (composition of forward and adjoint operators plus regularization terms)
 
 import numpy as np
-from kernel_fcns import R,T,F,Rf,B,Uw,Uh,Ub,Vw,Vh,Vb
+from kernel_fcns import R,T,F,Rf,B,Uw,Uh,Ub,Vw,Vh,Vb,Uhf,Usf
 from params import (theta,lamda,eps_beta,eps_w,eps_m,w_reg,beta_reg,m_reg,t,k,kx,ky,
-                    inv_w,inv_beta,inv_m,delta,Nt,xi,dim,vel_wt,vel_data)
+                    inv_w,inv_beta,inv_m,delta,Nt,xi,dim,vel_wt,vel_data,k_min)
 from scipy.signal import fftconvolve
 from scipy.fft import ifft2,fft2
 from regularizations import reg
@@ -186,3 +186,52 @@ def adj_fwd(X):
 
 
     return A
+
+
+
+
+#-------------------------------------------------------------------------------
+def forward_s(m):
+    # forward operator for melt rate m
+    # returns the lower surface elevation s
+
+    m_ft = fft2(m)
+
+    mu = np.sqrt(4*delta*(lamda*B(k))**2 + ((delta-1)**2)*(lamda*Rf(k))**2)
+
+    chi = -(1-delta)*lamda*Rf(k)
+
+    Lp = (-1j*(2*np.pi*kx)*theta-lamda*0.5*(delta+1)*Rf(k)+0.5*mu)*t
+    Lm = (-1j*(2*np.pi*kx)*theta-lamda*0.5*(delta+1)*Rf(k)-0.5*mu)*t
+
+    ker0 = (1/(2*mu))*(mu+chi)*np.exp(Lm)
+    ker1 = (1/(2*mu))*(mu-chi)*np.exp(Lp)
+
+    S = ifft2((1/Nt)*fftconvolve(m_ft,ker0+ker1,mode='full',axes=0)).real[0:Nt,:,:]
+
+    return S
+
+
+def forward_uf(h,s):
+    h_ft = fft2(h)
+    s_ft = fft2(s)
+
+    F = 1j*(2*np.pi*kx)*(Uhf(k)*h_ft + Usf(k)*delta*s_ft)*lamda
+
+    #F[np.abs(k)<k_min] = 0#-lamda*h_ft[np.abs(k)<k_min]
+
+    S = ifft2(F).real
+
+    return S
+
+def forward_vf(h,s):
+    h_ft = fft2(h)
+    s_ft = fft2(s)
+
+    F = 1j*(2*np.pi*ky)*(Uhf(k)*h_ft + Usf(k)*delta*s_ft)*lamda
+
+#    F[np.abs(k)<k_min] = 0#-lamda*h_ft[np.abs(k)<k_min]
+
+    S = ifft2(F).real
+
+    return S

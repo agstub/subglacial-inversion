@@ -29,7 +29,7 @@ def invert(data):
         sol = cg_solve(b,X0)
         fwd = forward_beta(sol)
 
-    elif inv_m == 1 and dim==1:
+    elif inv_m == 1:
         b = adjoint_m(data)
         X0 = 0*b
         sol = cg_solve(b,X0)

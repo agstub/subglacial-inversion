@@ -19,10 +19,11 @@
 #   o params.py: set the inversion options and physical/numerical parameters
 #   o synthetic_data.py: create different synthetic data
 #-------------------------------------------------------------------------------
-from params import Nt,vel_data,dim
-from synthetic_data import h_obs_synth,w_true,beta_true
+from params import Nt,vel_data,dim,delta
+from synthetic_data import h_obs_synth,w_true,beta_true,m_true,h_true,u_true,v_true
 from inversion import invert
-from plotting import plot_results,plot_results_joint
+from plotting import plot_results,plot_results_joint,snapshots,plot_RB
+from aux import calc_m_hydr
 import os
 import numpy as np
 
@@ -37,7 +38,6 @@ if vel_data == 1:
     u_obs = u_obs_synth
     v_obs = v_obs_synth
     data = np.array([h_obs,u_obs,v_obs])
-
 
 
 sol,fwd = invert(data) # solve the inverse problem
