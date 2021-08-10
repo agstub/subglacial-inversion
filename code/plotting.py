@@ -4,9 +4,9 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from params import x,y,x0,y0,t0,L,inv_w,inv_beta,inv_m,H,Nt
+from params import x,y,x0,y0,t0,L,inv_w,inv_beta,inv_m,H,Nt,dim,Nx
 from synthetic_data import beta_true,w_true,m_true,u_true,v_true
-from kernel_fcns import Rf,B
+import os
 
 mpl.rcParams['xtick.major.size'] = 4
 mpl.rcParams['xtick.major.width'] = 2
@@ -18,7 +18,21 @@ mpl.rcParams['ytick.minor.size'] = 2
 mpl.rcParams['ytick.minor.width'] = 1
 
 
-def plot_results(sol,h,h_obs,i):
+def plot_movie(sol,fwd,data):
+    #* save a png image of the solution at each timestep
+    #* need to make a directory called 'pngs' first!
+    if os.path.isdir('pngs')==False:
+        os.mkdir('pngs')    # make a directory for the results.
+
+    for i in range(Nt):
+        if dim == 1 :
+            plot(sol,fwd,data,i)
+        elif dim == 2:
+            plot_joint(sol[0],sol[1],fwd[0],data[0],fwd[1],data[1],fwd[2],data[2],i)
+
+
+
+def plot(sol,h,h_obs,i):
 
     # normalizations for plotting (h,w,beta)
     h_max = np.max([np.max(np.abs(h_obs)),1e-10])
@@ -61,7 +75,7 @@ def plot_results(sol,h,h_obs,i):
         p2 = plt.contourf(x0,y0,sol[i,:,:].T/sol_max,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
     elif inv_beta == 1:
         plt.annotate(r'$\beta$',xy=(-3.9*L,3.15*L),fontsize=18)
-        p2 = plt.contourf(x0,y0,sol[i,:,:].T/sol_max,cmap='Blues',vmin=0,vmax=1,levels=np.linspace(0,1,9),extend='both')
+        p2 = plt.contourf(x0,y0,sol[i,:,:].T/sol_max,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     elif inv_m == 1:
         plt.annotate(r'$m$',xy=(-3.9*L,3.15*L),fontsize=18)
@@ -79,7 +93,7 @@ def plot_results(sol,h,h_obs,i):
         p2 = plt.contourf(x0,y0,w_true[i,:,:].T/sol_max,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
     elif inv_beta == 1:
         plt.annotate(r'$\beta^{\mathrm{true}}$',xy=(-3.9*L,2.9*L),fontsize=18)
-        p2 = plt.contourf(x0,y0,beta_true[i,:,:].T/sol_max,cmap='Blues',vmin=0,vmax=1,levels=np.linspace(0,1,9),extend='both')
+        p2 = plt.contourf(x0,y0,beta_true[i,:,:].T/sol_max,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     elif inv_m == 1:
         plt.annotate(r'$m^{\mathrm{true}}$',xy=(-3.9*L,2.9*L),fontsize=18)
@@ -107,14 +121,14 @@ def plot_results(sol,h,h_obs,i):
 
 #-------------------------------------------------------------------------------
 
-def plot_results_joint(w,beta,h,h_obs,u,u_obs,v,v_obs,i):
+def plot_joint(w,beta,h,h_obs,u,u_obs,v,v_obs,i):
 
     # normalizations for plotting (h,w,beta)
     h_max = np.max(np.abs(h_obs))
     w_max = np.max( [np.max(np.abs(w)),1e-10] )
     beta_max = np.max([np.max(np.abs(beta)),1e-10])
 
-    ds = 10            # spacing for velocity plots
+    ds = int(10*Nx/100)            # spacing for velocity plots
 
     u_max = np.max(np.abs(u_obs))
     v_max = np.max(np.abs(v_obs))
@@ -175,8 +189,6 @@ def plot_results_joint(w,beta,h,h_obs,u,u_obs,v,v_obs,i):
     plt.gca().yaxis.set_ticklabels([])
     plt.gca().xaxis.set_ticklabels([])
 
-
-
     fig.subplots_adjust(right=0.85)
     cbar_ax = fig.add_axes([0.875, 0.395, 0.03, 0.2])
     cbar = fig.colorbar(p2,cax=cbar_ax,orientation='vertical',ticks=levels0)
@@ -229,6 +241,7 @@ def snapshots(sol,h_obs):
     levels = np.linspace(-1,1,9)
     levels_m = np.linspace(-1,1,9)
 
+    h_obs = h_obs/np.max(np.abs(h_obs))
     sol = sol/np.abs(np.max(sol))
 
     ds = 10            # spacing for velocity plots
@@ -374,20 +387,3 @@ def snapshots(sol,h_obs):
 
     plt.savefig('snaps',bbox_inches='tight')
     plt.close()
-
-
-
-def plot_RB():
-
-    k = np.linspace(1e-2,1,1000)/(2*np.pi)
-
-    plt.figure(figsize=(8,6))
-    plt.plot(k,Rf(k)/B(k),linewidth=3,color='royalblue')
-    #plt.plot(k,B(k),linewidth=3,color='crimson')
-    plt.xlabel(r'$k$',fontsize=24)
-    plt.ylabel(r'$\mathcal{R}_f-\mathcal{B}$',fontsize=24)
-    plt.xticks(fontsize=16)
-    plt.yticks(fontsize=16)
-    plt.savefig('RBplot')
-
-    return 0

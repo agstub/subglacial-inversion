@@ -1,19 +1,20 @@
 # this file contains the integral kernel functions that are used for applying the
 # forward and adjoint operators
 import numpy as np
-from params import beta0,xi,delta
+from params import beta0,nu,delta,slope
 
-def R(k):
+def Rg(k,kx):
     # Ice surface relaxation function for grounded ice
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
     g = beta0/n
-    R1 =  (1/n)*((1+g)*np.exp(4*n) - (2+4*g*n)*np.exp(2*n) + 1 -g)
+    c_a = (1j*kx/k)*np.tan(slope)
+    R1 =  (1/n)*((1+g)*np.exp(4*n) - (2+4*g*n-4*c_a*n*(1+g*n))*np.exp(2*n) + 1 -g)
     D = (1+g)*np.exp(4*n) + (2*g+4*n+4*g*(n**2))*np.exp(2*n) -1 + g
 
     return R1/D
 
 
-def T(k):
+def Tw(k):
     # Basal velocity transfer function
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
     g = beta0/n
@@ -22,12 +23,12 @@ def T(k):
 
     return T1/D
 
-def F(k,kx):
-    # Friction transfer function
+def Tb(k,kx):
+    # Basal sliding transfer function
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
     nx = 2*np.pi*kx
     g = beta0/n
-    F1 =  xi*(2*1j*nx)*(np.exp(3*n) + np.exp(n))
+    F1 =  nu*(2*1j*nx)*(np.exp(3*n) + np.exp(n))
     D = (1+g)*np.exp(4*n) + (2*g+4*n+4*g*(n**2))*np.exp(2*n) -1 + g
 
     return F1/D
@@ -61,9 +62,11 @@ def Uw(k):
 
     return N/D
 
-def Uh(k):
+def Uh(k,kx):
     # Horizontal velocity h-response function
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
+    nx = 2*np.pi*kx
+    c_a = (1j*nx/n)*np.tan(slope)
     g = beta0/n
 
     N = 2*n*(g*n+1)*(2*g+(2*g+1)*np.exp(2*n)-1)*np.exp(n)
@@ -71,7 +74,9 @@ def Uh(k):
     D = ((2*g**2+3*g+1)*np.exp(6*n) + (6*g**2+4*g*(n**2)*(2*g+1)+4*n*(2*g+1)+3*g-1 )*np.exp(4*n)\
     + (6*g**2 + 4*g*(n**2)*(2*g-1) +4*n*(2*g-1)-3*g-1)*np.exp(2*n)+2*g**2-3*g+1)/(2*np.exp(n))
 
-    return (1/n**2)*N/D
+    kap = (n/nx)**2
+
+    return (1/n**2)*(N+P(n,g,kap,c_a))/D
 
 def Ub(k,kx):
     # Horizontal velocity beta-response function
@@ -91,8 +96,19 @@ def Ub(k,kx):
 def Vw(k):
     return Uw(k)
 
-def Vh(k):
-    return Uh(k)
+def Vh(k,kx):
+    # Horizontal velocity h-response function
+    n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
+    nx = 2*np.pi*kx
+    g = beta0/n
+    c_a = (1j*nx/n)*np.tan(slope)
+
+    N = 2*n*(g*n+1)*(2*g+(2*g+1)*np.exp(2*n)-1)*np.exp(n)
+
+    D = ((2*g**2+3*g+1)*np.exp(6*n) + (6*g**2+4*g*(n**2)*(2*g+1)+4*n*(2*g+1)+3*g-1 )*np.exp(4*n)\
+    + (6*g**2 + 4*g*(n**2)*(2*g-1) +4*n*(2*g-1)-3*g-1)*np.exp(2*n)+2*g**2-3*g+1)/(2*np.exp(n))
+
+    return (1/n**2)*(N+P(n,g,0,c_a))/D
 
 def Vb(k,kx,ky):
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
@@ -129,3 +145,14 @@ def Usf(k):
     D = (np.exp(4*n) - 2*(2*n**2+1)*np.exp(2*n)+1 )/(2*n*np.exp(n))
 
     return (1/n**2)*N/D
+
+def P(n,g,kap,c_a):
+    # Additional terms in velocity response functions for sloping bed problem
+    p0 = -1-2*g**2 + 3*g + 2*kap*(2*g**2-3*g+1)
+    p1 = (2*g**2 +3*g -2*kap*(2*g**2+3*g+1)+1)*np.exp(6*n)
+    p2 = (-16*(g*n)**2 -8*n*g**2 -2*g**2 + 8*g*n**2 -12*g*n -3*g +2*kap*(
+           8*(g*n)**2 + 2*g**2 -4*g*n**2 +8*g*n -g-4*n+1)+8*n-1)*np.exp(2*n)
+    p3 = (16*(g*n)**2 - 8*n*g**2 +2*g**2 +8*g*n**2 +12*g*n -3*g -2*kap*(
+           8*(g*n)**2 +2*g**2 +4*g*n**2 +8*g*n +g+4*n+1)+8*n+1)*np.exp(4*n)
+
+    return c_a*(p0+p1+p2+p3)
