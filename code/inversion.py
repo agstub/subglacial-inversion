@@ -28,7 +28,6 @@ def invert(data):
         X0 = 0*b
         sol = cg_solve(b,X0)
         fwd = forward_m(sol)
-        # need to add velocity data option here
 
     elif dim == 2:
         # data = [h_obs,u_obs,v_obs]

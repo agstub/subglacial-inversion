@@ -243,7 +243,6 @@ def forward_vf(h,s):
 
     F = 1j*(2*np.pi*ky)*(Uhf(k)*h_ft + Usf(k)*delta*s_ft)*lamda
 
-
     S = ifft2(F).real
 
     return S

@@ -13,17 +13,18 @@ inv_m = int(0)                      # invert for m     (melt rate)
 # NOTE: joint inversion for w and beta benefits from supplying horizontal surface
 #       velocity data---otherwise, the results tend to look very bad.
 
-vel_data = int(0)                   # indicate whether horizontal surface velocity
+vel_data = int(1)                   # indicate whether horizontal surface velocity
                                     # data is provided as a constraint
 
 dim = inv_w + inv_beta + inv_m      # 'dimensionality' of inverse problem
 
+make_movie = int(0)                 # make movie of simulation (png at each timestep)
 
 #----------------------------regularization-------------------------------------
 # reguarization parameters for each inversion type
-eps_w = 1e-3
-eps_beta = 1e-4
-eps_m = 1e-4
+eps_w = 1e-5
+eps_beta = 1e-2
+eps_m = 1e-6
 
 # Regularization options: L2 and H1 (see regularizations.py)
 w_reg = 'L2'            # regularization type for w
@@ -33,11 +34,13 @@ m_reg = 'L2'            # regularization type for m
 #---------------------- physical parameters ------------------------------------
 
 # dimensional parameters
-H = 1000                    # ice thickness (m)
+
+H = 1000                   # ice thickness (m)
 h_sc = 1                   # elevation anomaly scale (m)
 asp = h_sc/H               # aspect ratio
 
-slope =  0*np.pi/180       # slope of basal surface (radians)
+L = 10                     # horizontal x-y domain is an 8L x 8L square (horizontal length scale = H)
+t_final = 20               # final time
 
 t_sc = 1*3.154e7           # observational timescale (s)
 eta = 1e13                 # Newtonian ice viscosity (Pa s)
@@ -49,26 +52,43 @@ rho_w = 1000               # water density
 g = 9.81                   # gravitational acceleration
 
 
-# "background flow"
-u_slope = (rho_i*g*(H**2)/(2*eta))*np.sin(slope)    # intrinsic surface velocity for inclined slope problem
-u_sshear = 250/3.154e7*(1-np.abs(np.sign(slope)))   # surface velocity for simple shear problem
+# "background flow" (default examples)
+if inv_m == 0:
+    slope =  0.1*(np.pi/180)*inv_m       # slope of basal surface (radians)
 
-u_b = 200/3.154e7              # background sliding velocity (m/s)
+    uh_slope = (rho_i*g*np.sin(slope)*(H**2)/(2*eta))*np.abs(np.sign(slope))   # intrinsic surface velocity for inclined slope problem
 
-u_h = u_b + (u_slope + u_sshear)*(1-inv_m) # background horizontal surface velocity (m/s)
+    uh_sshear = 260/3.154e7*(1-np.abs(np.sign(slope)))   # surface velocity for simple shear problem
 
+    ub = 200/3.154e7                             # background sliding velocity (m/s)
+
+    uh = ub*np.abs(np.sign(slope)) + uh_sshear + uh_slope           # background horizontal surface velocity (m/s)
+
+elif inv_m == 1:
+    slope = 0
+    ub = 2000/3.154e7
+    uh = 2000/3.154e7
 
 # Set background drag coefficient and related parameters, depending on the bed slope
 if slope > 1e-7:
     # inclined slope problem
-    beta_e = 2*(eta/H)*(u_h/u_b-1) # background basal friction coeffcieint (Pa s/m)
+    beta_e = 2*(eta/H)*(uh/ub-1) # background basal friction coeffcieint (Pa s/m)
     uzz = -rho_i*g*np.sin(slope)/eta
     uz = rho_i*g*np.sin(slope)*H/eta
 else:
     # simple shear problem
-    beta_e = (eta/H)*(u_h/u_b-1)
-    uz = (u_h - u_b)/H
+    beta_e = (eta/H)*(uh/ub-1)
+    uz = (uh - ub)/H
     uzz = 0
+
+## sanity check printing ....
+print('Background state properties:')
+print('bed slope = '+str(slope*180/np.pi)+' deg.')
+print('u_h = '+str(uh*3.154e7))
+print('u_b = '+str(ub*3.154e7))
+print('beta = '+"{:.1E}".format(beta_e))
+print('\n')
+
 
 t_r = 2*eta/(rho_i*g*H*np.cos(slope))    # viscous relaxation time
 
@@ -76,7 +96,7 @@ t_r = 2*eta/(rho_i*g*H*np.cos(slope))    # viscous relaxation time
 lamda = t_sc/t_r           # process timescale relative to
                            # surface relaxation timescale
 
-uh0 = u_h*t_sc/H           # "background" horizontal strain rate relative to
+uh0 = uh*t_sc/H           # "background" horizontal strain rate relative to
                            # vertical strain rate:
                            # U = (u/H) / (w/h0),
                            # where u = dimensional horizontal flow speed
@@ -84,9 +104,9 @@ uh0 = u_h*t_sc/H           # "background" horizontal strain rate relative to
                            #       w = vertical velocity anomaly scale
                            #       h0 = elevation anomaly scale
 
-ub0 = u_b*t_sc/H
+ub0 = ub*t_sc/H
 
-nu = u_b*t_sc/h_sc         # coefficient on sliding terms
+nu = ub*t_sc/h_sc         # coefficient on sliding terms
                            # = sliding velocity scale/vertical velocity scale
 
 tau = (beta_e*uz - eta*uzz)*H*t_sc/(2*eta)
@@ -95,7 +115,7 @@ beta0 = beta_e*H/(2*eta)   # friction coefficient relative to ice viscosity
 
 delta = rho_w/rho_i-1      # density ratio
 
-noise_level = 0.0          # noise level (scaled relative to elevation anomaly amplitude)
+noise_level = 0.01         # noise level (scaled relative to elevation anomaly amplitude)
                            # used to create synthetic data
 
 
@@ -103,17 +123,14 @@ noise_level = 0.0          # noise level (scaled relative to elevation anomaly a
 u_wt = 0.01                      # weight on surface velocity misfit for joint inversions
 h_wt = 1                         # weight on elevation misfit for joint inversion
 
-cg_tol = 1e-9                     # stopping tolerance for conjugate gradient solver
+cg_tol = 1e-7                     # stopping tolerance for conjugate gradient solver
 
 max_cg_iter =  500                # maximum conjugate gradient iterations
 
 # discretization parameters
 Nx = 20                            # number of grid points in x-direction
 Ny = 20                            # number of grid points in y-direction
-Nt = 100                            # number of time steps
-
-L = 10                      # horizontal x-y domain is an 8L x 8L square
-t_final = 5                 # final time
+Nt = 200                            # number of time steps
 
 t0 = np.linspace(0,t_final,num=Nt) # time array
 

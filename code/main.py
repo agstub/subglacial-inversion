@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # author: Aaron Stubblefield, Columbia University
 #
-# * this program inverts for (1) a basal velocity anomaly "w", (2) basal friction
+# * this program inverts for (1) a basal velocity anomaly "w", (2) basal sliding coefficient
 #   field "beta", or (3) sub-shelf melt rate "m", given the observed surface elevation
 #   change "h_obs" (and possibly horizontal surface velocity u_obs & v_obs) by
 #   solving a least-squares minimization problem
@@ -19,10 +19,10 @@
 #   o params.py: set the inversion options and physical/numerical parameters
 #   o synthetic_data.py: create different synthetic data
 #-------------------------------------------------------------------------------
-from params import dim
+from params import dim,make_movie
 from synthetic_data import h_obs_synth,w_true,beta_true,m_true,h_true,u_obs_synth,v_obs_synth
 from inversion import invert
-from plotting import plot_movie,snapshots
+from plotting import plot_movie,snapshots,snapshots_joint
 from aux import calc_m_hydr
 import numpy as np
 
@@ -39,4 +39,13 @@ elif dim == 2:
 
 sol,fwd = invert(data) # solve the inverse problem
 
-plot_movie(sol,fwd,data)
+#plot_movie(sol,fwd,data)
+sol_true = w_true+beta_true+m_true
+
+if dim == 1:
+    snapshots(sol,data,sol_true)
+elif dim == 2:
+    snapshots_joint(sol,data)
+
+if make_movie == 1:
+    plot_movie(sol,fwd,data)
