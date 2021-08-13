@@ -11,7 +11,9 @@ sigma = 2*L/3          # standard deviation for Gaussians used in default exampl
 # (1) VERTICAL VELOCITY ANOMALY
 # *EXAMPLE 1
 # Subglacial lake : Stationary Gaussian with oscillating amplitude
-w_true = 50*np.exp(-0.5*(sigma**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*np.cos(4*np.pi*t/(0.5*t_final))*inv_w
+w_true = 50*np.exp(-0.5*(sigma**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*np.cos(4*np.pi*t/(t_final))*inv_w
+w_true[t<0.1*t_final] = 0
+w_true[t>0.9*t_final] = 0
 
 # *EXAMPLE 2
 # Bed bump: w_b = u_b*ds/dx
@@ -23,13 +25,16 @@ w_true = 50*np.exp(-0.5*(sigma**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*np.c
 # Gaussian friction perturbation (constant in time)
 # default is slippery spot, switch sign for sticky spot
 beta_true = -8e-2*np.exp(-0.5*((sigma)**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*inv_beta
-
+beta_true[t<0.1*t_final] = 0
+beta_true[t>0.9*t_final] = 0
 
 # (3) MELTING ANOMALY (sub-shelf)
 # travelling Gaussian melt 'wave'
-xc = (20-40*t/(t_final/2))*(L/10)
+xc = (-20+40*t/t_final)*(L/10)
 
-m_true = 100*np.exp(-0.5*((0.5*sigma)**(-2))*(np.abs(x-xc)**2+np.abs(1*y)**2 ))*inv_m
+m_true = 100*np.exp(-0.5*((0.5*sigma)**(-2))*(np.abs(x-xc)**2+np.abs(y)**2 ))*inv_m
+m_true[t<0.1*t_final] = 0
+m_true[t>0.9*t_final] = 0
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -80,12 +85,8 @@ elif dim == 2:
     u_obs_synth = u_true+noise_level*np.max(np.abs(u_true))*np.random.normal(size=(Nt,Nx,Ny))
     v_obs_synth = v_true+noise_level*np.max(np.abs(u_true))*np.random.normal(size=(Nt,Nx,Ny))
 
-from scipy.fft import ifft2,fft2
-s_true = ifft2(sg_fwd(fft2(w_true))).real
-
 # # print max values of data for sanity check...
 print('Synthetic data properties:')
-print('max s = '+str(np.max(np.abs(s_true))))
 print('max h = '+str(np.max(np.abs(h_true))))
 print('max u = '+str(np.max(np.abs(u_true))))
 print('max v = '+str(np.max(np.abs(v_true))))

@@ -19,33 +19,31 @@
 #   o params.py: set the inversion options and physical/numerical parameters
 #   o synthetic_data.py: create different synthetic data
 #-------------------------------------------------------------------------------
-from params import dim,make_movie
+from params import dim,make_movie,vel_data,delta
 from synthetic_data import h_obs_synth,w_true,beta_true,m_true,h_true,u_obs_synth,v_obs_synth
 from inversion import invert
-from plotting import plot_movie,snapshots,snapshots_joint
+from plotting import plot_movie,snapshots,compare_plot
 from aux import calc_m_hydr
 import numpy as np
 
 # synthetic data example (see synthetic_data.py)
 h_obs = h_obs_synth
 
-if dim == 1:
+if vel_data == 0:
     data = h_obs
-elif dim == 2:
-    from synthetic_data import u_obs_synth,v_obs_synth
+elif vel_data == 1:
     u_obs = u_obs_synth
     v_obs = v_obs_synth
     data = np.array([h_obs,u_obs,v_obs])
 
 sol,fwd = invert(data) # solve the inverse problem
 
-#plot_movie(sol,fwd,data)
-sol_true = w_true+beta_true+m_true
-
 if dim == 1:
+    sol_true = w_true+beta_true+m_true
     snapshots(sol,data,sol_true)
+
 elif dim == 2:
-    snapshots_joint(sol,data)
+    snapshots(sol[0],data,sol[1])
 
 if make_movie == 1:
     plot_movie(sol,fwd,data)

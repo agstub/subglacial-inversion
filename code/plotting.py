@@ -3,7 +3,7 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from params import x,y,x0,y0,t0,L,inv_w,inv_beta,inv_m,H,Nt,dim,Nx
+from params import x,y,x0,y0,t0,L,inv_w,inv_beta,inv_m,H,Nt,dim,Nx,vel_data
 from synthetic_data import beta_true,w_true,m_true,u_true,v_true
 import os
 
@@ -23,12 +23,11 @@ def plot_movie(sol,fwd,data):
     if os.path.isdir('pngs')==False:
         os.mkdir('pngs')    # make a directory for the results.
 
-    for i in range(0.5*Nt):
+    for i in range(Nt):
         if dim == 1 :
             plot(sol,fwd,data,i)
         elif dim == 2:
             plot_joint(sol[0],sol[1],fwd[0],data[0],fwd[1],data[1],fwd[2],data[2],i)
-
 
 
 def plot(sol,h,h_obs,i):
@@ -106,10 +105,7 @@ def plot(sol,h,h_obs,i):
 
     fig.subplots_adjust(right=0.85)
     cbar_ax = fig.add_axes([0.875, 0.15, 0.03, 0.25])
-    if inv_w == 1 or inv_m==1:
-        cbar = fig.colorbar(p2,cax=cbar_ax,orientation='vertical',ticks=levels0)
-    elif inv_beta == 1:
-        cbar = fig.colorbar(p2,cax=cbar_ax,orientation='vertical',ticks=[0,0.25,0.5,0.75,1])
+    cbar = fig.colorbar(p2,cax=cbar_ax,orientation='vertical',ticks=levels0)
 
     cbar.ax.get_yaxis().labelpad = 20
     cbar.ax.tick_params(labelsize=18)
@@ -234,45 +230,100 @@ def plot_joint(w,beta,h,h_obs,u,u_obs,v,v_obs,i):
 
 
 #-------------------------------------------------------------------------------
-def snapshots(sol,h_obs,sol_true):
+def snapshots(sol,data,sol_true):
 
-    Nt0 = int(Nt/2)
+    Nt0 = Nt#int(Nt/2)
 
     levels00 = np.array([-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1])*0.5
     levels0 = [-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1]
     levels = np.linspace(-1,1,9)
 
+    if vel_data == 0:
+        h_obs = data
+        u = u_true
+        v = v_true
+        sol = sol/np.max(np.abs(sol_true))
+        sol_true = sol_true/np.max(np.abs(sol_true))
+    else:
+        h_obs = data[0]
+        u = data[1]
+        v = data[2]
+        sol = sol/np.max(np.abs(sol))
+        sol_true = sol_true/np.max(np.abs(sol_true))
+
     h_obs = h_obs/np.max(np.abs(h_obs))
-    sol = sol/np.max(np.abs(sol_true))
-    sol_true = sol_true/np.max(np.abs(sol_true))
 
     ds = int(5*Nx/100)             # spacing for velocity plots
 
     if inv_m == 1:
         ds = int(10*Nx/100)
 
-    u = u_true
-    v = v_true
-
     u_max = np.max(np.sqrt(u**2+v**2))
     v_max = np.max(np.sqrt(u**2+v**2))
 
     ytix = np.array([-4*L,-2*L,0,2*L,4*L])
 
-    fig = plt.figure(figsize=(13,8))
+    fig = plt.figure(figsize=(10,8))
 
-    # Col 4---------------------------------------------------------------------
-    i = int(Nt0)-1
-    plt.subplot(344)
-    plt.annotate(r'(d)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+    # Col 1---------------------------------------------------------------------
+    i = int(Nt0/4)
+    plt.subplot(331)
+    plt.annotate(r'(a)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
 
-    plt.title(r'$t\,/\,T = 1$',fontsize=22 )
+    plt.title(r'$t\,/\,T = 0.25$',fontsize=22 )
+
+    plt.ylabel(r'$y$',fontsize=20)
 
     p1 = plt.contourf(x0,y0,h_obs[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
     plt.quiver(x[0,::ds,::ds],y[0,::ds,::ds],u[i,::ds,::ds]/u_max,v[i,::ds,::ds]/v_max,units='inches',alpha=0.5,scale=4,minlength=0,width=0.02,color='k')
 
-
     plt.yticks(ytix,fontsize=16)
+    plt.gca().xaxis.set_ticklabels([])
+
+    plt.subplot(334)
+    plt.annotate(r'(d)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+
+    p2 = plt.contourf(x0,y0,sol[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+
+    plt.ylabel(r'$y$',fontsize=20)
+    plt.xticks(fontsize=16)
+    plt.yticks(ytix,fontsize=16)
+    plt.gca().xaxis.set_ticklabels([])
+
+    # Col 2---------------------------------------------------------------------
+    i = int(Nt0/2)
+    plt.subplot(332)
+    plt.annotate(r'(b)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+
+    plt.title(r'$t\,/\,T = 0.5$',fontsize=22 )
+
+    plt.gca().yaxis.set_ticklabels([])
+    plt.gca().xaxis.set_ticklabels([])
+
+    p1 = plt.contourf(x0,y0,h_obs[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    plt.quiver(x[0,::ds,::ds],y[0,::ds,::ds],u[i,::ds,::ds]/u_max,v[i,::ds,::ds]/v_max,units='inches',alpha=0.5,scale=4,minlength=0,width=0.02,color='k')
+
+    plt.gca().xaxis.set_ticklabels([])
+
+    plt.subplot(335)
+    plt.annotate(r'(e)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+
+    plt.xticks(fontsize=16)
+    plt.gca().yaxis.set_ticklabels([])
+    plt.gca().xaxis.set_ticklabels([])
+
+    p2 = plt.contourf(x0,y0,sol[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+
+    # Col 3---------------------------------------------------------------------
+    i = int(3*Nt0/4)
+    plt.subplot(333)
+    plt.annotate(r'(c)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+
+    plt.title(r'$t\,/\,T = 0.75$',fontsize=22 )
+
+    p1 = plt.contourf(x0,y0,h_obs[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    plt.quiver(x[0,::ds,::ds],y[0,::ds,::ds],u[i,::ds,::ds]/u_max,v[i,::ds,::ds]/v_max,units='inches',alpha=0.5,scale=4,minlength=0,width=0.02,color='k')
+
     plt.gca().xaxis.set_ticklabels([])
     plt.gca().yaxis.set_ticklabels([])
 
@@ -283,15 +334,14 @@ def snapshots(sol,h_obs,sol_true):
     cbar.ax.get_yaxis().labelpad = 10
     cbar.ax.tick_params(labelsize=18)
 
-    plt.subplot(348)
-    plt.annotate(r'(h)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+
+    plt.subplot(336)
+    plt.annotate(r'(f)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
 
     p2 = plt.contourf(x0,y0,sol[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
-
-    plt.xticks(fontsize=16)
-    plt.gca().yaxis.set_ticklabels([])
     plt.gca().xaxis.set_ticklabels([])
+    plt.gca().yaxis.set_ticklabels([])
 
     fig.subplots_adjust(right=0.85)
     cbar_ax = fig.add_axes([0.875, 0.37, 0.02, 0.25])
@@ -299,102 +349,24 @@ def snapshots(sol,h_obs,sol_true):
     cbar = fig.colorbar(p2,cax=cbar_ax,orientation='vertical',ticks=levels)
 
     if inv_w==1 and dim==1:
-        cbar.set_label(label=r'$w^\mathrm{inv}\,/\, \Vert w^\mathrm{true}\Vert_\infty$',size=18)
+        cbar.set_label(label=r'$w_b^\mathrm{inv}\,/\, \Vert w_b^\mathrm{true}\Vert_\infty$',size=18)
     elif inv_beta==1 and dim==1:
         cbar.set_label(label=r'$\beta^\mathrm{inv}\,/\, \Vert \beta^\mathrm{true}\Vert_\infty$',size=18)
     elif inv_m==1 and dim==1:
         cbar.set_label(label=r'$m^\mathrm{inv}\,/\, \Vert m^\mathrm{true}\Vert_\infty$',size=18)
+    elif dim == 2:
+        cbar.set_label(label=r'$w_b^\mathrm{inv}\,/\, \Vert w_b^\mathrm{true}\Vert_\infty$',size=18)
 
 
     cbar.ax.get_yaxis().labelpad = 10
     cbar.ax.tick_params(labelsize=18)
 
-    # Col 1---------------------------------------------------------------------
+
+
+    plt.subplot(3,3,7)
+
     i = int(Nt0/4)
-    plt.subplot(341)
-    plt.annotate(r'(a)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
-    plt.title(r'$t\,/\,T = 0.25$',fontsize=22 )
-
-    plt.ylabel(r'$y$',fontsize=20)
-
-
-    p1 = plt.contourf(x0,y0,h_obs[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-    plt.quiver(x[0,::ds,::ds],y[0,::ds,::ds],u[i,::ds,::ds]/u_max,v[i,::ds,::ds]/v_max,units='inches',alpha=0.5,scale=4,minlength=0,width=0.02,color='k')
-
-
-    plt.yticks(ytix,fontsize=16)
-    plt.gca().xaxis.set_ticklabels([])
-
-    plt.subplot(345)
-    plt.annotate(r'(e)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
-    p2 = plt.contourf(x0,y0,sol[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-
-    plt.ylabel(r'$y$',fontsize=20)
-    plt.xticks(fontsize=16)
-    plt.yticks(ytix,fontsize=16)
-    plt.gca().xaxis.set_ticklabels([])
-
-
-    # Col 2---------------------------------------------------------------------
-    i = int(Nt0/2)
-    plt.subplot(342)
-    plt.annotate(r'(b)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
-    plt.title(r'$t\,/\,T = 0.5$',fontsize=22 )
-
-    plt.gca().yaxis.set_ticklabels([])
-    plt.gca().xaxis.set_ticklabels([])
-
-
-    p1 = plt.contourf(x0,y0,h_obs[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-    plt.quiver(x[0,::ds,::ds],y[0,::ds,::ds],u[i,::ds,::ds]/u_max,v[i,::ds,::ds]/v_max,units='inches',alpha=0.5,scale=4,minlength=0,width=0.02,color='k')
-
-
-    plt.gca().xaxis.set_ticklabels([])
-
-    plt.subplot(346)
-    plt.annotate(r'(f)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
-    plt.xticks(fontsize=16)
-    plt.gca().yaxis.set_ticklabels([])
-    plt.gca().xaxis.set_ticklabels([])
-
-    p2 = plt.contourf(x0,y0,sol[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-
-
-    # Col 3---------------------------------------------------------------------
-    i = int(3*Nt0/4)
-    plt.subplot(343)
-    plt.annotate(r'(c)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
-    plt.title(r'$t\,/\,T = 0.75$',fontsize=22 )
-
-
-    p1 = plt.contourf(x0,y0,h_obs[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-    plt.quiver(x[0,::ds,::ds],y[0,::ds,::ds],u[i,::ds,::ds]/u_max,v[i,::ds,::ds]/v_max,units='inches',alpha=0.5,scale=4,minlength=0,width=0.02,color='k')
-
-
-    plt.gca().xaxis.set_ticklabels([])
-    plt.gca().yaxis.set_ticklabels([])
-
-
-    plt.subplot(347)
     plt.annotate(r'(g)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
-
-    p2 = plt.contourf(x0,y0,sol[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-
-    plt.gca().xaxis.set_ticklabels([])
-    plt.gca().yaxis.set_ticklabels([])
-
-
-
-    plt.subplot(3,4,9)
-
-    i = int(Nt0/4)
-    plt.annotate(r'(i)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
 
     p2 = plt.contourf(x0,y0,sol_true[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
@@ -403,8 +375,8 @@ def snapshots(sol,h_obs,sol_true):
     plt.xticks(fontsize=16)
     plt.yticks(ytix,fontsize=16)
 
-    plt.subplot(3,4,10)
-    plt.annotate(r'(j)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+    plt.subplot(3,3,8)
+    plt.annotate(r'(h)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
 
     #plt.annotate(r'$w_b$',xy=(-3.9*L,3.15*L),fontsize=18)
     i = int(Nt0/2)
@@ -415,30 +387,16 @@ def snapshots(sol,h_obs,sol_true):
     plt.xticks(fontsize=16)
     plt.gca().yaxis.set_ticklabels([])
 
-
-    plt.subplot(3,4,11)
-    plt.annotate(r'(k)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+    plt.subplot(3,3,9)
+    plt.annotate(r'(i)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     i = int(3*Nt0/4)
 
     p2 = plt.contourf(x0,y0,sol_true[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
-
     plt.xlabel(r'$x$',fontsize=20)
     plt.xticks(fontsize=16)
     plt.gca().yaxis.set_ticklabels([])
 
-
-
-    plt.subplot(3,4,12)
-    plt.annotate(r'(l)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-    i = int(Nt0)-1
-
-    p2 = plt.contourf(x0,y0,sol_true[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-
-
-    plt.xlabel(r'$x$',fontsize=20)
-    plt.xticks(fontsize=16)
-    plt.gca().yaxis.set_ticklabels([])
 
     fig.subplots_adjust(right=0.85)
     cbar_ax = fig.add_axes([0.875, 0.095, 0.02, 0.25])
@@ -446,238 +404,162 @@ def snapshots(sol,h_obs,sol_true):
     cbar = fig.colorbar(p2,cax=cbar_ax,orientation='vertical',ticks=levels)
 
     if inv_w ==1 and dim==1:
-        cbar.set_label(label=r'$w^\mathrm{true}\,/\, \Vert w^\mathrm{true}\Vert_\infty$',size=18)
+        cbar.set_label(label=r'$w_b^\mathrm{true}\,/\, \Vert w_b^\mathrm{true}\Vert_\infty$',size=18)
     elif inv_beta ==1 and dim==1:
         cbar.set_label(label=r'$\beta^\mathrm{true}\,/\, \Vert \beta^\mathrm{true}\Vert_\infty$',size=18)
     elif inv_m ==1 and dim==1:
         cbar.set_label(label=r'$m^\mathrm{true}\,/\, \Vert m^\mathrm{true}\Vert_\infty$',size=18)
+    elif dim == 2:
+        cbar.set_label(label=r'$\beta^\mathrm{inv}\,/\, \Vert \beta^\mathrm{true}\Vert_\infty$',size=18)
 
 
     cbar.ax.get_yaxis().labelpad = 10
     cbar.ax.tick_params(labelsize=18)
-
-
-
 
     plt.savefig('snaps',bbox_inches='tight')
     plt.close()
 
 
 #-------------------------------------------------------------------------------
-def snapshots_joint(sol,data):
 
-    sol0 = sol[0]
-    sol1 = sol[1]
-    h_obs = data[0]
-    u = data[1]
-    v = data[2]
+def compare_plot(sol1,sol2,sol_true):
 
-    Nt0 = int(Nt/2)
+    Nt0 = Nt#int(Nt/2.0)
 
-    levels00 = np.array([-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1])*0.5
     levels0 = [-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1]
     levels = np.linspace(-1,1,9)
 
-    h_obs = h_obs/np.max(np.abs(h_obs))
-    sol0 = sol0/np.max(np.abs(sol0))
-    sol1 = sol1/np.max(np.abs(sol1))
+    sol2 = sol2/np.max(np.abs(sol_true))
+    sol1 = sol1/np.max(np.abs(sol_true))
 
 
-    ds = int(5*Nx/100)             # spacing for velocity plots
+    ds = 10            # spacing for velocity plots
 
-    u_max = np.max(np.sqrt(u**2+v**2))
-    v_max = np.max(np.sqrt(u**2+v**2))
 
     ytix = np.array([-4*L,-2*L,0,2*L,4*L])
 
-    fig = plt.figure(figsize=(13,8))
+    fig = plt.figure(figsize=(13,6))
 
     # Col 4---------------------------------------------------------------------
-    i = int(Nt0)-1
-    plt.subplot(344)
-    plt.annotate(r'(d)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
+    i = int(Nt0)
+    plt.subplot(244)
+    plt.annotate(r'(d)',xy=(-38,33.75),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     plt.title(r'$t\,/\,T = 1$',fontsize=22 )
 
-    p1 = plt.contourf(x0,y0,h_obs[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-    plt.quiver(x[0,::ds,::ds],y[0,::ds,::ds],u[i,::ds,::ds]/u_max,v[i,::ds,::ds]/v_max,units='inches',alpha=1,scale=4,minlength=0,width=0.02,color='k')
-
+    p1 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     plt.yticks(ytix,fontsize=16)
     plt.gca().xaxis.set_ticklabels([])
     plt.gca().yaxis.set_ticklabels([])
 
     fig.subplots_adjust(right=0.85)
-    cbar_ax = fig.add_axes([0.875, 0.645, 0.02, 0.25])
+    cbar_ax = fig.add_axes([0.875, 0.55, 0.02, 0.3])
     cbar = fig.colorbar(p1,cax=cbar_ax,orientation='vertical',ticks=levels0)
-    cbar.set_label(label=r'$h^\mathrm{obs}\,/\, \Vert h^\mathrm{obs}\Vert_\infty$',size=18)
+
+    if inv_beta ==1:
+        cbar.set_label(label=r'$\beta_h^{\mathrm{inv}}\,/\, \Vert \beta^{\mathrm{true}}\Vert_\infty$',size=18)
+    elif inv_m == 1:
+        cbar.set_label(label=r'$m^{\mathrm{inv}}\,/\, \Vert m^{\mathrm{true}}\Vert_\infty$',size=18)
+
+
     cbar.ax.get_yaxis().labelpad = 10
     cbar.ax.tick_params(labelsize=18)
 
-    plt.subplot(348)
-    plt.annotate(r'(h)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+    plt.subplot(248)
+    plt.annotate(r'(h)',xy=(-38,33.75),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+    p2 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
-    p2 = plt.contourf(x0,y0,sol0[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
-
+    plt.xlabel(r'$x$',fontsize=20)
     plt.xticks(fontsize=16)
     plt.gca().yaxis.set_ticklabels([])
-    plt.gca().xaxis.set_ticklabels([])
-
 
 
 
     fig.subplots_adjust(right=0.85)
-    cbar_ax = fig.add_axes([0.875, 0.37, 0.02, 0.25])
+    cbar_ax = fig.add_axes([0.875, 0.125, 0.02, 0.3])
 
     cbar = fig.colorbar(p2,cax=cbar_ax,orientation='vertical',ticks=levels)
 
+    if inv_beta ==1:
+        cbar.set_label(label=r'$\beta_\mathbf{u}^{\mathrm{inv}}\,/\, \Vert \beta^{\mathrm{true}}\Vert_\infty$',size=18)
+    elif inv_m == 1:
+        cbar.set_label(label=r'$m^{\mathrm{hydro}}\,/\, \Vert m^{\mathrm{true}}\Vert_\infty$',size=18)
 
-    cbar.set_label(label=r'$w^\mathrm{inv}\,/\, \Vert w^\mathrm{inv}\Vert_\infty$',size=18)
 
     cbar.ax.get_yaxis().labelpad = 10
     cbar.ax.tick_params(labelsize=18)
 
     # Col 1---------------------------------------------------------------------
     i = int(Nt0/4)
-    plt.subplot(341)
-    plt.annotate(r'(a)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
+    plt.subplot(241)
+    plt.annotate(r'(a)',xy=(-38,33.75),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     plt.title(r'$t\,/\,T = 0.25$',fontsize=22 )
-
     plt.ylabel(r'$y$',fontsize=20)
 
 
-    p1 = plt.contourf(x0,y0,h_obs[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-    plt.quiver(x[0,::ds,::ds],y[0,::ds,::ds],u[i,::ds,::ds]/u_max,v[i,::ds,::ds]/v_max,units='inches',alpha=1,scale=4,minlength=0,width=0.02,color='k')
-
+    p1 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     plt.yticks(ytix,fontsize=16)
     plt.gca().xaxis.set_ticklabels([])
 
-    plt.subplot(345)
-    plt.annotate(r'(e)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+    plt.subplot(245)
+    plt.annotate(r'(e)',xy=(-38,33.75),fontsize=16,bbox=dict(facecolor='w',alpha=1))
 
-    p2 = plt.contourf(x0,y0,sol0[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    p2 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
-    plt.ylabel(r'$y$',fontsize=20)
+
+    plt.ylabel(r'$y$ ',fontsize=20)
+    plt.xlabel(r'$x$ ',fontsize=20)
     plt.xticks(fontsize=16)
     plt.yticks(ytix,fontsize=16)
-    plt.gca().xaxis.set_ticklabels([])
-
 
     # Col 2---------------------------------------------------------------------
     i = int(Nt0/2)
-    plt.subplot(342)
-    plt.annotate(r'(b)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
+    plt.subplot(242)
+    plt.annotate(r'(b)',xy=(-38,33.75),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     plt.title(r'$t\,/\,T = 0.5$',fontsize=22 )
 
     plt.gca().yaxis.set_ticklabels([])
     plt.gca().xaxis.set_ticklabels([])
 
 
-    p1 = plt.contourf(x0,y0,h_obs[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-    plt.quiver(x[0,::ds,::ds],y[0,::ds,::ds],u[i,::ds,::ds]/u_max,v[i,::ds,::ds]/v_max,units='inches',alpha=1,scale=4,minlength=0,width=0.02,color='k')
-
+    p1 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     plt.gca().xaxis.set_ticklabels([])
 
-    plt.subplot(346)
-    plt.annotate(r'(f)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
+    plt.subplot(246)
+    plt.annotate(r'(f)',xy=(-38,33.75),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     plt.xticks(fontsize=16)
     plt.gca().yaxis.set_ticklabels([])
-    plt.gca().xaxis.set_ticklabels([])
+    plt.xlabel(r'$x$ ',fontsize=20)
 
-    p2 = plt.contourf(x0,y0,sol0[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-
+    p2 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     # Col 3---------------------------------------------------------------------
     i = int(3*Nt0/4)
-    plt.subplot(343)
-    plt.annotate(r'(c)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
+    plt.subplot(243)
+    plt.annotate(r'(c)',xy=(-38,33.75),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     plt.title(r'$t\,/\,T = 0.75$',fontsize=22 )
 
-
-    p1 = plt.contourf(x0,y0,h_obs[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-    plt.quiver(x[0,::ds,::ds],y[0,::ds,::ds],u[i,::ds,::ds]/u_max,v[i,::ds,::ds]/v_max,units='inches',alpha=1,scale=4,minlength=0,width=0.02,color='k')
+    p1 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
 
     plt.gca().xaxis.set_ticklabels([])
     plt.gca().yaxis.set_ticklabels([])
 
 
-    plt.subplot(347)
-    plt.annotate(r'(g)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+    plt.subplot(247)
+    plt.annotate(r'(g)',xy=(-38,33.75),fontsize=16,bbox=dict(facecolor='w',alpha=1))
 
+    p2 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
-    p2 = plt.contourf(x0,y0,sol0[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-
-    plt.gca().xaxis.set_ticklabels([])
-    plt.gca().yaxis.set_ticklabels([])
-
-
-
-    plt.subplot(3,4,9)
-
-    i = int(Nt0/4)
-    plt.annotate(r'(i)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
-    p2 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-
-    plt.ylabel(r'$y$',fontsize=20)
-    plt.xlabel(r'$x$',fontsize=20)
-    plt.xticks(fontsize=16)
-    plt.yticks(ytix,fontsize=16)
-
-    plt.subplot(3,4,10)
-    plt.annotate(r'(j)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-
-    #plt.annotate(r'$w_b$',xy=(-3.9*L,3.15*L),fontsize=18)
-    i = int(Nt0/2)
-
-    p2 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-
-    plt.xlabel(r'$x$',fontsize=20)
-    plt.xticks(fontsize=16)
-    plt.gca().yaxis.set_ticklabels([])
-
-
-    plt.subplot(3,4,11)
-    plt.annotate(r'(k)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-    i = int(3*Nt0/4)
-
-    p2 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-
-
-    plt.xlabel(r'$x$',fontsize=20)
+    plt.xlabel(r'$x$ ',fontsize=20)
     plt.xticks(fontsize=16)
     plt.gca().yaxis.set_ticklabels([])
 
 
 
-    plt.subplot(3,4,12)
-    plt.annotate(r'(l)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-    i = int(Nt0)-1
 
-    p2 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-
-
-    plt.xlabel(r'$x$',fontsize=20)
-    plt.xticks(fontsize=16)
-    plt.gca().yaxis.set_ticklabels([])
-
-    fig.subplots_adjust(right=0.85)
-    cbar_ax = fig.add_axes([0.875, 0.095, 0.02, 0.25])
-
-    cbar = fig.colorbar(p2,cax=cbar_ax,orientation='vertical',ticks=levels)
-
-    cbar.set_label(label=r'$\beta^\mathrm{inv}\,/\, \Vert \beta^\mathrm{inv}\Vert_\infty$',size=18)
-
-    cbar.ax.get_yaxis().labelpad = 10
-    cbar.ax.tick_params(labelsize=18)
-
-    plt.savefig('snaps',bbox_inches='tight')
+    plt.savefig('compare',bbox_inches='tight')
     plt.close()

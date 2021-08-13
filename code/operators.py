@@ -7,7 +7,7 @@
 import numpy as np
 from kernel_fcns import Rg,Tw,Tb,Rf,B,Uw,Uh,Ub,Vw,Vh,Vb,Uhf,Usf
 from params import (uh0,ub0,lamda,eps_beta,eps_w,eps_m,w_reg,beta_reg,m_reg,t,k,kx,ky,
-                    inv_w,inv_beta,inv_m,delta,Nt,nu,dim,u_wt,h_wt,tau)
+                    inv_w,inv_beta,inv_m,delta,Nt,nu,dim,u_wt,h_wt,tau,vel_data)
 from scipy.signal import fftconvolve
 from scipy.fft import ifft2,fft2
 from regularizations import reg
@@ -17,26 +17,30 @@ def adj_fwd(X):
     # operator on the LHS of the normal equations:
     # apply forward operator then adjoint operator, and add the regularization term
     if inv_w == 1 and dim == 1:
-        A = adjoint_w(forward_w(X)) + eps_w*reg(X,w_reg)
+        A = h_wt()*adjoint_w(forward_w(X)) + eps_w()*reg(X,w_reg)
+        if vel_data == 1:
+            A += u_wt()*(adjoint_Uw(forward_u(X,0*X)) + adjoint_Vw(forward_v(X,0*X)))
     elif inv_beta == 1 and dim == 1:
-        A = adjoint_beta(forward_beta(X)) + eps_beta*reg(X,beta_reg)
+        A = h_wt()*adjoint_beta(forward_beta(X)) + eps_beta()*reg(X,beta_reg)
+        if vel_data == 1:
+            A += u_wt()*(adjoint_Ub(forward_u(0*X,X)) + adjoint_Vb(forward_v(0*X,X)))
     elif inv_m == 1 and dim == 1:
-        A = adjoint_m(forward_m(X)) + eps_m*reg(X,m_reg)
+        A = adjoint_m(forward_m(X)) + eps_m()*reg(X,m_reg)
     elif dim == 2:
         # X[0] = w
         # X[1] = beta
 
         # LHS of w normal equation
-        a1 = adjoint_w(Hc(X)) + eps_w*reg(X[0],w_reg)
+        a1 = adjoint_w(Hc(X)) + eps_w()*reg(X[0],w_reg)
         a2 = adjoint_Uw(forward_u(X[0],X[1]))
         a3 = adjoint_Vw(forward_v(X[0],X[1]))
-        a = h_wt*a1+u_wt*(a2+a3)
+        a = h_wt()*a1+u_wt()*(a2+a3)
 
         # LHS of beta normal equation
-        b1 = adjoint_beta(Hc(X)) + eps_beta*reg(X[1],beta_reg)
+        b1 = adjoint_beta(Hc(X)) + eps_beta()*reg(X[1],beta_reg)
         b2 = adjoint_Ub(forward_u(X[0],X[1]))
         b3 = adjoint_Vb(forward_v(X[0],X[1]))
-        b = h_wt*b1+u_wt*(b2+b3)
+        b = h_wt()*b1+u_wt()*(b2+b3)
 
         A = np.array([a,b])
 
@@ -231,7 +235,6 @@ def forward_uf(h,s):
     s_ft = fft2(s)
 
     F = 1j*(2*np.pi*kx)*(Uhf(k)*h_ft + Usf(k)*delta*s_ft)*lamda
-
 
     S = ifft2(F).real
 

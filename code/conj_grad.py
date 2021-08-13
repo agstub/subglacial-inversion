@@ -13,7 +13,7 @@ def prod(a,b):
     if dim == 1:
         int = a*b
     elif dim == 2:
-        int = a[0]*b[0] + a[1]*b[1]    
+        int = a[0]*b[0] + a[1]*b[1]
 
     p = trapz( trapz(trapz(int,dx=dx,axis=-2),dx=dy,axis=-1) ,dx=dt,axis=0)
 
@@ -44,9 +44,9 @@ def cg_solve(b,X0):
     rnorm0 = prod(r,r)    # (squared) norm of the residual: current iteration
     rnorm1 = rnorm0       # (squared) norm of the residual: previous iteration
 
-    while norm(r) > cg_tol:
+    while norm(r)/norm(r0) > cg_tol:
         if j%20 == 0:
-            print("CG iter. "+str(j)+': residual norm = '+"{:.2e}".format(norm(r))+',  tol = '+"{:.2e}".format(cg_tol))
+            print("CG iter. "+str(j)+': rel. residual norm = '+"{:.2e}".format(norm(r)/norm(r0))+',  tol = '+"{:.2e}".format(cg_tol))
 
         rnorm0 = prod(r,r)
 

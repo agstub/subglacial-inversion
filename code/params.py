@@ -13,8 +13,11 @@ inv_m = int(0)                      # invert for m     (melt rate)
 # NOTE: joint inversion for w and beta benefits from supplying horizontal surface
 #       velocity data---otherwise, the results tend to look very bad.
 
-vel_data = int(1)                   # indicate whether horizontal surface velocity
+vel_data = int(0)                   # indicate whether horizontal surface velocity
                                     # data is provided as a constraint
+
+u_wt = lambda : 0.01                # weight on surface velocity misfit for joint inversions
+h_wt = lambda : 1                   # weight on elevation misfit for joint inversion
 
 dim = inv_w + inv_beta + inv_m      # 'dimensionality' of inverse problem
 
@@ -22,9 +25,9 @@ make_movie = int(0)                 # make movie of simulation (png at each time
 
 #----------------------------regularization-------------------------------------
 # reguarization parameters for each inversion type
-eps_w = 1e-5
-eps_beta = 1e-2
-eps_m = 1e-6
+eps_w = lambda: 1e-5
+eps_beta = lambda: 1e-2
+eps_m = lambda: 1e-6
 
 # Regularization options: L2 and H1 (see regularizations.py)
 w_reg = 'L2'            # regularization type for w
@@ -34,13 +37,12 @@ m_reg = 'L2'            # regularization type for m
 #---------------------- physical parameters ------------------------------------
 
 # dimensional parameters
-
-H = 1000                   # ice thickness (m)
+H = 1000                    # ice thickness (m)
 h_sc = 1                   # elevation anomaly scale (m)
 asp = h_sc/H               # aspect ratio
 
-L = 10                     # horizontal x-y domain is an 8L x 8L square (horizontal length scale = H)
-t_final = 20               # final time
+L = 10                      # horizontal x-y domain is an 8L x 8L square (horizontal length scale = H)
+t_final = 20                 # final time
 
 t_sc = 1*3.154e7           # observational timescale (s)
 eta = 1e13                 # Newtonian ice viscosity (Pa s)
@@ -54,6 +56,8 @@ g = 9.81                   # gravitational acceleration
 
 # "background flow" (default examples)
 if inv_m == 0:
+    H = 1000                    # ice thickness (m)
+
     slope =  0.1*(np.pi/180)*inv_m       # slope of basal surface (radians)
 
     uh_slope = (rho_i*g*np.sin(slope)*(H**2)/(2*eta))*np.abs(np.sign(slope))   # intrinsic surface velocity for inclined slope problem
@@ -65,6 +69,7 @@ if inv_m == 0:
     uh = ub*np.abs(np.sign(slope)) + uh_sshear + uh_slope           # background horizontal surface velocity (m/s)
 
 elif inv_m == 1:
+    H = 500                    # ice thickness (m)
     slope = 0
     ub = 2000/3.154e7
     uh = 2000/3.154e7
@@ -82,12 +87,12 @@ else:
     uzz = 0
 
 ## sanity check printing ....
-print('Background state properties:')
-print('bed slope = '+str(slope*180/np.pi)+' deg.')
-print('u_h = '+str(uh*3.154e7))
-print('u_b = '+str(ub*3.154e7))
-print('beta = '+"{:.1E}".format(beta_e))
-print('\n')
+# print('Background state properties:')
+# print('bed slope = '+str(slope*180/np.pi)+' deg.')
+# print('u_h = '+str(uh*3.154e7))
+# print('u_b = '+str(ub*3.154e7))
+# print('beta = '+"{:.1E}".format(beta_e))
+# print('\n')
 
 
 t_r = 2*eta/(rho_i*g*H*np.cos(slope))    # viscous relaxation time
@@ -115,17 +120,14 @@ beta0 = beta_e*H/(2*eta)   # friction coefficient relative to ice viscosity
 
 delta = rho_w/rho_i-1      # density ratio
 
-noise_level = 0.01         # noise level (scaled relative to elevation anomaly amplitude)
+noise_level = 0.0         # noise level (scaled relative to elevation anomaly amplitude)
                            # used to create synthetic data
 
 
 #---------------------- numerical parameters------------------------------------
-u_wt = 0.01                      # weight on surface velocity misfit for joint inversions
-h_wt = 1                         # weight on elevation misfit for joint inversion
+cg_tol = 1e-4                     # stopping tolerance for conjugate gradient solver
 
-cg_tol = 1e-7                     # stopping tolerance for conjugate gradient solver
-
-max_cg_iter =  500                # maximum conjugate gradient iterations
+max_cg_iter =  1000                # maximum conjugate gradient iterations
 
 # discretization parameters
 Nx = 20                            # number of grid points in x-direction
