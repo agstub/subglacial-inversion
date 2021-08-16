@@ -37,19 +37,27 @@ elif vel_data == 1:
     v_obs = v_obs_synth
     data = np.array([h_obs,u_obs,v_obs])
 
+#
 # noise = norm(h_obs-h_true)
+#
+# # print('norm noise = '+str(noise))
+# # print('\n')
 # misfit_arr = np.zeros(5)
 # eps_arr = np.zeros(5)
-#
-# i=1
+
+
 sol,fwd = invert(data) # solve the inverse problem
+sol_true = w_true+beta_true+m_true
+
+# print('norm |sol_inv-sol_true|/|sol_true|='+str(norm(sol-sol_true)/norm(sol_true)))
+
+# i=1
 # misfit_arr[i] = norm(h_obs-fwd)
 # eps_arr[i] = eps_w()+eps_beta()+eps_m()
 #
 # discrepancy(misfit_arr,eps_arr,noise)
 
 if dim == 1:
-    sol_true = w_true+beta_true+m_true
     snapshots(sol,data,sol_true)
 #
 elif dim == 2:

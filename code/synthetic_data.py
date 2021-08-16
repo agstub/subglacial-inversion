@@ -4,6 +4,12 @@ from params import L,noise_level,x,y,t,Nt,Nx,Ny,inv_w,inv_beta,inv_m,vel_data,di
 from operators import forward_w,forward_m,forward_beta,forward_U,forward_V,forward_s,forward_Uf,forward_Vf
 import numpy as np
 
+def box(t):
+    res=t*np.sign(0.5*t_final-t)
+    res[(t>=0.25*t_final)&(t<=0.75*t_final)] = t_final/4.0
+    return res
+
+
 #------------------------ create synthetic data --------------------------------
 sigma = 2*L/3          # standard deviation for Gaussians used in default examples
                      # (except for melt rate example, which is half of this)
@@ -11,9 +17,7 @@ sigma = 2*L/3          # standard deviation for Gaussians used in default exampl
 # (1) VERTICAL VELOCITY ANOMALY
 # *EXAMPLE 1
 # Subglacial lake : Stationary Gaussian with oscillating amplitude
-w_true = 50*np.exp(-0.5*(sigma**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*np.cos(4*np.pi*t/(t_final))*inv_w
-w_true[t<0.1*t_final] = 0
-w_true[t>0.9*t_final] = 0
+w_true = 50*np.exp(-0.5*(sigma**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*np.sin(2*np.pi*t/(t_final))*inv_w
 
 # *EXAMPLE 2
 # Bed bump: w_b = u_b*ds/dx
@@ -24,17 +28,14 @@ w_true[t>0.9*t_final] = 0
 # (2) SLIPPERINESS ANOMALY
 # Gaussian friction perturbation (constant in time)
 # default is slippery spot, switch sign for sticky spot
-beta_true = -8e-2*np.exp(-0.5*((sigma)**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*inv_beta
-beta_true[t<0.1*t_final] = 0
-beta_true[t>0.9*t_final] = 0
+beta_true = -8e-2*np.exp(-0.5*((sigma)**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*inv_beta*np.sin(2*np.pi*box(t)/(t_final))
 
 # (3) MELTING ANOMALY (sub-shelf)
 # travelling Gaussian melt 'wave'
-xc = 0*(-20+40*t/t_final)*(L/10)
+xc = (-20+40*t/t_final)*(L/10)
 
-m_true = 50*np.exp(-0.5*((sigma)**(-2))*(np.abs(x-xc)**2+np.abs(y)**2 ))*inv_m
-m_true[t<0.1*t_final] = 0
-m_true[t>0.9*t_final] = 0
+m_true = 50*np.exp(-0.5*((sigma)**(-2))*(np.abs(x-xc)**2+np.abs(y)**2 ))*inv_m*np.sin(2*np.pi*box(t)/(t_final))
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -86,8 +87,10 @@ elif dim == 2:
     v_obs_synth = v_true+noise_level*np.max(np.abs(u_true))*np.random.normal(size=(Nt,Nx,Ny))
 
 # # # print max values of data for sanity check...
+print('\n')
 print('Synthetic data properties:')
 print('max h = '+str(np.max(np.abs(h_true))))
 print('max u = '+str(np.max(np.abs(u_true))))
 print('max v = '+str(np.max(np.abs(v_true))))
+print('-----------------------------------------------------------')
 print('\n')

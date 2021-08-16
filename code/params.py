@@ -6,8 +6,8 @@ from scipy.fft import fftfreq
 # --------------------inversion options ---------------------------------------
 # set either = 1 (on) or = 0 (off)
 # inversion for one field at a time is supported
-inv_w = int(1)                      # invert for w     (basal vertical velocity)
-inv_beta = int(0)                   # invert for beta  (slipperiness)
+inv_w = int(0)                      # invert for w     (basal vertical velocity)
+inv_beta = int(1)                   # invert for beta  (slipperiness)
 inv_m = int(0)                      # invert for m     (melt rate)
 
 # NOTE: joint inversion for w and beta benefits from supplying horizontal surface
@@ -21,12 +21,12 @@ h_wt = lambda : 1                   # weight on elevation misfit for joint inver
 
 dim = inv_w + inv_beta + inv_m      # 'dimensionality' of inverse problem
 
-make_movie = int(0)                 # make movie of simulation (png at each timestep)
+make_movie = int(1)                 # make movie of simulation (png at each timestep)
 
 #----------------------------regularization-------------------------------------
 # reguarization parameters for each inversion type
 eps_w = lambda: 1e-4*inv_w  # range: 1e-1 to 1e-5
-eps_beta = lambda: 1e-3*inv_beta
+eps_beta = lambda: 1e0*inv_beta # 1e1 ...
 eps_m = lambda: 1e-5*inv_m
 
 # Regularization options: L2 and H1 (see regularizations.py)
@@ -55,10 +55,11 @@ g = 9.81                   # gravitational acceleration
 
 
 # "background flow" (default examples)
+
 if inv_m == 0:
     H = 1000                    # ice thickness (m)
 
-    slope =  0.2*(np.pi/180)       # slope of basal surface (radians): default 0.2
+    slope =  0.0*(np.pi/180.0)       # slope of basal surface (radians): default 0.2 deg
 
     uh_slope = (rho_i*g*np.sin(slope)*(H**2)/(2*eta))*np.abs(np.sign(slope))   # intrinsic surface velocity for inclined slope problem
 
@@ -86,15 +87,6 @@ else:
     uz = (uh - ub)/H
     uzz = 0
 
-## sanity check printing ....
-print('Background state properties:')
-print('bed slope = '+str(slope*180/np.pi)+' deg.')
-print('u_h = '+str(uh*3.154e7))
-print('u_b = '+str(ub*3.154e7))
-print('beta = '+"{:.1E}".format(beta_e))
-print('\n')
-
-
 t_r = 2*eta/(rho_i*g*H*np.cos(slope))    # viscous relaxation time
 
 # nondimensional parameters
@@ -116,11 +108,13 @@ nu = ub*t_sc/h_sc         # coefficient on sliding terms
 
 tau = (beta_e*uz - eta*uzz)*H*t_sc/(2*eta)
 
+
 beta0 = beta_e*H/(2*eta)   # friction coefficient relative to ice viscosity
+
 
 delta = rho_w/rho_i-1      # density ratio
 
-noise_level = 0.01         # noise level (scaled relative to elevation anomaly amplitude)
+noise_level = 0.01          # noise level (scaled relative to elevation anomaly amplitude)
                            # used to create synthetic data
 
 
@@ -132,7 +126,7 @@ max_cg_iter =  500               # maximum conjugate gradient iterations
 # discretization parameters
 Nx = 20                            # number of grid points in x-direction
 Ny = 20                            # number of grid points in y-direction
-Nt = 200                            # number of time steps
+Nt = 100                            # number of time steps
 
 t0 = np.linspace(0,t_final,num=Nt) # time array
 
@@ -161,3 +155,18 @@ t,kx,ky = np.meshgrid(t0,kx0,ky0,indexing='ij')
 
 # magnitude of the wavevector
 k = np.sqrt(kx**2+ky**2)
+
+
+#-------------------------------------------------------------------------------
+## sanity check printing ....
+# print('----------------Background state properties----------------')
+# print('Dimensional parameters:')
+# print('bed slope = '+str(slope*180/np.pi)+' deg.')
+# print('u_h = '+str(uh*3.154e7)+' m/yr')
+# print('u_b = '+str(ub*3.154e7)+' m/yr')
+# print('beta = '+"{:.1E}".format(beta_e)+' Pa s/m')
+# print('\n')
+# print('Nondimensional parameters:')
+# print('lambda = '+str(lamda))
+# print('tau = '+"{:.1E}".format(tau))
+# print('beta0 = '+"{:.1E}".format(beta0))

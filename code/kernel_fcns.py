@@ -28,7 +28,7 @@ def Tb(k,kx):
     n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
     nx = 2*np.pi*kx
     g = beta0/n
-    F1 =  (np.exp(3*n) + np.exp(n))
+    F1 =  (2/n)*(np.exp(3*n) + np.exp(n))
     D = (1+g)*np.exp(4*n) + (2*g+4*n+4*g*(n**2))*np.exp(2*n) -1 + g
 
     return F1/D

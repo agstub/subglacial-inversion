@@ -426,7 +426,7 @@ def discrepancy(mis,eps,noise):
     plt.figure(figsize=(8,6))
     plt.plot(eps,mis,'ko-',linewidth=2)
     plt.axhline(y=noise,linestyle='--',color='r',linewidth=2)
-    plt.annotate(r'$\Vert N \Vert$',xy=(1e-1,7),fontsize=20,color='r')
+    plt.annotate(r'$\Vert N \Vert$',xy=(1e-1,1.1*noise),fontsize=20,color='r')
     plt.xlabel(r'$\varepsilon$',fontsize=20)
     plt.ylabel(r'$\Vert h^\varepsilon-h^{\mathrm{obs}}\Vert$',fontsize=20)
     plt.yticks(fontsize=16)
