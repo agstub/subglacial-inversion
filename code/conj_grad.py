@@ -44,21 +44,23 @@ def cg_solve(b,X0):
     rnorm0 = prod(r,r)    # (squared) norm of the residual: current iteration
     rnorm1 = rnorm0       # (squared) norm of the residual: previous iteration
 
-    while norm(r)/norm(r0) > cg_tol:
+    r00 = norm(r0)
+
+    while np.sqrt(rnorm1)/r00 > cg_tol:
         if j%20 == 0:
-            print("CG iter. "+str(j)+': rel. residual norm = '+"{:.2e}".format(norm(r)/norm(r0))+',  tol = '+"{:.2e}".format(cg_tol))
+            print("CG iter. "+str(j)+': rel. residual norm = '+"{:.2e}".format(np.sqrt(rnorm1)/r00)+',  tol = '+"{:.2e}".format(cg_tol))
 
         rnorm0 = prod(r,r)
 
         Ap = adj_fwd(p)
 
-        alpha = rnorm0/prod(p,Ap)
+        alpha_c = rnorm0/prod(p,Ap)
 
-        X = X + alpha*p                     # update solution
-        r = r - alpha*Ap                    # update residual
+        X = X + alpha_c*p                     # update solution
+        r = r - alpha_c*Ap                    # update residual
         rnorm1 = prod(r,r)
-        beta0 = rnorm1/rnorm0
-        p = r + beta0*p                     # update search direction
+        beta_c = rnorm1/rnorm0
+        p = r + beta_c*p                     # update search direction
         j = j+1
 
         if j > max_cg_iter:

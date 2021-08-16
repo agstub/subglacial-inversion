@@ -19,12 +19,13 @@
 #   o params.py: set the inversion options and physical/numerical parameters
 #   o synthetic_data.py: create different synthetic data
 #-------------------------------------------------------------------------------
-from params import dim,make_movie,vel_data,delta
+from params import dim,make_movie,vel_data,delta,eps_w,eps_beta,eps_m
 from synthetic_data import h_obs_synth,w_true,beta_true,m_true,h_true,u_obs_synth,v_obs_synth
 from inversion import invert
-from plotting import plot_movie,snapshots,compare_plot
+from plotting import plot_movie,snapshots,discrepancy
 from aux import calc_m_hydr
 import numpy as np
+from conj_grad import norm
 
 # synthetic data example (see synthetic_data.py)
 h_obs = h_obs_synth
@@ -36,12 +37,21 @@ elif vel_data == 1:
     v_obs = v_obs_synth
     data = np.array([h_obs,u_obs,v_obs])
 
+# noise = norm(h_obs-h_true)
+# misfit_arr = np.zeros(5)
+# eps_arr = np.zeros(5)
+#
+# i=1
 sol,fwd = invert(data) # solve the inverse problem
+# misfit_arr[i] = norm(h_obs-fwd)
+# eps_arr[i] = eps_w()+eps_beta()+eps_m()
+#
+# discrepancy(misfit_arr,eps_arr,noise)
 
 if dim == 1:
     sol_true = w_true+beta_true+m_true
     snapshots(sol,data,sol_true)
-
+#
 elif dim == 2:
     snapshots(sol[0],data,sol[1])
 

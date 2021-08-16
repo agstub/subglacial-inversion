@@ -4,7 +4,7 @@
 from params import inv_w,inv_beta,inv_m,dim,vel_data
 from conj_grad import cg_solve
 from operators import (forward_w,forward_beta,forward_m,adjoint_w,adjoint_beta,adjoint_m,Hc,vel_data,
-                        adjoint_Ub,adjoint_Uw,adjoint_Vb,adjoint_Vw,forward_u,forward_v,h_wt,u_wt)
+                        adjoint_Ub,adjoint_Uw,adjoint_Vb,adjoint_Vw,forward_U,forward_V,h_wt,u_wt)
 import numpy as np
 
 def invert(data):
@@ -46,8 +46,8 @@ def invert(data):
         X0 = 0*b
         sol = cg_solve(b,X0)
         h = Hc(sol)
-        u = forward_u(sol[0],sol[1])
-        v = forward_v(sol[0],sol[1])
+        u = forward_U(sol[0],sol[1])
+        v = forward_V(sol[0],sol[1])
         fwd = np.array([h,u,v])
 
     return sol,fwd

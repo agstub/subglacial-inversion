@@ -12,6 +12,13 @@ from scipy.signal import fftconvolve
 from scipy.fft import ifft2,fft2
 from regularizations import reg
 
+#---------------------convolution and cross-correlation operators---------------
+def conv(a,b):
+    return (1/Nt)*fftconvolve(a,b,mode='full',axes=0)[0:Nt,:,:]
+
+def xcor(a,b):
+    return (1/Nt)*fftconvolve(np.conjugate(np.flipud(a)),b,mode='full',axes=0)[(Nt-1):2*Nt,:,:]
+
 #-------------------------------------------------------------------------------
 def adj_fwd(X):
     # operator on the LHS of the normal equations:
@@ -19,11 +26,11 @@ def adj_fwd(X):
     if inv_w == 1 and dim == 1:
         A = h_wt()*adjoint_w(forward_w(X)) + eps_w()*reg(X,w_reg)
         if vel_data == 1:
-            A += u_wt()*(adjoint_Uw(forward_u(X,0*X)) + adjoint_Vw(forward_v(X,0*X)))
+            A += u_wt()*(adjoint_Uw(forward_U(X,0*X)) + adjoint_Vw(forward_V(X,0*X)))
     elif inv_beta == 1 and dim == 1:
         A = h_wt()*adjoint_beta(forward_beta(X)) + eps_beta()*reg(X,beta_reg)
         if vel_data == 1:
-            A += u_wt()*(adjoint_Ub(forward_u(0*X,X)) + adjoint_Vb(forward_v(0*X,X)))
+            A += u_wt()*(adjoint_Ub(forward_U(0*X,X)) + adjoint_Vb(forward_V(0*X,X)))
     elif inv_m == 1 and dim == 1:
         A = adjoint_m(forward_m(X)) + eps_m()*reg(X,m_reg)
     elif dim == 2:
@@ -32,14 +39,14 @@ def adj_fwd(X):
 
         # LHS of w normal equation
         a1 = adjoint_w(Hc(X)) + eps_w()*reg(X[0],w_reg)
-        a2 = adjoint_Uw(forward_u(X[0],X[1]))
-        a3 = adjoint_Vw(forward_v(X[0],X[1]))
+        a2 = adjoint_Uw(forward_U(X[0],X[1]))
+        a3 = adjoint_Vw(forward_V(X[0],X[1]))
         a = h_wt()*a1+u_wt()*(a2+a3)
 
         # LHS of beta normal equation
         b1 = adjoint_beta(Hc(X)) + eps_beta()*reg(X[1],beta_reg)
-        b2 = adjoint_Ub(forward_u(X[0],X[1]))
-        b3 = adjoint_Vb(forward_v(X[0],X[1]))
+        b2 = adjoint_Ub(forward_U(X[0],X[1]))
+        b3 = adjoint_Vb(forward_V(X[0],X[1]))
         b = h_wt()*b1+u_wt()*(b2+b3)
 
         A = np.array([a,b])
@@ -50,34 +57,48 @@ def Hc(X):
     # coupled (w and beta) elevation solution operator
     return forward_w(X[0])+forward_beta(X[1])
 
-#---------------------Operators for grounded ice problem------------------------
+#------------------------------ Kernels-----------------------------------------
+def ker_w():
+    # kernel for w forward problem
+    K_h = np.exp(-(1j*(2*np.pi*kx)*uh0+lamda*Rg(k,kx))*t)
+    K_s = np.exp(-1j*(2*np.pi*kx)*ub0*t)
 
-def sg_fwd(w_ft):
-    # forward operator for lower surface elevation
-    ker = np.exp(-1j*(2*np.pi*kx)*ub0*t)
-    S = (1/Nt)*fftconvolve(ker,w_ft,mode='full',axes=0)[0:Nt,:,:]
-    return S
+    K = K_h*Tw(k) + 1j*(2*np.pi*kx)*Tb(k,kx)*tau*conv(K_h,K_s)
 
-def sg_adj(f_ft):
-    # adjoint operator for lower surface elevation
-    ker = np.exp(1j*(2*np.pi*kx)*ub0*t)
-    S = (1/Nt)*fftconvolve(np.flipud(ker),f_ft,mode='full',axes=0)[(Nt-1):2*Nt,:,:]
-    return S
+    return K
 
+def ker_beta():
+    # kernel for beta forward problem
+    K_h = np.exp(-(1j*(2*np.pi*kx)*uh0+lamda*Rg(k,kx))*t)
+    K =  1j*(2*np.pi*kx)*nu*Tb(k,kx)*K_h
+    return K
 
+def ker_m():
+    mu = np.sqrt(4*delta*(lamda*B(k))**2 + ((delta-1)**2)*(lamda*Rf(k))**2)
+
+    ker0 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*uh0-lamda*0.5*(delta+1)*Rf(k)+0.5*mu)*t)
+    ker1 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*uh0-lamda*0.5*(delta+1)*Rf(k)-0.5*mu)*t)
+
+    K = ker1-ker0
+    return K
+
+#---------------------Ice-surface elevation solution operators------------------
 def forward_w(w):
     # forward operator for basal vertical velocity w
     # returns the data (elevation) h
 
     w_ft = fft2(w)
 
-    rhs = Tw(k)*w_ft+1j*(2*np.pi*kx)*Tb(k,kx)*tau*sg_fwd(w_ft)
+    S = ifft2(conv(ker_w(),w_ft)).real
 
-    lhs = 1j*(2*np.pi*kx)*uh0+lamda*Rg(k,kx)
+    return S
 
-    ker = np.exp(-lhs*t)
+def adjoint_w(f):
+    # adjoint of the basal vertical velocity forward operator
 
-    S = ifft2((1/Nt)*fftconvolve(ker,rhs,mode='full',axes=0)).real[0:Nt,:,:]
+    f_ft = fft2(f)
+
+    S = ifft2(xcor(ker_w(),f_ft)).real
 
     return S
 
@@ -87,17 +108,41 @@ def forward_beta(beta):
 
     beta_ft = fft2(beta)
 
-    rhs = Tb(k,kx)*beta_ft
-
-    lhs = 1j*(2*np.pi*kx)*uh0+lamda*Rg(k,kx)
-
-    ker = np.exp(-lhs*t)
-
-    S = ifft2((1/Nt)*fftconvolve(ker,rhs,mode='full',axes=0)).real[0:Nt,:,:]
+    S = ifft2(conv(ker_beta(),beta_ft)).real
 
     return S
 
-def forward_u(w,beta):
+def adjoint_beta(f):
+    # adjoint of the beta forward operator
+
+    f_ft = fft2(f)
+
+    S = ifft2(xcor(ker_beta(),f_ft)).real
+
+    return S
+
+def forward_m(m):
+    # forward operator for sub-shelf melt rate m
+    # returns the data (elevation) h
+
+    m_ft = fft2(m)
+
+    S = ifft2(conv(ker_m(),m_ft)).real
+
+    return S
+
+def adjoint_m(m):
+    # adjoint of the melt rate forward operator
+
+    m_ft = fft2(m)
+
+    S = ifft2(xcor(ker_m(),m_ft)).real
+
+    return S
+
+#-----------------------Velocity solution operators-----------------------------
+def forward_U(w,beta):
+    # u-component for grounded ice
     w_ft = fft2(w)
     beta_ft = fft2(beta)
     h = forward_w(w) + forward_beta(beta)
@@ -109,7 +154,8 @@ def forward_u(w,beta):
 
     return S
 
-def forward_v(w,beta):
+def forward_V(w,beta):
+    # v-component for grounded ice
     w_ft = fft2(w)
     beta_ft = fft2(beta)
     h = forward_w(w) + forward_beta(beta)
@@ -147,70 +193,44 @@ def adjoint_Vb(f):
     p2 = adjoint_beta(ifft2(1j*(2*np.pi*ky)*(lamda*np.conjugate(Vh(k,kx))*f_ft)).real)
     return p1+p2
 
-def adjoint_w(f):
-    # adjoint of the basal vertical velocity forward operator
+def forward_Uf(h,s):
+    # u-component for floating ice
+    h_ft = fft2(h)
+    s_ft = fft2(s)
 
-    f_ft = fft2(f)
+    F = 1j*(2*np.pi*kx)*(Uhf(k)*h_ft + Usf(k)*delta*s_ft)*lamda
 
-    lhs = -1j*(2*np.pi*kx)*uh0+lamda*np.conjugate(Rg(k,kx))
-
-    ker0 = np.exp(-lhs*t)
-    S0 = ifft2((1/Nt)*fftconvolve(np.flipud(ker0),Tw(k)*f_ft,mode='full',axes=0)).real[(Nt-1):2*Nt,:,:]
-
-    S_int = (1/Nt)*fftconvolve(np.flipud(ker0),1j*(2*np.pi*kx)*Tb(k,kx)*tau*f_ft,mode='full',axes=0)[(Nt-1):2*Nt,:,:]
-
-    S1 = ifft2(sg_adj(S_int)).real
-
-    return S0+S1
-
-def adjoint_beta(f):
-    # adjoint of the slipperiness forward operator
-
-    f_ft = fft2(f)
-
-    lhs = -1j*(2*np.pi*kx)*uh0+lamda*Rg(k,kx)
-
-    ker = -Tb(k,kx)*np.exp(-lhs*t)
-
-    S = ifft2((1/Nt)*fftconvolve(np.flipud(ker),f_ft,mode='full',axes=0)).real[(Nt-1):2*Nt,:,:]
+    S = ifft2(F).real
 
     return S
 
-#---------------------Operators for ice shelf problem---------------------------
+def forward_Vf(h,s):
+    # v-component for floating ice
+    h_ft = fft2(h)
+    s_ft = fft2(s)
 
-def forward_m(m):
-    # forward operator for melt rate m
-    # returns the data (elevation) h
+    F = 1j*(2*np.pi*ky)*(Uhf(k)*h_ft + Usf(k)*delta*s_ft)*lamda
 
-    m_ft = fft2(m)
-
-    mu = np.sqrt(4*delta*(lamda*B(k))**2 + ((delta-1)**2)*(lamda*Rf(k))**2)
-
-    ker0 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*uh0-lamda*0.5*(delta+1)*Rf(k)+0.5*mu)*t)
-    ker1 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*uh0-lamda*0.5*(delta+1)*Rf(k)-0.5*mu)*t)
-
-    S = ifft2((1/Nt)*fftconvolve(-m_ft,ker0-ker1,mode='full',axes=0)).real[0:Nt,:,:]
+    S = ifft2(F).real
 
     return S
 
-def adjoint_m(m):
-    # adjoint of the melt rate forward operator
+#---------------------Operators for lower surface elevation---------------------
+def sg_fwd(w_ft):
+    # forward operator for lower surface elevation
+    # returns the fourier-transformed lower surface elevation
+    ker = np.exp(-1j*(2*np.pi*kx)*ub0*t)
+    S = conv(ker,w_ft)
+    return S
 
-    m_ft = fft2(m)
-
-    mu = np.sqrt(4*delta*(lamda*B(k))**2 + ((delta-1)**2)*(lamda*Rf(k))**2)
-
-    ker0 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*uh0-lamda*0.5*(delta+1)*Rf(k)+0.5*mu)*t)
-    ker1 = (delta*lamda*B(k)/mu)*np.exp((-1j*(2*np.pi*kx)*uh0-lamda*0.5*(delta+1)*Rf(k)-0.5*mu)*t)
-
-    ker = np.conjugate(ker0-ker1)
-
-    S = ifft2((1/Nt)*fftconvolve(np.flipud(ker),-m_ft,mode='full',axes=0)).real[(Nt-1):2*Nt,:,:]
-
+def sg_adj(f_ft):
+    # adjoint operator for lower surface elevation
+    # returns fourier-transformed adjoint
+    ker = np.exp(-1j*(2*np.pi*kx)*ub0*t)
+    S = xcor(ker,f_ft)
     return S
 
 def forward_s(m):
-    # forward operator for melt rate m
     # returns the lower surface elevation s
 
     m_ft = fft2(m)
@@ -225,27 +245,8 @@ def forward_s(m):
     ker0 = (1/(2*mu))*(mu+chi)*np.exp(Lm)
     ker1 = (1/(2*mu))*(mu-chi)*np.exp(Lp)
 
-    S = ifft2((1/Nt)*fftconvolve(m_ft,ker0+ker1,mode='full',axes=0)).real[0:Nt,:,:]
+    ker = ker0+ker1
 
-    return S
-
-
-def forward_uf(h,s):
-    h_ft = fft2(h)
-    s_ft = fft2(s)
-
-    F = 1j*(2*np.pi*kx)*(Uhf(k)*h_ft + Usf(k)*delta*s_ft)*lamda
-
-    S = ifft2(F).real
-
-    return S
-
-def forward_vf(h,s):
-    h_ft = fft2(h)
-    s_ft = fft2(s)
-
-    F = 1j*(2*np.pi*ky)*(Uhf(k)*h_ft + Usf(k)*delta*s_ft)*lamda
-
-    S = ifft2(F).real
+    S = ifft2(conv(ker,m_ft)).real
 
     return S

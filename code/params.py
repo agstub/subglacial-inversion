@@ -25,9 +25,9 @@ make_movie = int(0)                 # make movie of simulation (png at each time
 
 #----------------------------regularization-------------------------------------
 # reguarization parameters for each inversion type
-eps_w = lambda: 1e-5
-eps_beta = lambda: 1e-2
-eps_m = lambda: 1e-6
+eps_w = lambda: 1e-4*inv_w  # range: 1e-1 to 1e-5
+eps_beta = lambda: 1e-3*inv_beta
+eps_m = lambda: 1e-5*inv_m
 
 # Regularization options: L2 and H1 (see regularizations.py)
 w_reg = 'L2'            # regularization type for w
@@ -42,7 +42,7 @@ h_sc = 1                   # elevation anomaly scale (m)
 asp = h_sc/H               # aspect ratio
 
 L = 10                      # horizontal x-y domain is an 8L x 8L square (horizontal length scale = H)
-t_final = 20                 # final time
+t_final = 10                # final time
 
 t_sc = 1*3.154e7           # observational timescale (s)
 eta = 1e13                 # Newtonian ice viscosity (Pa s)
@@ -58,11 +58,11 @@ g = 9.81                   # gravitational acceleration
 if inv_m == 0:
     H = 1000                    # ice thickness (m)
 
-    slope =  0.1*(np.pi/180)*inv_m       # slope of basal surface (radians)
+    slope =  0.2*(np.pi/180)       # slope of basal surface (radians): default 0.2
 
     uh_slope = (rho_i*g*np.sin(slope)*(H**2)/(2*eta))*np.abs(np.sign(slope))   # intrinsic surface velocity for inclined slope problem
 
-    uh_sshear = 260/3.154e7*(1-np.abs(np.sign(slope)))   # surface velocity for simple shear problem
+    uh_sshear = 250/3.154e7*(1-np.abs(np.sign(slope)))   # surface velocity for simple shear problem
 
     ub = 200/3.154e7                             # background sliding velocity (m/s)
 
@@ -87,12 +87,12 @@ else:
     uzz = 0
 
 ## sanity check printing ....
-# print('Background state properties:')
-# print('bed slope = '+str(slope*180/np.pi)+' deg.')
-# print('u_h = '+str(uh*3.154e7))
-# print('u_b = '+str(ub*3.154e7))
-# print('beta = '+"{:.1E}".format(beta_e))
-# print('\n')
+print('Background state properties:')
+print('bed slope = '+str(slope*180/np.pi)+' deg.')
+print('u_h = '+str(uh*3.154e7))
+print('u_b = '+str(ub*3.154e7))
+print('beta = '+"{:.1E}".format(beta_e))
+print('\n')
 
 
 t_r = 2*eta/(rho_i*g*H*np.cos(slope))    # viscous relaxation time
@@ -120,14 +120,14 @@ beta0 = beta_e*H/(2*eta)   # friction coefficient relative to ice viscosity
 
 delta = rho_w/rho_i-1      # density ratio
 
-noise_level = 0.0         # noise level (scaled relative to elevation anomaly amplitude)
+noise_level = 0.01         # noise level (scaled relative to elevation anomaly amplitude)
                            # used to create synthetic data
 
 
 #---------------------- numerical parameters------------------------------------
-cg_tol = 1e-4                     # stopping tolerance for conjugate gradient solver
+cg_tol = 1e-10                    # stopping tolerance for conjugate gradient solver
 
-max_cg_iter =  1000                # maximum conjugate gradient iterations
+max_cg_iter =  500               # maximum conjugate gradient iterations
 
 # discretization parameters
 Nx = 20                            # number of grid points in x-direction

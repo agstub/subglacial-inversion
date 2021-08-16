@@ -1,7 +1,7 @@
 # this file creates synthetic data for inversion examples
 
 from params import L,noise_level,x,y,t,Nt,Nx,Ny,inv_w,inv_beta,inv_m,vel_data,dim,ub0,t_final
-from operators import forward_w,forward_m,forward_beta,forward_u,forward_v,forward_s,forward_uf,forward_vf,sg_fwd
+from operators import forward_w,forward_m,forward_beta,forward_U,forward_V,forward_s,forward_Uf,forward_Vf
 import numpy as np
 
 #------------------------ create synthetic data --------------------------------
@@ -30,9 +30,9 @@ beta_true[t>0.9*t_final] = 0
 
 # (3) MELTING ANOMALY (sub-shelf)
 # travelling Gaussian melt 'wave'
-xc = (-20+40*t/t_final)*(L/10)
+xc = 0*(-20+40*t/t_final)*(L/10)
 
-m_true = 100*np.exp(-0.5*((0.5*sigma)**(-2))*(np.abs(x-xc)**2+np.abs(y)**2 ))*inv_m
+m_true = 50*np.exp(-0.5*((sigma)**(-2))*(np.abs(x-xc)**2+np.abs(y)**2 ))*inv_m
 m_true[t<0.1*t_final] = 0
 m_true[t>0.9*t_final] = 0
 
@@ -46,8 +46,8 @@ if dim==1 and inv_w == 1:
     h_obs_synth = h_true  + noise_level*np.max(np.abs(h_true))*np.random.normal(size=(Nt,Nx,Ny))
 
     # velocity solutions
-    u_true = forward_u(w_true,0*beta_true)
-    v_true = forward_v(w_true,0*beta_true)
+    u_true = forward_U(w_true,0*beta_true)
+    v_true = forward_V(w_true,0*beta_true)
     u_obs_synth = u_true+noise_level*np.max(np.abs(u_true))*np.random.normal(size=(Nt,Nx,Ny))
     v_obs_synth = v_true+noise_level*np.max(np.abs(u_true))*np.random.normal(size=(Nt,Nx,Ny))
 
@@ -57,8 +57,8 @@ elif dim==1 and inv_beta == 1:
     h_obs_synth = h_true  + noise_level*np.max(np.abs(h_true))*np.random.normal(size=(Nt,Nx,Ny))
 
     # velocity solutions
-    u_true = forward_u(0*w_true,beta_true)
-    v_true = forward_v(0*w_true,beta_true)
+    u_true = forward_U(0*w_true,beta_true)
+    v_true = forward_V(0*w_true,beta_true)
 
     u_obs_synth = u_true+noise_level*np.max(np.abs(u_true))*np.random.normal(size=(Nt,Nx,Ny))
     v_obs_synth = v_true+noise_level*np.max(np.abs(u_true))*np.random.normal(size=(Nt,Nx,Ny))
@@ -69,8 +69,8 @@ elif inv_m == 1:
     h_obs_synth = h_true  + noise_level*np.max(np.abs(h_true))*np.random.normal(size=(Nt,Nx,Ny))
 
     # velocity solutions
-    u_true = forward_uf(h_true,s_true)
-    v_true = forward_vf(h_true,s_true)
+    u_true = forward_Uf(h_true,s_true)
+    v_true = forward_Vf(h_true,s_true)
     u_obs_synth = u_true+noise_level*np.max(np.abs(u_true))*np.random.normal(size=(Nt,Nx,Ny))
     v_obs_synth = v_true+noise_level*np.max(np.abs(u_true))*np.random.normal(size=(Nt,Nx,Ny))
 
@@ -80,12 +80,12 @@ elif dim == 2:
     h_obs_synth = h_true  + noise_level*np.max(np.abs(h_true))*np.random.normal(size=(Nt,Nx,Ny))
 
     # velocity solutions
-    u_true = forward_u(w_true,beta_true)
-    v_true = forward_v(w_true,beta_true)
+    u_true = forward_U(w_true,beta_true)
+    v_true = forward_V(w_true,beta_true)
     u_obs_synth = u_true+noise_level*np.max(np.abs(u_true))*np.random.normal(size=(Nt,Nx,Ny))
     v_obs_synth = v_true+noise_level*np.max(np.abs(u_true))*np.random.normal(size=(Nt,Nx,Ny))
 
-# # print max values of data for sanity check...
+# # # print max values of data for sanity check...
 print('Synthetic data properties:')
 print('max h = '+str(np.max(np.abs(h_true))))
 print('max u = '+str(np.max(np.abs(u_true))))
