@@ -1,7 +1,7 @@
 # this file contains the integral kernel functions that are used for applying the
 # forward and adjoint operators
 import numpy as np
-from params import beta0,nu,delta,slope
+from params import beta0,slope
 
 def Rg(k,kx):
     # Ice surface relaxation function for grounded ice
@@ -33,22 +33,6 @@ def Tb(k,kx):
 
     return F1/D
 
-def Rf(k):
-    # relaxation function for floating ice
-    n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
-    R1 =  (1/n)*(np.exp(4*n) + (4*n)*np.exp(2*n) - 1 )
-    D = np.exp(4*n) -2*(1+2*n**2)*np.exp(2*n) + 1
-
-    return R1/D
-
-
-def B(k):
-    # buoyancy transfer function for floating ice
-    n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
-    B1 =  (1/n)*( 2*(n+1)*np.exp(3*n) + 2*(n-1)*np.exp(n))
-    D = np.exp(4*n) -2*(1+2*n**2)*np.exp(2*n) + 1
-
-    return B1/D
 
 def Uw(k):
     # Horizontal velocity w-response function
@@ -125,26 +109,6 @@ def Vb(k,kx,ky):
 
     return (nx*ny/n**3)*N/D
 
-
-
-def Uhf(k):
-    # Horizontal velocity h-response function
-    n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
-
-    N = 2*n*np.exp(n)
-    D = (np.exp(4*n) - 2*(2*n**2+1)*np.exp(2*n)+1 )/(2*n*np.exp(n))
-
-    return (1/n**2)*N/D
-
-
-def Usf(k):
-    # Horizontal velocity h-response function
-    n = 2*np.pi*k           # used to convert to SciPy's Fourier Transform definition
-
-    N = np.exp(2*n)-1
-    D = (np.exp(4*n) - 2*(2*n**2+1)*np.exp(2*n)+1 )/(2*n*np.exp(n))
-
-    return (1/n**2)*N/D
 
 def P(n,g,kap,c_a):
     # Additional terms in velocity response functions for sloping bed problem

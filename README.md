@@ -3,16 +3,15 @@ subglacial-inversion
 Author: Aaron Stubblefield (Columbia University, LDEO).
 
 # Overview
-This program inverts for (1) basal velocity anomaly "w", (2) the basal friction
-field "beta", or (3) the sub-shelf melt rate "m" given the observed surface
+This program inverts for (1) basal velocity anomaly "w" and (2) the basal drag
+coefficient "beta" given the observed surface
 elevation change "h_obs" by solving a least-squares minimization problem
 
 The main model assumptions are (1) Newtonian viscous ice flow, (2) a linear
 basal sliding law, and (3) that all fields are small perturbations of a simple shear
 background flow. These assumptions allow for efficient solution of the forward
 model: 2D (map-plane) Fourier transforms and convolution in time are the main
-operations. See notes.tex (in *notes* directory) for a description of the model
-and numerical method.
+operations. The model and numerical method are described in a forthcoming manuscript.
 
 # Dependencies
 ## Required dependencies
@@ -30,7 +29,7 @@ notes and the python file for a description.
 
 # Contents
 
-## 1. Source files
+## Source files
 The model is organized in 9 python files in the *code* directory as follows.
 
 1. **main.py** is the main file that calls the inverse problem solver and then
@@ -56,14 +55,6 @@ operators depend on.
 
 9. **plotting.py** creates png images of the inversion.
 
-## 2. Notes
-The *notes* directory contains a description of the model derivation
-and inverse problem (see **notes.tex**). These notes depend on some AMS packages,
-as well as Algorithm2e.
-
-A python file, **algebra.py** is also included. This program uses SymPy
-to symbolically derive the relaxation and transfer functions recorded in the notes.
-
 # Running the test problems
 To run the test problem for the basal velocity anomaly inversion
 just run `python3 main.py`
@@ -85,8 +76,8 @@ run an FFmpeg command like:
 
 Inversion options and parameters are set in the **params.py** file.
 
-The main option is whether to invert for the basal vertical velocity anomaly w, the friction
-anomaly beta, or sub-shelf melt rate m.
+The main option is whether to invert for the basal vertical velocity anomaly "w" or the drag
+coefficient "beta".
 
 Regularization options are also set in **params.py**.
 
@@ -94,8 +85,6 @@ The main physical parameters are
 - `lamda`: the process timescale relative to the characteristic relaxation time,  
 - `U`: the background horizontal flow speed (normalized by the vertical velocity scale)
 - `beta0`: background basal friction coefficient (relative to the ice viscosity)
-
-See the notes for a description of the parameters.
 
 Synthetic data for the test problems can be set/modified in **synthetic_data.py**.
 The synthetic data is created by solving the forward problem (given w, beta, or m)

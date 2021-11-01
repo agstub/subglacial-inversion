@@ -6,13 +6,14 @@ from params import dx,dy,dt,cg_tol,max_cg_iter,dim
 from scipy.integrate import trapz
 import numpy as np
 
+
 # ------------ define inner products and norms for CG method--------------------
 
 def prod(a,b):
     # inner product for the optimization problem: L^2(0,T;L^2) space-time inner product
-    if dim == 1:
+    if np.size(np.shape(a)) == 3:
         int = a*b
-    elif dim == 2:
+    elif np.size(np.shape(a)) == 4:
         int = a[0]*b[0] + a[1]*b[1]
 
     p = trapz( trapz(trapz(int,dx=dx,axis=-2),dx=dy,axis=-1) ,dx=dt,axis=0)
@@ -29,7 +30,7 @@ def norm(a):
 def cg_solve(b,X0):
 # conjugate gradient method for solving the normal equations
 #
-#              adj_fwd(X) = b,           where...
+#              adj_fwd(X)  = b,           where...
 #
 # * adj_fwd is a linear operator defined in operators.py
 # * b = right-side vector
@@ -44,11 +45,12 @@ def cg_solve(b,X0):
     rnorm0 = prod(r,r)    # (squared) norm of the residual: current iteration
     rnorm1 = rnorm0       # (squared) norm of the residual: previous iteration
 
-    r00 = norm(r0)
+    r00 = norm(b)
 
     while np.sqrt(rnorm1)/r00 > cg_tol:
-        if j%20 == 0:
+        if j%1 == 0:
             print("CG iter. "+str(j)+': rel. residual norm = '+"{:.2e}".format(np.sqrt(rnorm1)/r00)+',  tol = '+"{:.2e}".format(cg_tol))
+
 
         rnorm0 = prod(r,r)
 
@@ -62,6 +64,7 @@ def cg_solve(b,X0):
         beta_c = rnorm1/rnorm0
         p = r + beta_c*p                     # update search direction
         j = j+1
+
 
         if j > max_cg_iter:
             print('\n...CG terminated because maximum iterations reached.')
