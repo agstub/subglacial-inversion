@@ -1,4 +1,4 @@
-# this file sets the inversion options and numerical parameters/discretization
+# this file sets the inversion options and numerical parameters
 
 import numpy as np
 from scipy.fft import fftfreq
@@ -24,15 +24,16 @@ vel_data = int(0) + dim-1           # indicate whether horizontal surface veloci
 
 make_movie = int(0)                 # make movie of simulation (png at each timestep)
 
-u_wt = lambda : 1e-5 # 1e-1         # weight on surface velocity misfit for joint inversions
-h_wt = lambda : 1                   # weight on elevation misfit for joint inversion
+u_wt =  1e-5 # 1e-1         # weight on surface velocity misfit for joint inversions
+h_wt =  1                   # weight on elevation misfit for joint inversion
 
 #----------------------------regularization-------------------------------------
 # reguarization parameters for each inversion type
 # (default values are optimal according to the discrepancy principle)
-eps_w = lambda: 4.27e-5*inv_w         # w
-eps_beta = lambda: 3.319e1*inv_beta   # beta
+eps_w =  4.27e-5#*inv_w         # w
+eps_beta =  3.319e1#*inv_beta   # beta
 
+# not sure why I put this next bit here... probably will delete
 # if dim == 2:
 #     eps_w = lambda: 1e-4   # w
 #     eps_beta = lambda: 1e4 # beta
@@ -53,7 +54,6 @@ t_sc = 1*3.154e7            # observational timescale (s)
 eta = 1e13                  # Newtonian ice viscosity (Pa s)
 vel_sc = h_sc/t_sc          # vertical velocity scale
 rho_i = 917                 # ice density (kg/m^3)
-rho_w = 1000                # water density
 g = 9.81                    # gravitational acceleration
 
 #-----------------"background flow" (default examples)--------------------------
@@ -110,9 +110,6 @@ tau = -(beta_e*uz - eta*uzz)*H*t_sc/(2*eta)
 
 
 beta0 = beta_e*H/(2*eta)   # friction coefficient relative to ice viscosity
-
-
-delta = rho_w/rho_i-1      # density ratio
 
 noise_level = 0.01         # noise level (scaled relative to elevation anomaly norm)
                            # used to create synthetic data
@@ -175,4 +172,3 @@ k = np.sqrt(kx**2+ky**2)
 # print('ub0 = '+str(ub0))
 # print('uh0 = '+str(uh0))
 # print('nu = '+str(nu))
-# print('delta = '+str(delta))

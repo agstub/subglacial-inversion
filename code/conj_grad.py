@@ -48,7 +48,7 @@ def cg_solve(b,X0):
     r00 = norm(b)
 
     while np.sqrt(rnorm1)/r00 > cg_tol:
-        if j%1 == 0:
+        if j%10 == 0:
             print("CG iter. "+str(j)+': rel. residual norm = '+"{:.2e}".format(np.sqrt(rnorm1)/r00)+',  tol = '+"{:.2e}".format(cg_tol))
 
 

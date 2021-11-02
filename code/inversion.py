@@ -2,7 +2,7 @@
 # vector of the normal equations and calls the conjugate-gradient solver
 
 from params import inv_w,inv_beta,dim,vel_data,Nx,Ny,Nt
-from gps_stats import gps
+from gps_stats import gps_locs
 from conj_grad import cg_solve
 from operators import (forward_w,forward_beta,adjoint_w,adjoint_beta,Hc,vel_data,
                         adjoint_Ub,adjoint_Uw,adjoint_Vb,adjoint_Vw,forward_U,forward_V,h_wt,u_wt)
@@ -20,9 +20,9 @@ def invert(data,X0):
 
     elif inv_beta == 1 and dim==1:
         if vel_data == 0:
-            b = h_wt()*adjoint_beta(data)
+            b = h_wt*adjoint_beta(data)
         elif vel_data == 1:
-            b = h_wt()*adjoint_beta(data[0])+u_wt()*(adjoint_Ub(data[1])+adjoint_Vb(data[2]))*gps()
+            b = h_wt*adjoint_beta(data[0])+u_wt*(adjoint_Ub(data[1])+adjoint_Vb(data[2]))*gps_locs
 
         sol = cg_solve(b,X0)
         fwd = forward_beta(sol)
@@ -30,8 +30,8 @@ def invert(data,X0):
     elif dim == 2:
         # data = [h_obs,u_obs,v_obs]
         if vel_data == 1:
-            b1 = h_wt()*adjoint_w(data[0])+u_wt()*(adjoint_Uw(data[1])+adjoint_Vw(data[2]))
-            b2 = h_wt()*adjoint_beta(data[0])+u_wt()*(adjoint_Ub(data[1])+adjoint_Vb(data[2]))
+            b1 = h_wt*adjoint_w(data[0])+u_wt*(adjoint_Uw(data[1])+adjoint_Vw(data[2]))
+            b2 = h_wt*adjoint_beta(data[0])+u_wt*(adjoint_Ub(data[1])+adjoint_Vb(data[2]))
         elif vel_data == 0:
             b1 = adjoint_w(data)
             b2 = adjoint_beta(data)

@@ -3,9 +3,9 @@ subglacial-inversion
 Author: Aaron Stubblefield (Columbia University, LDEO).
 
 # Overview
-This program inverts for (1) basal velocity anomaly "w" and (2) the basal drag
+This program inverts for (1) basal velocity anomaly "w" and/or (2) the basal drag
 coefficient "beta" given the observed surface
-elevation change "h_obs" by solving a least-squares minimization problem
+elevation change data "h_obs" (and possible horizontal surface velocity data) by solving a least-squares minimization problem
 
 The main model assumptions are (1) Newtonian viscous ice flow, (2) a linear
 basal sliding law, and (3) that all fields are small perturbations of a simple shear
@@ -21,7 +21,6 @@ release.
 
 ## Optional dependencies
 FFmpeg (https://www.ffmpeg.org/) can be used to create a video of the results.
-See description below.
 
 SymPy (https://www.sympy.org/) is also used in **algebra.py** (*notes*
 directory) to symbolically derive the relaxation and transfer functions--see
@@ -55,22 +54,8 @@ operators depend on.
 
 9. **plotting.py** creates png images of the inversion.
 
-# Running the test problems
-To run the test problem for the basal velocity anomaly inversion
-just run `python3 main.py`
-
-Upon completion, the code should produce a png image of the inversion at each timestep
-in the *pngs* directory.
-
-To run the test problem for the basal friction anomaly, first
-set `inv_beta = 1`, `inv_w=0`, and `inv_m=0` in **params.py**, and then run the code.
-
-To run the test problem for the sub-shelf melt rate anomaly, first
-set `inv_m = 1`, `inv_w=0`, and `inv_beta=0` in **params.py**, and then run the code.
-
-To make a movie from the png's, change to the *pngs* directory and
-run an FFmpeg command like:
-`ffmpeg -r 20 -f image2 -s 1920x1080 -i %01d.png -vcodec libx264 -pix_fmt yuv420p -vf scale=1280:-2 movie.mp4`
+## Jupyter Notebooks
+To run the test problems, see the notebook files in the *notebooks* directory.
 
 # Model options
 

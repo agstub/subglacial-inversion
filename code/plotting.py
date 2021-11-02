@@ -4,7 +4,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from params import x,y,x0,y0,t0,L,inv_w,inv_beta,H,Nt,dim,Nx,vel_data
-from gps_stats import gps
+from gps_stats import gps_locs
 from synthetic_data import beta_true,w_true,u_true,v_true,sigma,s_true
 import os
 
@@ -245,7 +245,7 @@ def plot_joint(w,beta,h,h_obs,u,u_obs,v,v_obs,i):
 
 
 #-------------------------------------------------------------------------------
-def snapshots(sol,data,sol_true):
+def snapshots(data,sol1,sol2):
 
     Nt0 = Nt
 
@@ -256,26 +256,26 @@ def snapshots(sol,data,sol_true):
         h_obs = data
         u = u_true
         v = v_true
-        sol_max = np.max(np.abs(sol_true))
-        sol = sol/sol_max
-        sol_true = sol_true/sol_max
+        sol_max = np.max(np.abs(sol2))
+        sol1 = sol1/sol_max
+        sol2 = sol2/sol_max
         alpha0 = 0.5
 
     elif vel_data ==1 and dim==2:
         h_obs = data[0]
         u = data[1]
         v = data[2]
-        sol = sol/np.max(np.abs(w_true))
-        sol_true = sol_true/np.max(np.abs(beta_true))
+        sol1 = sol1/np.max(np.abs(w_true))
+        sol2 = sol2/np.max(np.abs(beta_true))
         alpha0 = 0.75
 
     elif vel_data ==1 and dim==1:
         h_obs = data[0]
         u = data[1]
         v = data[2]
-        sol_max = np.max(np.abs(sol_true))
-        sol = sol/sol_max
-        sol_true = sol_true/sol_max
+        sol_max = np.max(np.abs(sol2))
+        sol1 = sol1/sol_max
+        sol2 = sol2/sol_max
         alpha0 = 0.75
 
     h_obs = h_obs/np.max(np.abs(h_obs))
@@ -307,7 +307,7 @@ def snapshots(sol,data,sol_true):
     plt.subplot(334)
     plt.annotate(r'(d)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
 
-    p2 = plt.contourf(x0,y0,sol[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    p2 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     plt.ylabel(r'$y$',fontsize=20)
     plt.xticks(fontsize=16)
@@ -336,7 +336,7 @@ def snapshots(sol,data,sol_true):
     plt.gca().yaxis.set_ticklabels([])
     plt.gca().xaxis.set_ticklabels([])
 
-    p2 = plt.contourf(x0,y0,sol[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    p2 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     # Col 3---------------------------------------------------------------------
     i = int(3*Nt0/4)
@@ -362,7 +362,7 @@ def snapshots(sol,data,sol_true):
     plt.subplot(336)
     plt.annotate(r'(f)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
 
-    p2 = plt.contourf(x0,y0,sol[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    p2 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     plt.gca().xaxis.set_ticklabels([])
     plt.gca().yaxis.set_ticklabels([])
@@ -390,7 +390,7 @@ def snapshots(sol,data,sol_true):
     i = int(Nt0/4)
     plt.annotate(r'(g)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
 
-    p2 = plt.contourf(x0,y0,sol_true[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    p2 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     plt.ylabel(r'$y$',fontsize=20)
     plt.xlabel(r'$x$',fontsize=20)
@@ -402,7 +402,7 @@ def snapshots(sol,data,sol_true):
 
     i = int(Nt0/2)
 
-    p2 = plt.contourf(x0,y0,sol_true[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    p2 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     plt.xlabel(r'$x$',fontsize=20)
     plt.xticks(fontsize=16)
@@ -412,7 +412,7 @@ def snapshots(sol,data,sol_true):
     plt.annotate(r'(i)',xy=(-38,30.5),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     i = int(3*Nt0/4)
 
-    p2 = plt.contourf(x0,y0,sol_true[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    p2 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
 
     plt.xlabel(r'$x$',fontsize=20)
     plt.xticks(fontsize=16)
@@ -431,17 +431,18 @@ def snapshots(sol,data,sol_true):
     elif dim == 2:
         cbar.set_label(label=r'$\beta^\mathrm{inv}\,/\, \Vert \beta^\mathrm{true}\Vert_\infty$',size=18)
 
-
     cbar.ax.get_yaxis().labelpad = 10
     cbar.ax.tick_params(labelsize=18)
 
-    plt.savefig('snaps',bbox_inches='tight')
+    if inv_w == 1:
+        plt.savefig('w_def',bbox_inches='tight')
+    elif inv_beta == 1:
+        plt.savefig('beta_def',bbox_inches='tight')
+    plt.show()
     plt.close()
 
-
-
 #-------------------------------------------------------------------------------
-def gps_plot(sol,sol2,sol_true):
+def gps_plot(sol1,sol2,sol_true):
 
     Nt0 = Nt
 
@@ -450,7 +451,7 @@ def gps_plot(sol,sol2,sol_true):
 
     sol_max = np.max(np.abs(sol_true))
 
-    sol = sol/sol_max
+    sol1 = sol1/sol_max
     sol2 = sol2/sol_max
 
     ds = 10            # spacing for velocity plots
@@ -459,8 +460,8 @@ def gps_plot(sol,sol2,sol_true):
     ytix = np.array([-4*L,-2*L,0,2*L,4*L])
 
 
-    statx = x[0,:,:][gps()[0,:,:]>1e-2]
-    staty = y[0,:,:][gps()[0,:,:]>1e-2]
+    statx = x[0,:,:][gps_locs[0,:,:]>1e-2]
+    staty = y[0,:,:][gps_locs[0,:,:]>1e-2]
 
     X0,Y0 = np.meshgrid(statx,staty)
 
@@ -477,7 +478,7 @@ def gps_plot(sol,sol2,sol_true):
     plt.xticks(ytix,fontsize=16)
     plt.gca().xaxis.set_ticklabels([])
 
-    p1 = plt.contourf(x0,y0,sol[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    p1 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
     plt.plot(np.array([0.0]),np.array([0.0]),'^',color='k',markersize=6,fillstyle='none')
 
     plt.yticks(ytix,fontsize=16)
@@ -497,7 +498,7 @@ def gps_plot(sol,sol2,sol_true):
     plt.gca().yaxis.set_ticklabels([])
     plt.gca().xaxis.set_ticklabels([])
 
-    p1 = plt.contourf(x0,y0,sol[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    p1 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
     plt.plot(np.array([0.0]),np.array([0.0]),'^',color='k',markersize=6,fillstyle='none')
 
     # Col 3---------------------------------------------------------------------
@@ -507,7 +508,7 @@ def gps_plot(sol,sol2,sol_true):
     plt.annotate(r'(c)',xy=(-38,30),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     plt.title(r'$t\,/\,T = 0.75$',fontsize=22 )
 
-    p1 = plt.contourf(x0,y0,sol[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    p1 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
     plt.plot(np.array([0.0]),np.array([0.0]),'^',color='k',markersize=6,fillstyle='none')
 
     plt.xticks(ytix,fontsize=16)
@@ -565,29 +566,7 @@ def gps_plot(sol,sol2,sol_true):
     cbar.ax.get_yaxis().labelpad = 10
     cbar.ax.tick_params(labelsize=18)
 
-    plt.savefig('gps',bbox_inches='tight')
+    plt.savefig('beta_gps',bbox_inches='tight')
+    plt.show()
     plt.close()
 #-------------------------------------------------------------------------------
-
-
-# discrepancy diagram plot
-def discrepancy(mis1,eps1,mis2,eps2):
-
-    plt.figure(figsize=(8,6))
-    plt.axhline(y=1e-2,linestyle='--',color='r',linewidth=2)
-    plt.plot(eps2[mis2>1e-7],mis2[mis2>1e-7],'o-',linewidth=2,label=r'$\beta$')
-    plt.plot([3.319e1],[1e-2],'*',color='k',markersize=16)
-    plt.plot(eps1[mis1>1e-7],mis1[mis1>1e-7],'s-',linewidth=2,label=r'$w_b$')
-    plt.plot([4.27e-5],[1e-2],'*',color='k',markersize=16)
-    plt.annotate(r'noise level',xy=(5e-2,1.1e-2),fontsize=16,color='r')
-    plt.xlabel(r'$\varepsilon$',fontsize=20)
-    plt.ylabel(r'$\Vert h^\varepsilon-h^{\mathrm{obs}}\Vert\, / \, \Vert h^\mathrm{obs}\Vert$',fontsize=20)
-    plt.legend(fontsize=20,loc='upper right')
-    plt.yticks(fontsize=16)
-    plt.xticks(fontsize=16)
-    plt.gca().set_yscale('log')
-    plt.gca().set_xscale('log')
-    plt.gca().invert_xaxis()
-    plt.tight_layout()
-    plt.savefig('Lcurve')
-    plt.close()

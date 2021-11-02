@@ -19,7 +19,7 @@ sigma = 2*L/3        # standard deviation for Gaussians used in default examples
 # (1) VERTICAL VELOCITY ANOMALY
 # *EXAMPLE 1
 # Subglacial lake : Stationary Gaussian with oscillating amplitude
-w_true = 50*np.exp(-0.5*(sigma**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*np.sin(2*np.pi*t/t_final)*inv_w
+w_true = 50*np.exp(-0.5*(sigma**(-2))*(x**2+y**2 ))*np.sin(2*np.pi*t/t_final)*inv_w
 
 # *EXAMPLE 2
 # Bed bump: w_b = u_b*ds/dx
@@ -30,7 +30,7 @@ w_true = 50*np.exp(-0.5*(sigma**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*np.s
 # (2) SLIPPERINESS ANOMALY
 # Gaussian friction perturbation (constant in time)
 # default is slippery spot, switch sign for sticky spot
-beta_true = -8e-2*np.exp(-0.5*((sigma)**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))*np.sin(2*np.pi*box(t)/t_final)*inv_beta
+beta_true = -8e-2*np.exp(-0.5*((sigma)**(-2))*(x**2+y**2 ))*np.sin(2*np.pi*box(t)/t_final)*inv_beta
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -75,10 +75,11 @@ v_obs_synth = v_true  + 0.1*noise_level*norm(v_true)*noise_v/norm(noise_v)
 
 
 # print max values of data for sanity check...
-print('\n')
-print('Synthetic data properties:')
-print('max h = '+str(np.max(np.abs(h_true))))
-print('max s = '+str(np.max(np.abs(s_true))))
-print('max speed = '+str(np.max(np.sqrt(u_true**2 + v_true**2))))
-print('-----------------------------------------------------------')
-print('\n')
+# print('\n')
+# print('-----------------------------------------------------------')
+# print('Synthetic data properties:')
+# print('max h = '+str(np.max(np.abs(h_true))))
+# print('max s = '+str(np.max(np.abs(s_true))))
+# print('max speed = '+str(np.max(np.sqrt(u_true**2 + v_true**2))))
+# print('-----------------------------------------------------------')
+# print('\n')
