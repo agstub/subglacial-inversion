@@ -23,6 +23,7 @@ from synthetic_data import h_obs_synth,w_true,beta_true,h_true,u_obs_synth,v_obs
 from inversion import invert
 from plotting import plot_movie,snapshots
 import numpy as np
+from aux import interp
 from conj_grad import norm
 from operators import sg_fwd
 from scipy.fft import fft2,ifft2
@@ -68,6 +69,7 @@ def main():
     if make_movie == 1:
         plot_movie(sol,fwd,data)
 
-    return sol
+    # save solution as .npy file    
+    np.save('sol.npy',sol)
 
-#main()
+    return sol

@@ -434,10 +434,12 @@ def snapshots(data,sol1,sol2):
     cbar.ax.get_yaxis().labelpad = 10
     cbar.ax.tick_params(labelsize=18)
 
-    if inv_w == 1:
+    if inv_w == 1 and dim == 1:
         plt.savefig('w_def',bbox_inches='tight')
-    elif inv_beta == 1:
+    elif inv_beta == 1 and dim == 1:
         plt.savefig('beta_def',bbox_inches='tight')
+    else:
+        plt.savefig('joint',bbox_inches='tight')
     plt.show()
     plt.close()
 

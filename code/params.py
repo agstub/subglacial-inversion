@@ -24,19 +24,14 @@ vel_data = int(0) + dim-1           # indicate whether horizontal surface veloci
 
 make_movie = int(0)                 # make movie of simulation (png at each timestep)
 
-u_wt =  1e-5 # 1e-1         # weight on surface velocity misfit for joint inversions
+u_wt =  1e-1                # weight on surface velocity misfit for joint inversions
 h_wt =  1                   # weight on elevation misfit for joint inversion
 
 #----------------------------regularization-------------------------------------
 # reguarization parameters for each inversion type
 # (default values are optimal according to the discrepancy principle)
-eps_w =  4.27e-5#*inv_w         # w
-eps_beta =  3.319e1#*inv_beta   # beta
-
-# not sure why I put this next bit here... probably will delete
-# if dim == 2:
-#     eps_w = lambda: 1e-4   # w
-#     eps_beta = lambda: 1e4 # beta
+eps_w =  4.27e-5            # w
+eps_beta =  3.319e1         # beta
 
 # Regularization options: L2 and H1 (see regularizations.py)
 w_reg = 'L2'            # regularization type for w
