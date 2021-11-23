@@ -72,7 +72,7 @@ The main physical parameters are
 - `beta0`: background basal friction coefficient (relative to the ice viscosity)
 
 Synthetic data for the test problems can be set/modified in **synthetic_data.py**.
-The synthetic data is created by solving the forward problem (given w, beta, or m)
+The synthetic data is created by solving the forward problem (given w or beta)
 for the elevation anomaly, and then adding
 some noise. The added noise is proportional to the maximum elevation anomaly,
 scaled by the `noise_level` parameter in **params.py**.
