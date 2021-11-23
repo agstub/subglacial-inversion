@@ -1,6 +1,6 @@
 # this file creates synthetic data for inversion examples
 
-from params import L,noise_level,x,y,t,Nt,Nx,Ny,inv_w,inv_beta,vel_data,dim,ub0,t_final,dt
+from params import L,noise_level,x,y,t,Nt,Nx,Ny,inv_w,inv_beta,vel_data,dim,ub0,t_final,dt,nonlin_ex
 from operators import forward_w,forward_beta,forward_U,forward_V,sg_fwd
 import numpy as np
 from conj_grad import norm
@@ -19,7 +19,10 @@ sigma = 2*L/3        # standard deviation for Gaussians used in default examples
 # (1) VERTICAL VELOCITY ANOMALY
 # *EXAMPLE 1
 # Subglacial lake : Stationary Gaussian with oscillating amplitude
-w_true = 50*np.exp(-0.5*(sigma**(-2))*(x**2+y**2 ))*np.sin(2*np.pi*t/t_final)*inv_w
+if nonlin_ex != 1:
+    w_true = 5*np.exp(-0.5*(sigma**(-2))*(x**2+0*y**2 ))*np.sin(2*np.pi*t/t_final)*inv_w
+else:
+    w_true = np.load('./input/wb_true.npy')
 
 # *EXAMPLE 2
 # Bed bump: w_b = u_b*ds/dx
@@ -30,7 +33,7 @@ w_true = 50*np.exp(-0.5*(sigma**(-2))*(x**2+y**2 ))*np.sin(2*np.pi*t/t_final)*in
 # (2) SLIPPERINESS ANOMALY
 # Gaussian friction perturbation (constant in time)
 # default is slippery spot, switch sign for sticky spot
-beta_true = -8e-2*np.exp(-0.5*((sigma)**(-2))*(x**2+y**2 ))*np.sin(2*np.pi*box(t)/t_final)*inv_beta
+beta_true = -8e-3*np.exp(-0.5*((sigma)**(-2))*(x**2+y**2 ))*np.sin(2*np.pi*box(t)/t_final)*inv_beta
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -38,12 +41,18 @@ beta_true = -8e-2*np.exp(-0.5*((sigma)**(-2))*(x**2+y**2 ))*np.sin(2*np.pi*box(t
 
 if dim==1 and inv_w == 1:
     #elevation solution
-    h_true = forward_w(w_true)
-    s_true = ifft2(sg_fwd(fft2(w_true))).real
+    if nonlin_ex != 1:
+        h_true = forward_w(w_true)
+        s_true = ifft2(sg_fwd(fft2(w_true))).real
 
-    # velocity solutions
-    u_true = forward_U(w_true,0*beta_true)
-    v_true = forward_V(w_true,0*beta_true)
+        # velocity solutions
+        u_true = forward_U(w_true,0*beta_true)
+        v_true = forward_V(w_true,0*beta_true)
+    else:
+        h_true = np.load('./input/h_true.npy')
+        s_true = 0*h_true
+        u_true = 0*x
+        v_true = 0*x
 
 elif dim==1 and inv_beta == 1:
     #elevation solution
@@ -83,3 +92,11 @@ v_obs_synth = v_true  + 0.1*noise_level*norm(v_true)*noise_v/norm(noise_v)
 # print('max speed = '+str(np.max(np.sqrt(u_true**2 + v_true**2))))
 # print('-----------------------------------------------------------')
 # print('\n')
+
+# # sanity check plotting
+# import matplotlib.pyplot as plt
+# levels = np.linspace(-0.5,0.5,9)
+# plt.contourf(h_obs_synth[100,:,:].T,cmap='coolwarm',vmin=levels[0],vmax=levels[-1],extend='both',levels=levels)
+# plt.colorbar()
+# plt.show()
+# plt.close()

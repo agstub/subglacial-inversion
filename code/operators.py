@@ -7,7 +7,7 @@
 import numpy as np
 from kernel_fcns import Rg,Tw,Tb,Uw,Uh,Ub,Vw,Vh,Vb
 from params import (uh0,ub0,lamda,eps_beta,eps_w,w_reg,beta_reg,t,k,kx,ky,dx,
-                    inv_w,inv_beta,Nt,nu,dim,u_wt,h_wt,tau,vel_data,Nt)
+                    inv_w,inv_beta,Nt,nu,dim,u_wt,h_wt,tau,vel_data,Nt,t_final)
 from gps_stats import gps_locs
 from scipy.signal import fftconvolve
 from scipy.fft import ifft2,fft2
@@ -15,10 +15,10 @@ from regularizations import reg
 
 #---------------------convolution and cross-correlation operators---------------
 def conv(a,b):
-    return (1/Nt)*fftconvolve(a,b,mode='full',axes=0)[0:Nt,:,:]
+    return (t_final/Nt)*fftconvolve(a,b,mode='full',axes=0)[0:Nt,:,:]
 
 def xcor(a,b):
-    return (1/Nt)*fftconvolve(np.conjugate(np.flipud(a)),b,mode='full',axes=0)[(Nt-1):2*Nt,:,:]
+    return (t_final/Nt)*fftconvolve(np.conjugate(np.flipud(a)),b,mode='full',axes=0)[(Nt-1):2*Nt,:,:]
 
 #-------------------------------------------------------------------------------
 def adj_fwd(X):

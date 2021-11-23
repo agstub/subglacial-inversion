@@ -18,15 +18,16 @@
 #   o params.py: set the inversion options and physical/numerical parameters
 #   o synthetic_data.py: create different synthetic data
 #-------------------------------------------------------------------------------
-from params import dim,make_movie,vel_data,save_sol,load_sol
+from params import dim,make_movie,vel_data,save_sol,load_sol,noise_level,nonlin_ex,Nt
 from synthetic_data import h_obs_synth,w_true,beta_true,h_true,u_obs_synth,v_obs_synth
 from inversion import invert
-from plotting import plot_movie,snapshots
+from plotting import plot_movie,snapshots,snapshots_1D
 import numpy as np
 from aux import interp
 from conj_grad import norm
 from operators import sg_fwd
 from scipy.fft import fft2,ifft2
+import os
 
 def main():
     # the default examples use synthetic data (see synthetic_data.py)
@@ -61,7 +62,12 @@ def main():
 
     if dim == 1:
         sol_true = w_true+beta_true
-        snapshots(data,sol,sol_true)
+        if nonlin_ex != 1:
+            snapshots(data,sol,sol_true)
+        else:
+            finn = 'dog'
+            #snapshots_1D(data,fwd,sol,sol_true)
+
 
     elif dim == 2:
         snapshots(data,sol[0],sol[1])
@@ -69,7 +75,21 @@ def main():
     if make_movie == 1:
         plot_movie(sol,fwd,data)
 
-    # save solution as .npy file    
-    np.save('sol.npy',sol)
 
-    return sol
+    dsc = norm(fwd-h_obs)/norm(h_obs)
+
+    print('|h-h_obs|/|h_obs| = '+str(dsc)+' (target = '+str(noise_level)+')')
+
+    # save solution as .npy file
+    if save_sol == 1:
+        np.save('sol.npy',sol)
+
+    return sol,fwd
+
+sol,fwd = main()
+
+if os.path.isdir('pngs_nl')==False:
+    os.mkdir('pngs_nl')    # make a directory for the results.
+
+for i in range(Nt):
+    snapshots_1D(h_obs_synth,fwd,sol,w_true,i)
