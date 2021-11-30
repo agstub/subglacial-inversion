@@ -7,7 +7,7 @@ save_sol = int(0)
 
 load_sol = int(0)
 
-nonlin_ex = int(1)
+nonlin_ex = int(0)
 
 # --------------------inversion options ---------------------------------------
 # set either = 1 (on) or = 0 (off)
@@ -24,7 +24,7 @@ vel_data = int(0) + dim-1           # indicate whether horizontal surface veloci
                                     # *default = 'off' for single inversions,
                                     # 'on' for joint inversions
 
-make_movie = int(0)                 # make movie of simulation (png at each timestep)
+make_movie = int(1)                 # make movie of simulation (png at each timestep)
 
 u_wt =  1e-1                # weight on surface velocity misfit for joint inversions
 h_wt =  1                   # weight on elevation misfit for joint inversion
@@ -32,8 +32,8 @@ h_wt =  1                   # weight on elevation misfit for joint inversion
 #----------------------------regularization-------------------------------------
 # reguarization parameters for each inversion type
 # (default values are optimal according to the discrepancy principle)
-eps_w =  1e-1#4.27e-5            # w
-eps_beta =  3.319e1              # beta
+eps_w =  1e-1     # 4.27e-5            # w
+eps_beta = 1e1    # 3.319e1              # beta
 
 # Regularization options: L2 and H1 (see regularizations.py)
 w_reg = 'H1'            # regularization type for w
@@ -56,19 +56,19 @@ g = 9.81                    # gravitational acceleration
 #-----------------"background flow" (default examples)--------------------------
 
 # slope of basal surface (radians): default 0.2 deg
-slope =  0.0*(np.pi/180.0)
+slope =  0.2*(np.pi/180.0)
 
 # intrinsic surface velocity for inclined slope problem
 uh_slope = (rho_i*g*np.sin(slope)*(H**2)/(2*eta))*np.abs(np.sign(slope))
 
 # surface velocity for simple shear problem
-uh_sshear = 0*300/3.154e7*(1-np.abs(np.sign(slope)))
+uh_sshear = 300/3.154e7*(1-np.abs(np.sign(slope)))
 
 # background sliding velocity (m/s)
-ub = 0*200/3.154e7
+ub = 200/3.154e7
 
 # background horizontal surface velocity (m/s)
-uh = 0#ub*np.abs(np.sign(slope)) + uh_sshear + uh_slope
+uh = ub*np.abs(np.sign(slope)) + uh_sshear + uh_slope
 
 
 # Set background drag coefficient and related parameters, depending on the bed slope
@@ -79,7 +79,7 @@ if slope > 1e-7:
     uz = rho_i*g*np.sin(slope)*H/eta
 else:
     # simple shear problem
-    beta_e = 5.0e9 #(eta/H)*(uh/ub-1)
+    beta_e = (eta/H)*(uh/ub-1)
     uz = (uh - ub)/H
     uzz = 0
 
@@ -118,9 +118,9 @@ cg_tol = 1e-4               # stopping tolerance for conjugate gradient solver
 max_cg_iter =  200         # maximum conjugate gradient iterations
 
 # discretization parameters
-Nx = 100                    # number of grid points in x-direction
-Ny = 100                    # number of grid points in y-direction
-Nt = 200                    # number of time steps
+Nx = 101                    # number of grid points in x-direction
+Ny = 101                    # number of grid points in y-direction
+Nt = 100                    # number of time steps
 
 t0 = np.linspace(0,t_final,num=Nt) # time array
 
@@ -153,19 +153,19 @@ k = np.sqrt(kx**2+ky**2)
 
 # #-------------------------------------------------------------------------------
 # sanity check printing ....
-# print('----------------Background state properties----------------')
-# print('Dimensional parameters:')
-# print('bed slope = '+str(slope*180/np.pi)+' deg.')
-# print('tau_dim = '+str(beta_e*uz - eta*uzz)+' Pa/m')
-# print('t_r = '+str(t_r/3.154e7)+' yr')
-# print('u_h = '+str(uh*3.154e7)+' m/yr')
-# print('u_b = '+str(ub*3.154e7)+' m/yr')
-# print('beta = '+"{:.1E}".format(beta_e)+' Pa s/m')
-# print('\n')
-# print('Nondimensional parameters:')
-# print('lambda = '+str(lamda))
-# print('tau = '+"{:.1E}".format(tau))
-# print('beta0 = '+"{:.1E}".format(beta0))
-# print('ub0 = '+str(ub0))
-# print('uh0 = '+str(uh0))
-# print('nu = '+str(nu))
+print('----------------Background state properties----------------')
+print('Dimensional parameters:')
+print('bed slope = '+str(slope*180/np.pi)+' deg.')
+print('tau_dim = '+str(-(beta_e*uz - eta*uzz))+' Pa/m')
+print('t_r = '+str(t_r/3.154e7)+' yr')
+print('u_h = '+str(uh*3.154e7)+' m/yr')
+print('u_b = '+str(ub*3.154e7)+' m/yr')
+print('beta = '+"{:.1E}".format(beta_e)+' Pa s/m')
+print('\n')
+print('Nondimensional parameters:')
+print('lambda = '+str(lamda))
+print('tau = '+"{:.1E}".format(tau))
+print('beta0 = '+"{:.1E}".format(beta0))
+print('ub0 = '+str(ub0))
+print('uh0 = '+str(uh0))
+print('nu = '+str(nu))

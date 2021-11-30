@@ -65,8 +65,7 @@ def main():
         if nonlin_ex != 1:
             snapshots(data,sol,sol_true)
         else:
-            finn = 'dog'
-            #snapshots_1D(data,fwd,sol,sol_true)
+            snapshots_1D(data,fwd,sol)
 
 
     elif dim == 2:
@@ -87,9 +86,3 @@ def main():
     return sol,fwd
 
 sol,fwd = main()
-
-if os.path.isdir('pngs_nl')==False:
-    os.mkdir('pngs_nl')    # make a directory for the results.
-
-for i in range(Nt):
-    snapshots_1D(h_obs_synth,fwd,sol,w_true,i)

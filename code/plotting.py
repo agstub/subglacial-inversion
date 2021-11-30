@@ -3,7 +3,7 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from params import x,y,x0,y0,t0,L,inv_w,inv_beta,H,Nt,dim,Nx,vel_data,t_final
+from params import x,y,x0,y0,t0,L,inv_w,inv_beta,H,Nt,dim,Nx,vel_data,t_final,nonlin_ex
 from gps_stats import gps_locs
 from synthetic_data import beta_true,w_true,u_true,v_true,sigma,s_true
 import os
@@ -25,8 +25,10 @@ def plot_movie(sol,fwd,data):
         os.mkdir('pngs')    # make a directory for the results.
 
     for i in range(Nt):
-        if dim == 1 :
+        if dim == 1 and nonlin_ex != 1:
             plot(sol,fwd,data,i)
+        elif dim ==1 and nonlin_ex == 1:
+            plot_1D(sol,fwd,data,i)
         elif dim == 2:
             plot_joint(sol[0],sol[1],fwd[0],data[0],fwd[1],data[1],fwd[2],data[2],i)
 
@@ -574,54 +576,125 @@ def gps_plot(sol1,sol2,sol_true):
 #-------------------------------------------------------------------------------
 
 
-def snapshots_1D(data,fwd,sol1,sol2,i):
+def snapshots_1D(data,fwd,sol):
+
+    sol_true = w_true+beta_true
+    h_obs = data
+    h_max = np.max([np.max(np.abs(h_obs)),1e-10])
+    sol_max = np.max([np.max(np.abs(sol_true)),1e-10])
+
+    data = data/h_max
+    fwd = fwd/h_max
+
+    sol1 = sol/sol_max
+    sol2 = sol_true/sol_max
+
+    plt.figure(figsize=(12,8))
+    i = 61
+    plt.subplot(231)
+    plt.title(r'$t\, / \, T =$'+"{:.2f}".format(t0[i]/t0[-1]),fontsize=20 )
+    plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'$h^{\mathrm{obs}}$')
+    plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$h^{\mathrm{fwd}}$')
+    plt.ylabel(r'$h \,/\,\Vert h^{\mathrm{obs}}\Vert_\infty$',fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.ylim(-1.25,1.25)
+    plt.legend(fontsize=18,loc='lower left')
+    plt.gca().xaxis.set_ticklabels([])
+    plt.gca().yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter('%.2f'))
+
+    plt.subplot(234)
+    plt.plot(x0,sol2[i,:,50],color='royalblue',linewidth=3,label=r'$w_b^{\mathrm{true}}$')
+    plt.plot(x0,sol1[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$w_b^{\mathrm{inv}}$')
+    plt.ylabel(r'$w_b\,/\,\Vert w_b^{\mathrm{true}}\Vert_\infty$',fontsize=20)
+    plt.ylim(-1.25,1.25)
+    plt.gca().yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter('%.2f'))
+    plt.xlabel(r'$x$',fontsize=20)
+    plt.legend(fontsize=18,loc='lower left')
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+
+
+    i = 100
+    plt.subplot(232)
+    plt.title(r'$t\, / \, T =$'+"{:.2f}".format(t0[i]/t0[-1]),fontsize=20 )
+    plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'$h^{\mathrm{obs}}$')
+    plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$h^{\mathrm{fwd}}$')
+    plt.ylim(-1.25,1.25)
+    plt.gca().xaxis.set_ticklabels([])
+    plt.gca().yaxis.set_ticklabels([])
+
+    plt.subplot(235)
+    plt.plot(x0,sol2[i,:,50],color='royalblue',linewidth=3,label=r'true sol.')
+    plt.plot(x0,sol1[i,:,50],color='k',linestyle='--',linewidth=3,label=r'inversion')
+    plt.ylim(-1.25,1.25)
+    plt.gca().yaxis.set_ticklabels([])
+    plt.xlabel(r'$x$',fontsize=20)
+    plt.xticks(fontsize=16)
+
+    i = 111
+    plt.subplot(233)
+    plt.title(r'$t\, / \, T =$'+"{:.2f}".format(t0[i]/t0[-1]),fontsize=20 )
+    plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'data')
+    plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'model')
+    plt.ylim(-1.25,1.25)
+    plt.gca().xaxis.set_ticklabels([])
+    plt.gca().yaxis.set_ticklabels([])
+
+    plt.subplot(236)
+    plt.plot(x0,sol2[i,:,50],color='royalblue',linewidth=3,label=r'true sol.')
+    plt.plot(x0,sol1[i,:,50],color='k',linestyle='--',linewidth=3,label=r'inversion')
+    plt.ylim(-1.25,1.25)
+    plt.gca().yaxis.set_ticklabels([])
+    plt.xlabel(r'$x$',fontsize=20)
+    plt.xticks(fontsize=16)
+
+    plt.tight_layout()
+    plt.savefig('nonlin_ex')
+    plt.close()
+
+
+#-------------------------------------------------------------------------------
+def plot_1D(sol,fwd,data,i):
+
+    sol_true = w_true+beta_true
+    h_obs = data
+    h_max = np.max([np.max(np.abs(h_obs)),1e-10])
+    sol_max = np.max([np.max(np.abs(sol_true)),1e-10])
+
+    data = data/h_max
+    fwd = fwd/h_max
+
+    sol1 = sol/sol_max
+    sol2 = sol_true/sol_max
+
 
     plt.figure(figsize=(8,10))
     plt.suptitle(r'$t\, / \, T =$'+"{:.2f}".format(t0[i]/t0[-1]),fontsize=22 )
     plt.subplot(211)
-    plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'data')
-    plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'model')
+    plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'$h^{\mathrm{obs}}$')
+    plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$h^{\mathrm{fwd}}$')
 
-    # plt.plot(x0,data[100,:,50],color='royalblue',linewidth=3)
-    # plt.plot(x0,fwd[100,:,50],color='k',linestyle='--',linewidth=3)
-    #
-    # plt.plot(x0,data[111,:,50],color='royalblue',linewidth=3)
-    # plt.plot(x0,fwd[111,:,50],color='k',linestyle='--',linewidth=3)
-    #
-    # plt.plot(x0,data[122,:,50],color='royalblue',linewidth=3)
-    # plt.plot(x0,fwd[122,:,50],color='k',linestyle='--',linewidth=3)
-
-    plt.ylabel(r'elevation anomaly (m)',fontsize=16)
+    plt.ylabel(r'$h \,/\,\Vert h^{\mathrm{obs}}\Vert_\infty$',fontsize=20)
     plt.yticks(fontsize=16)
-    plt.ylim(-2,2)
+    plt.ylim(-1.25,1.25)
     plt.gca().xaxis.set_ticklabels([])
     plt.gca().yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter('%.2f'))
-    plt.legend(fontsize=16,loc='lower right')
+    plt.legend(fontsize=20,loc='lower right')
 
     plt.subplot(212)
 
-    plt.plot(x0,sol2[i,:,50],color='royalblue',linewidth=3,label=r'true sol.')
-    plt.plot(x0,sol1[i,:,50],color='k',linestyle='--',linewidth=3,label=r'inversion')
+    plt.plot(x0,sol2[i,:,50],color='royalblue',linewidth=3,label=r'$w_b^{\mathrm{true}}$')
+    plt.plot(x0,sol1[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$w_b^\mathrm{inv}$')
 
-    # plt.plot(x0,sol2[100,:,50],color='royalblue',linewidth=3)
-    # plt.plot(x0,sol1[100,:,50],color='k',linestyle='--',linewidth=3)
-    #
-    # plt.plot(x0,sol2[111,:,50],color='royalblue',linewidth=3)
-    # plt.plot(x0,sol1[111,:,50],color='k',linestyle='--',linewidth=3)
-    #
-    # plt.plot(x0,sol2[122,:,50],color='royalblue',linewidth=3)
-    # plt.plot(x0,sol1[122,:,50],color='k',linestyle='--',linewidth=3)
-
-    plt.ylabel(r'basal vertical vel. (m/yr)',fontsize=16)
-    plt.ylim(-7,7)
+    plt.ylabel(r'$w_b\,/\,\Vert w_b^{\mathrm{true}}\Vert_\infty$',fontsize=20)
+    plt.ylim(-1.25,1.25)
     plt.gca().yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter('%.2f'))
-    plt.legend(fontsize=16,loc='lower right')
-
+    plt.legend(fontsize=20,loc='lower right')
 
     # Label axes and save png:
-    plt.xlabel(r'$x$ (km)',fontsize=20)
+    plt.xlabel(r'$x$',fontsize=20)
     plt.xticks(fontsize=16)
     plt.yticks(fontsize=16)
     plt.tight_layout()
-    plt.savefig('pngs_nl/'+str(i))
+    plt.savefig('pngs/'+str(i))
     plt.close()

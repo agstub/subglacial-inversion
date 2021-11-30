@@ -20,9 +20,9 @@ sigma = 2*L/3        # standard deviation for Gaussians used in default examples
 # *EXAMPLE 1
 # Subglacial lake : Stationary Gaussian with oscillating amplitude
 if nonlin_ex != 1:
-    w_true = 5*np.exp(-0.5*(sigma**(-2))*(x**2+0*y**2 ))*np.sin(2*np.pi*t/t_final)*inv_w
+    w_true = 5*np.exp(-0.5*(sigma**(-2))*(x**2+y**2 ))*np.sin(2*np.pi*t/t_final)*inv_w
 else:
-    w_true = np.load('./input/wb_true.npy')
+    w_true = np.load('./input/wb_true.npy')*inv_w
 
 # *EXAMPLE 2
 # Bed bump: w_b = u_b*ds/dx
@@ -33,7 +33,7 @@ else:
 # (2) SLIPPERINESS ANOMALY
 # Gaussian friction perturbation (constant in time)
 # default is slippery spot, switch sign for sticky spot
-beta_true = -8e-3*np.exp(-0.5*((sigma)**(-2))*(x**2+y**2 ))*np.sin(2*np.pi*box(t)/t_final)*inv_beta
+beta_true = -8e-2*np.exp(-0.5*((sigma)**(-2))*(x**2+y**2 ))*np.sin(2*np.pi*box(t)/t_final)*inv_beta
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -42,12 +42,12 @@ beta_true = -8e-3*np.exp(-0.5*((sigma)**(-2))*(x**2+y**2 ))*np.sin(2*np.pi*box(t
 if dim==1 and inv_w == 1:
     #elevation solution
     if nonlin_ex != 1:
-        h_true = forward_w(w_true)
-        s_true = ifft2(sg_fwd(fft2(w_true))).real
+        h_true = ifft2(forward_w(w_true)).real
+        s_true = ifft2(sg_fwd((w_true))).real
 
         # velocity solutions
-        u_true = forward_U(w_true,0*beta_true)
-        v_true = forward_V(w_true,0*beta_true)
+        u_true = ifft2(forward_U(w_true,0*beta_true)).real
+        v_true = ifft2(forward_V(w_true,0*beta_true)).real
     else:
         h_true = np.load('./input/h_true.npy')
         s_true = 0*h_true
@@ -56,22 +56,21 @@ if dim==1 and inv_w == 1:
 
 elif dim==1 and inv_beta == 1:
     #elevation solution
-    h_true = forward_beta(beta_true)
+    h_true = ifft2(forward_beta(beta_true)).real
     s_true = 0*h_true
 
     # velocity solutions
-    u_true = forward_U(0*w_true,beta_true)
-    v_true = forward_V(0*w_true,beta_true)
+    u_true = ifft2(forward_U(0*w_true,beta_true)).real
+    v_true = ifft2(forward_V(0*w_true,beta_true)).real
 
 elif dim == 2:
     #elevation solution
-    h_true = forward_w(w_true) + forward_beta(beta_true)
-    h_obs_synth = h_true  + noise_level*np.max(np.abs(h_true))*np.random.normal(size=(Nt,Nx,Ny))
-    s_true = ifft2(sg_fwd(fft2(w_true))).real
+    h_true = ifft2(forward_w(w_true) + forward_beta(beta_true)).real
+    s_true = ifft2(sg_fwd(w_true)).real
 
     # velocity solutions
-    u_true = forward_U(w_true,beta_true)
-    v_true = forward_V(w_true,beta_true)
+    u_true = ifft2(forward_U(w_true,beta_true)).real
+    v_true = ifft2(forward_V(w_true,beta_true)).real
 
 # Add some noise
 noise_h = np.random.normal(size=(Nt,Nx,Ny))
@@ -84,14 +83,14 @@ v_obs_synth = v_true  + 0.1*noise_level*norm(v_true)*noise_v/norm(noise_v)
 
 
 # print max values of data for sanity check...
-# print('\n')
-# print('-----------------------------------------------------------')
-# print('Synthetic data properties:')
-# print('max h = '+str(np.max(np.abs(h_true))))
-# print('max s = '+str(np.max(np.abs(s_true))))
-# print('max speed = '+str(np.max(np.sqrt(u_true**2 + v_true**2))))
-# print('-----------------------------------------------------------')
-# print('\n')
+print('\n')
+print('-----------------------------------------------------------')
+print('Synthetic data properties:')
+print('max h = '+str(np.max(np.abs(h_true))))
+print('max s = '+str(np.max(np.abs(s_true))))
+print('max speed = '+str(np.max(np.sqrt(u_true**2 + v_true**2))))
+print('-----------------------------------------------------------')
+print('\n')
 
 # # sanity check plotting
 # import matplotlib.pyplot as plt
