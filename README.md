@@ -22,10 +22,6 @@ release.
 ## Optional dependencies
 FFmpeg (https://www.ffmpeg.org/) can be used to create a video of the results.
 
-SymPy (https://www.sympy.org/) is also used in **algebra.py** (*notes*
-directory) to symbolically derive the relaxation and transfer functions--see
-notes and the python file for a description.
-
 # Contents
 
 ## Source files
