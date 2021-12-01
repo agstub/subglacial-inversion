@@ -1,29 +1,36 @@
+#-------------------------------------------------------------------------------
 # this file defines the
 # * (1) forward operators,
 # * (2) adjoint operators, and
 # * (3) the operator appearing on the left-side of the normal equations
 #       (composition of forward and adjoint operators plus regularization terms)
+#
+# To avoid redundant applications of the fft/ifft in the inversion for computational efficiency:
+# * the forward operators take physical-space fields as input and return Fourier-space fields
+# * the adjoint operators take Fourier-space fields as input and physical-space fields
+#-------------------------------------------------------------------------------
+
 
 import numpy as np
 from kernel_fcns import Rg_,Tw_,Tb_,Uw_,Uh_,Ub_,Vw_,Vh_,Vb_,ker_w_,ker_beta_,ker_s_,conv,xcor
-from params import (uh0,ub0,lamda,eps_beta,eps_w,w_reg,beta_reg,t,k,kx,ky,dx,
-                    inv_w,inv_beta,Nt,nu,dim,u_wt,h_wt,tau,vel_data,Nt,t_final)
-from gps_stats import gps_locs
+from params import uh0,ub0,lamda,w_reg,beta_reg,t,k,kx,ky,dx,Nt,nu,u_wt,h_wt,tau,Nt,t_final
 from scipy.fft import ifft2,fft2
 from regularizations import reg
 
 #-------------------------------------------------------------------------------
-def adj_fwd(X):
+def adj_fwd(X,inv_w,inv_beta,eps_w,eps_beta,vel_locs):
     # operator on the LHS of the normal equations:
     # apply forward operator then adjoint operator, and add the regularization term
+    dim = inv_w + inv_beta
+    vel_data = np.max(vel_locs)
     if inv_w == 1 and dim == 1:
         A = h_wt*adjoint_w(forward_w(X)) + eps_w*reg(X,w_reg)
         if vel_data == 1:
-            A += u_wt*(adjoint_Uw(forward_U(X,0*X)) + adjoint_Vw(forward_V(X,0*X)))
+            A += u_wt*(adjoint_Uw(forward_U(X,0*X)) + adjoint_Vw(forward_V(X,0*X)))*vel_locs
     elif inv_beta == 1 and dim == 1:
         A = h_wt*adjoint_beta(forward_beta(X)) + eps_beta*reg(X,beta_reg)
         if vel_data == 1:
-            A += u_wt*(adjoint_Ub(forward_U(0*X,X)) + adjoint_Vb(forward_V(0*X,X)))*gps_locs
+            A += u_wt*(adjoint_Ub(forward_U(0*X,X)) + adjoint_Vb(forward_V(0*X,X)))*vel_locs
     elif dim == 2:
         # X[0] = w
         # X[1] = beta

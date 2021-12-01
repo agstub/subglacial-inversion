@@ -14,75 +14,44 @@
 # * this is the main file that imports the data, calls the inverse problem solver,
 #   and calls any post-processing functions (e.g., plotting)
 #
-# * Primary files to "playing around" with are:
-#   o params.py: set the inversion options and physical/numerical parameters
+# * Primary files to "play around" with are:
+#   o params.py: set the physical/numerical parameters
 #   o synthetic_data.py: create different synthetic data
 #-------------------------------------------------------------------------------
-from params import dim,make_movie,vel_data,save_sol,load_sol,noise_level,nonlin_ex,Nt
-from synthetic_data import h_obs_synth,w_true,beta_true,h_true,u_obs_synth,v_obs_synth
+from synthetic_data import make_data,make_fields
 from inversion import invert
-from plotting import plot_movie,snapshots,snapshots_1D
+from plotting import snapshots,plot_movie
 import numpy as np
-from aux import interp
 from conj_grad import norm
-from operators import sg_fwd
 from scipy.fft import fft2,ifft2
-import os
 
-def main():
+def main(data,vel_locs,inv_w,inv_beta,eps_w,eps_beta):
     # the default examples use synthetic data (see synthetic_data.py)
-    h_obs = h_obs_synth
 
-    if vel_data == 0:
-        data = h_obs
-    elif vel_data == 1:
-        u_obs = u_obs_synth
-        v_obs = v_obs_synth
-        data = np.array([h_obs,u_obs,v_obs])
+    sol,fwd = invert(data,vel_locs,inv_w,inv_beta,eps_w,eps_beta) # solve the inverse problem
 
-    if dim ==2 and load_sol == 1:
-        wb_0 = np.load('wb_f.npy')
-        beta_0 = np.load('beta_f.npy')
-        X0 = np.array([wb_0,beta_0])
-    elif dim ==2 and load_sol == 0:
-        X0 = 0*np.array([h_obs,h_obs])
-    elif dim == 1:
-        X0 = 0*h_obs
-    #
-    sol,fwd = invert(data,X0) # solve the inverse problem
+    mis = norm(fwd-data[0])/norm(data[0])                # normalized misfit
 
-    # #
-    if dim ==2 and save_sol == 1:
-        print('Interpolating solutions on finer grid...')
-        wb_f = interp(sol[0])
-        beta_f = interp(sol[1])
-        print('Saving solutions...')
-        np.save('wb_f.npy',wb_f)
-        np.save('beta_f.npy',beta_f)
-
-    if dim == 1:
-        sol_true = w_true+beta_true
-        if nonlin_ex != 1:
-            snapshots(data,sol,sol_true)
-        else:
-            snapshots_1D(data,fwd,sol)
+    return sol,fwd,mis
 
 
-    elif dim == 2:
-        snapshots(data,sol[0],sol[1])
+inv_w = 1
+inv_beta = 1
+eps_w = 1e1
+eps_beta = 1e5
 
-    if make_movie == 1:
-        plot_movie(sol,fwd,data)
+noise_level = 0.01    # noise level (scaled relative to elevation anomaly norm)
 
+data = make_data(inv_w,inv_beta,noise_level)
 
-    dsc = norm(fwd-h_obs)/norm(h_obs)
+vel_locs = np.ones(np.shape(data[0]),dtype=int)
 
-    print('|h-h_obs|/|h_obs| = '+str(dsc)+' (target = '+str(noise_level)+')')
+sol_true = make_fields(inv_w,inv_beta)
 
-    # save solution as .npy file
-    if save_sol == 1:
-        np.save('sol.npy',sol)
+sol,fwd,mis = main(data,vel_locs,inv_w,inv_beta,eps_w,eps_beta)
 
-    return sol,fwd
+print('||h-h_obs||/||h_obs|| = '+str(mis)+' (target = '+str(noise_level)+')')
 
-sol,fwd = main()
+snapshots(data,fwd,sol,sol_true,inv_w,inv_beta)
+
+plot_movie(sol,sol_true,fwd,data,inv_w,inv_beta)

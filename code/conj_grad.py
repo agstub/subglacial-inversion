@@ -2,7 +2,7 @@
 # the normal equations that arise from the least-squares minimization problem
 
 from operators import adj_fwd
-from params import dx,dy,dt,cg_tol,max_cg_iter,dim
+from params import dx,dy,dt,cg_tol,max_cg_iter
 from scipy.integrate import trapz
 import numpy as np
 
@@ -27,20 +27,19 @@ def norm(a):
 
 #------------------------------------------------------------------------------
 
-def cg_solve(b,X0):
+def cg_solve(b,inv_w,inv_beta,eps_w,eps_beta,vel_locs):
 # conjugate gradient method for solving the normal equations
 #
 #              adj_fwd(X)  = b,           where...
 #
 # * adj_fwd is a linear operator defined in operators.py
 # * b = right-side vector
-# * X0 = initial guess (default zero)
 
-    r0 = b - adj_fwd(X0)      # initial residual
+    r0 = b                    # initial residual
     p = r0                    # initial search direction
     j = 1                     # iteration
     r = r0                    # initialize residual
-    X = X0                    # initial guess
+    X = 0*p                   # initial guess
 
     rnorm0 = prod(r,r)    # (squared) norm of the residual: current iteration
     rnorm1 = rnorm0       # (squared) norm of the residual: previous iteration
@@ -48,13 +47,13 @@ def cg_solve(b,X0):
     r00 = norm(b)
 
     while np.sqrt(rnorm1)/r00 > cg_tol:
-        if j%1 == 0:
+        if j%10 == 0:
             print("CG iter. "+str(j)+': rel. residual norm = '+"{:.2e}".format(np.sqrt(rnorm1)/r00)+',  tol = '+"{:.2e}".format(cg_tol))
 
 
         rnorm0 = prod(r,r)
 
-        Ap = adj_fwd(p)
+        Ap = adj_fwd(p,inv_w,inv_beta,eps_w,eps_beta,vel_locs)
 
         alpha_c = rnorm0/prod(p,Ap)
 
