@@ -55,20 +55,16 @@ To run the test problems, see the notebook files in the *notebooks* directory.
 
 # Model options
 
-Inversion options and parameters are set in the **params.py** file.
+The primary inversion options are passed to the main function in **main.py**.
 
-The main option is whether to invert for the basal vertical velocity anomaly "w" or the drag
-coefficient "beta".
+The main optios are whether to invert for the basal vertical velocity anomaly "w" or the drag
+coefficient "beta" (or both), and whether surface velocity data is included. The regularization
+parameters are also passed to the main function. 
 
-Regularization options are also set in **params.py**.
-
-The main physical parameters are
-- `lamda`: the process timescale relative to the characteristic relaxation time,  
-- `U`: the background horizontal flow speed (normalized by the vertical velocity scale)
-- `beta0`: background basal friction coefficient (relative to the ice viscosity)
+Regularization type (H1 or L2), numerical parameters, and physical parameters are set in **params.py**.
 
 Synthetic data for the test problems can be set/modified in **synthetic_data.py**.
 The synthetic data is created by solving the forward problem (given w or beta)
 for the elevation anomaly, and then adding
 some noise. The added noise is proportional to the maximum elevation anomaly,
-scaled by the `noise_level` parameter in **params.py**.
+scaled by the `noise_level` parameter.
