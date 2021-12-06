@@ -16,7 +16,7 @@ operations. The model and numerical method are described in a forthcoming manusc
 # Dependencies
 ## Required dependencies
 As of this commit, this code runs with the latest SciPy (https://www.scipy.org/)
-release.
+release. Plotting relies on Matplotlib (https://matplotlib.org/).
 
 
 ## Optional dependencies
@@ -66,5 +66,5 @@ Regularization type (H1 or L2), numerical parameters, and physical parameters ar
 Synthetic data for the test problems can be set/modified in **synthetic_data.py**.
 The synthetic data is created by solving the forward problem (given w or beta)
 for the elevation anomaly, and then adding
-some noise. The added noise is proportional to the maximum elevation anomaly,
+some noise. The added noise is proportional to the norm of the elevation anomaly,
 scaled by the `noise_level` parameter.
