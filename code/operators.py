@@ -26,11 +26,11 @@ def adj_fwd(X,inv_w,inv_beta,eps_w,eps_beta,vel_locs):
     if inv_w == 1 and dim == 1:
         A = h_wt*adjoint_w(forward_w(X)) + eps_w*reg(X,w_reg)
         if vel_data == 1:
-            A += u_wt*(adjoint_Uw(forward_U(X,0*X)) + adjoint_Vw(forward_V(X,0*X)))*vel_locs
+            A += u_wt*vel_locs*(adjoint_Uw(forward_U(X,0*X)) + adjoint_Vw(forward_V(X,0*X)))
     elif inv_beta == 1 and dim == 1:
         A = h_wt*adjoint_beta(forward_beta(X)) + eps_beta*reg(X,beta_reg)
         if vel_data == 1:
-            A += u_wt*(adjoint_Ub(forward_U(0*X,X)) + adjoint_Vb(forward_V(0*X,X)))*vel_locs
+            A += u_wt*vel_locs*(adjoint_Ub(forward_U(0*X,X)) + adjoint_Vb(forward_V(0*X,X)))
     elif dim == 2:
         # X[0] = w
         # X[1] = beta
@@ -39,13 +39,13 @@ def adj_fwd(X,inv_w,inv_beta,eps_w,eps_beta,vel_locs):
         a1 = adjoint_w(Hc(X))
         a2 = adjoint_Uw(forward_U(X[0],X[1]))
         a3 = adjoint_Vw(forward_V(X[0],X[1]))
-        a = h_wt*a1+u_wt*(a2+a3)+ eps_w*reg(X[0],w_reg)
+        a = h_wt*a1+u_wt*vel_locs*(a2+a3)+ eps_w*reg(X[0],w_reg)
 
         # LHS of beta normal equation
         b1 = adjoint_beta(Hc(X))
         b2 = adjoint_Ub(forward_U(X[0],X[1]))
         b3 = adjoint_Vb(forward_V(X[0],X[1]))
-        b = h_wt*b1+u_wt*(b2+b3)+ eps_beta*reg(X[1],beta_reg)
+        b = h_wt*b1+u_wt*vel_locs*(b2+b3)+ eps_beta*reg(X[1],beta_reg)
 
         A = np.array([a,b])
 

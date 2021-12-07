@@ -41,8 +41,8 @@ def cg_solve(b,inv_w,inv_beta,eps_w,eps_beta,vel_locs):
     r = r0                    # initialize residual
     X = 0*p                   # initial guess
 
-    rnorm0 = prod(r,r)    # (squared) norm of the residual: current iteration
-    rnorm1 = rnorm0       # (squared) norm of the residual: previous iteration
+    rnorm0 = prod(r,r)    # (squared) norm of the residual: previous iteration
+    rnorm1 = rnorm0       # (squared) norm of the residual: current iteration
 
     r00 = norm(b)
 

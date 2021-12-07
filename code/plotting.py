@@ -4,7 +4,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from params import x,y,x0,y0,t0,L,H,Nt,Nx,t_final
-from synthetic_data import nonlin_ex
+from aux import nonlin_ex
 import os
 
 mpl.rcParams['xtick.major.size'] = 4
@@ -17,7 +17,7 @@ mpl.rcParams['ytick.minor.size'] = 2
 mpl.rcParams['ytick.minor.width'] = 1
 
 
-def plot_movie(sol,sol_true,fwd,data,inv_w,inv_beta):
+def plot_movie(data,fwd,sol,sol_true,inv_w,inv_beta):
     #* save a png image of the solution at each timestep
     #* need to make a directory called 'pngs' first!
 
@@ -30,7 +30,7 @@ def plot_movie(sol,sol_true,fwd,data,inv_w,inv_beta):
         if dim == 1 and nonlin_ex != 1:
             plot(sol,sol_true,fwd,data[0],i,inv_w,inv_beta)
         elif dim ==1 and nonlin_ex == 1:
-            plot_1D(sol,sol_true,fwd,data[0],i,inv_w,inv_beta)
+            plot_1D(sol,sol_true,fwd,data,i)
         elif dim == 2:
             plot_joint(sol[0],sol_true[0],sol[1],sol_true[1],fwd[0],data[0],fwd[1],data[1],fwd[2],data[2],i)
 
@@ -248,7 +248,7 @@ def snapshots(data,fwd,sol,sol_true,inv_w,inv_beta):
 
     dim = inv_w + inv_beta
     if nonlin_ex == 1 and dim==1:
-        snapshots_1D(data,fwd,sol,inv_w,inv_beta)
+        snapshots_1D(data,fwd,sol,sol_true)
     else:
         Nt0 = Nt
         levels0 = [-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1]
@@ -425,16 +425,16 @@ def snapshots(data,fwd,sol,sol_true,inv_w,inv_beta):
         cbar.ax.tick_params(labelsize=18)
 
         if inv_w == 1 and dim == 1:
-            plt.savefig('w_def',bbox_inches='tight')
+            plt.savefig('fig4',bbox_inches='tight')
         elif inv_beta == 1 and dim == 1:
-            plt.savefig('beta_def',bbox_inches='tight')
+            plt.savefig('fig5',bbox_inches='tight')
         else:
-            plt.savefig('joint',bbox_inches='tight')
+            plt.savefig('fig7',bbox_inches='tight')
         plt.show()
         plt.close()
 
 #-------------------------------------------------------------------------------
-def gps_plot(sol1,sol2,sol_true,inv_w,inv_beta):
+def gps_plot(sol1,sol2,sol3,sol_true,vel_locs,inv_w,inv_beta):
     dim = inv_w + inv_beta
 
     Nt0 = Nt
@@ -446,6 +446,7 @@ def gps_plot(sol1,sol2,sol_true,inv_w,inv_beta):
 
     sol1 = sol1/sol_max
     sol2 = sol2/sol_max
+    sol3 = sol3/sol_max
 
     ds = 10            # spacing for velocity plots
 
@@ -453,29 +454,25 @@ def gps_plot(sol1,sol2,sol_true,inv_w,inv_beta):
     ytix = np.array([-4*L,-2*L,0,2*L,4*L])
 
 
-    statx = x[0,:,:][gps_locs[0,:,:]>1e-2]
-    staty = y[0,:,:][gps_locs[0,:,:]>1e-2]
+    statx = x[0,:,:][vel_locs[0,:,:]>1e-2]
+    staty = y[0,:,:][vel_locs[0,:,:]>1e-2]
 
     X0,Y0 = np.meshgrid(statx,staty)
 
-    fig = plt.figure(figsize=(10,5))
+    fig = plt.figure(figsize=(10,7.5))
 
 
     # Col 1---------------------------------------------------------------------
     i = int(Nt0/4)
 
-    plt.subplot(231)
+    plt.subplot(331)
     plt.annotate(r'(a)',xy=(-38,30),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     plt.title(r'$t\,/\,T = 0.25$',fontsize=22 )
     plt.ylabel(r'$y$',fontsize=20)
     plt.xticks(ytix,fontsize=16)
     plt.gca().xaxis.set_ticklabels([])
-
     p1 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-    plt.plot(np.array([0.0]),np.array([0.0]),'^',color='k',markersize=6,fillstyle='none')
-
     plt.yticks(ytix,fontsize=16)
-
     ax2 = plt.gca().twinx()
     ax2.set_ylim(-40,40)
     ax2.set_xlim(-40,40)
@@ -484,38 +481,73 @@ def gps_plot(sol1,sol2,sol_true,inv_w,inv_beta):
 
     # Col 2---------------------------------------------------------------------
     i = int(Nt0/2)
-    plt.subplot(232)
+    plt.subplot(332)
     plt.annotate(r'(b)',xy=(-38,30),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     plt.title(r'$t\,/\,T = 0.5$',fontsize=22 )
     plt.xticks(ytix,fontsize=16)
     plt.gca().yaxis.set_ticklabels([])
     plt.gca().xaxis.set_ticklabels([])
-
     p1 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-    plt.plot(np.array([0.0]),np.array([0.0]),'^',color='k',markersize=6,fillstyle='none')
 
     # Col 3---------------------------------------------------------------------
     i = int(3*Nt0/4)
 
-    plt.subplot(233)
+    plt.subplot(333)
     plt.annotate(r'(c)',xy=(-38,30),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     plt.title(r'$t\,/\,T = 0.75$',fontsize=22 )
-
     p1 = plt.contourf(x0,y0,sol1[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
-    plt.plot(np.array([0.0]),np.array([0.0]),'^',color='k',markersize=6,fillstyle='none')
-
     plt.xticks(ytix,fontsize=16)
     plt.gca().yaxis.set_ticklabels([])
     plt.gca().xaxis.set_ticklabels([])
 
 
-    plt.subplot(234)
+    # Col 1---------------------------------------------------------------------
+    i = int(Nt0/4)
+
+    plt.subplot(334)
     plt.annotate(r'(d)',xy=(-38,30),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+    plt.ylabel(r'$y$',fontsize=20)
+    plt.xticks(ytix,fontsize=16)
+    plt.gca().xaxis.set_ticklabels([])
+    p1 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    plt.plot(np.array([0.0]),np.array([0.0]),'^',color='k',markersize=6,fillstyle='none')
+    plt.yticks(ytix,fontsize=16)
+    ax2 = plt.gca().twinx()
+    ax2.set_ylim(-40,40)
+    ax2.set_xlim(-40,40)
+    plt.yticks([])
+
+
+    # Col 2---------------------------------------------------------------------
+    i = int(Nt0/2)
+    plt.subplot(335)
+    plt.annotate(r'(e)',xy=(-38,30),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+    plt.xticks(ytix,fontsize=16)
+    plt.gca().yaxis.set_ticklabels([])
+    plt.gca().xaxis.set_ticklabels([])
+    p1 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    plt.plot(np.array([0.0]),np.array([0.0]),'^',color='k',markersize=6,fillstyle='none')
+
+    # Col 3---------------------------------------------------------------------
+    i = int(3*Nt0/4)
+
+    plt.subplot(336)
+    plt.annotate(r'(f)',xy=(-38,30),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+    p1 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    plt.plot(np.array([0.0]),np.array([0.0]),'^',color='k',markersize=6,fillstyle='none')
+    plt.xticks(ytix,fontsize=16)
+    plt.gca().yaxis.set_ticklabels([])
+    plt.gca().xaxis.set_ticklabels([])
+
+
+    # Col 1---------------------------------------------------------------------
+    plt.subplot(337)
+    plt.annotate(r'(g)',xy=(-38,30),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     plt.ylabel(r'$y$',fontsize=20)
     plt.xlabel(r'$x$',fontsize=20)
     plt.xticks(ytix,fontsize=16)
 
-    p1 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    p1 = plt.contourf(x0,y0,sol3[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
     plt.plot(X0.flatten(),Y0.flatten(),'^',color='k',markersize=6,fillstyle='none')
 
     plt.yticks(ytix,fontsize=16)
@@ -528,23 +560,22 @@ def gps_plot(sol1,sol2,sol_true,inv_w,inv_beta):
 
     # Col 2---------------------------------------------------------------------
     i = int(Nt0/2)
-    plt.subplot(235)
-    plt.annotate(r'(e)',xy=(-38,30),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+    plt.subplot(338)
+    plt.annotate(r'(h)',xy=(-38,30),fontsize=16,bbox=dict(facecolor='w',alpha=1))
     plt.xlabel(r'$x$',fontsize=20)
     plt.xticks(ytix,fontsize=16)
     plt.gca().yaxis.set_ticklabels([])
 
-    p1 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    p1 = plt.contourf(x0,y0,sol3[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
     plt.plot(X0.flatten(),Y0.flatten(),'k^',markersize=6,fillstyle='none')
 
     # Col 3---------------------------------------------------------------------
     i = int(3*Nt0/4)
 
-    plt.subplot(236)
-    plt.annotate(r'(f)',xy=(-38,30),fontsize=16,bbox=dict(facecolor='w',alpha=1))
-    p1 = plt.contourf(x0,y0,sol2[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
+    plt.subplot(339)
+    plt.annotate(r'(i)',xy=(-38,30),fontsize=16,bbox=dict(facecolor='w',alpha=1))
+    p1 = plt.contourf(x0,y0,sol3[i,:,:].T,cmap='coolwarm',vmin=-1,vmax=1,levels=levels,extend='both')
     dots, = plt.plot(X0.flatten(),Y0.flatten(),'k^',markersize=6,fillstyle='none',label='GPS station')
-
     plt.xlabel(r'$x$',fontsize=20)
     plt.xticks(ytix,fontsize=16)
     plt.gca().yaxis.set_ticklabels([])
@@ -553,40 +584,35 @@ def gps_plot(sol1,sol2,sol_true,inv_w,inv_beta):
     fig.subplots_adjust(right=0.85)
     cbar_ax = fig.add_axes([0.875, 0.11, 0.02, 0.75])
     cbar = fig.colorbar(p1,cax=cbar_ax,orientation='vertical',ticks=levels0)
-
-    cbar.set_label(label=r'$\beta^{\mathrm{inv}}\,/\, \Vert \beta^{\mathrm{true}}\Vert_\infty$',size=22)
-
+    cbar.set_label(label=r'$\beta^{\mathrm{inv}}\,/\, \Vert \beta^{\mathrm{true}}\Vert_\infty$',size=24)
     cbar.ax.get_yaxis().labelpad = 10
     cbar.ax.tick_params(labelsize=18)
 
-    plt.savefig('beta_gps',bbox_inches='tight')
+    plt.savefig('fig6',bbox_inches='tight')
     plt.show()
     plt.close()
 #-------------------------------------------------------------------------------
 
 
-def snapshots_1D(data,fwd,sol,inv_w,inv_beta):
-    dim = inv_w + inv_beta
+def snapshots_1D(data,fwd,sol,sol_true):
 
-    sol_true = w_true+beta_true
-    h_obs = data
-    h_max = np.max([np.max(np.abs(h_obs)),1e-10])
-    sol_max = np.max([np.max(np.abs(sol_true)),1e-10])
+    h_max = np.max(np.abs(data[0]))
+    sol_max = np.max(np.abs(sol_true))
 
-    data = data/h_max
+    data = data[0]/h_max
     fwd = fwd/h_max
 
     sol1 = sol/sol_max
     sol2 = sol_true/sol_max
 
     plt.figure(figsize=(12,8))
-    i = 61
+    i = 47
     plt.subplot(231)
     plt.title(r'$t\, / \, T =$'+"{:.2f}".format(t0[i]/t0[-1]),fontsize=20 )
     plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'$h^{\mathrm{obs}}$')
     plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$h^{\mathrm{fwd}}$')
     plt.ylabel(r'$h \,/\,\Vert h^{\mathrm{obs}}\Vert_\infty$',fontsize=20)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=16)
     plt.ylim(-1.25,1.25)
     plt.legend(fontsize=18,loc='lower left')
     plt.gca().xaxis.set_ticklabels([])
@@ -621,7 +647,7 @@ def snapshots_1D(data,fwd,sol,inv_w,inv_beta):
     plt.xlabel(r'$x$',fontsize=20)
     plt.xticks(fontsize=16)
 
-    i = 111
+    i = 113
     plt.subplot(233)
     plt.title(r'$t\, / \, T =$'+"{:.2f}".format(t0[i]/t0[-1]),fontsize=20 )
     plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'data')
@@ -639,21 +665,21 @@ def snapshots_1D(data,fwd,sol,inv_w,inv_beta):
     plt.xticks(fontsize=16)
 
     plt.tight_layout()
-    plt.savefig('nonlin_ex')
+    plt.savefig('fig9',bbox_inches='tight')
+    plt.show()
     plt.close()
 
 
 #-------------------------------------------------------------------------------
-def plot_1D(sol,fwd,data,i,inv_w,inv_beta):
-    dim = inv_w + inv_beta
+def plot_1D(sol,sol_true,fwd,data,i):
 
-    sol_true = w_true+beta_true
-    h_obs = data
-    h_max = np.max([np.max(np.abs(h_obs)),1e-10])
-    sol_max = np.max([np.max(np.abs(sol_true)),1e-10])
+    h_obs = data[0]
+    h_max = np.max(np.abs(h_obs))
+    sol_max = np.max(np.abs(sol_true))
 
-    data = data/h_max
+    data = h_obs/h_max
     fwd = fwd/h_max
+
 
     sol1 = sol/sol_max
     sol2 = sol_true/sol_max

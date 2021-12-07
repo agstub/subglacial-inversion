@@ -12,7 +12,7 @@ def invert(data,vel_locs,inv_w,inv_beta,eps_w,eps_beta):
     # and possibly horizontal surface velocity (u_obs,v_obs) defined at locations vel_locs
     #
     # data = [h_obs,u_obs,v_obs]
-    
+
 
     dim = inv_w + inv_beta
     vel_data = np.max(vel_locs)
@@ -23,7 +23,7 @@ def invert(data,vel_locs,inv_w,inv_beta,eps_w,eps_beta):
             b = adjoint_w(fft2(data[0]))
 
         elif vel_data == 1:
-            b = h_wt*adjoint_w(fft2(data[0]))+u_wt*(adjoint_Uw(fft2(data[1]))+adjoint_Vw(fft2(data[2])))*vel_locs
+            b = h_wt*adjoint_w(fft2(data[0]))+u_wt*vel_locs*(adjoint_Uw(fft2(data[1]))+adjoint_Vw(fft2(data[2])))
 
         sol = cg_solve(b,inv_w,inv_beta,eps_w,eps_beta,vel_locs)
         fwd = ifft2(forward_w(sol)).real
@@ -32,15 +32,15 @@ def invert(data,vel_locs,inv_w,inv_beta,eps_w,eps_beta):
         if vel_data == 0:
             b = h_wt*adjoint_beta(fft2(data[0]))
         elif vel_data == 1:
-            b = h_wt*adjoint_beta(fft2(data[0]))+u_wt*(adjoint_Ub(fft2(data[1]))+adjoint_Vb(fft2(data[2])))*vel_locs
+            b = h_wt*adjoint_beta(fft2(data[0]))+u_wt*vel_locs*(adjoint_Ub(fft2(data[1]))+adjoint_Vb(fft2(data[2])))
 
         sol = cg_solve(b,inv_w,inv_beta,eps_w,eps_beta,vel_locs)
         fwd = ifft2(forward_beta(sol)).real
 
     elif dim == 2:
         if vel_data == 1:
-            b1 = h_wt*adjoint_w(fft2(data[0]))+u_wt*(adjoint_Uw(fft2(data[1]))+adjoint_Vw(fft2(data[2])))
-            b2 = h_wt*adjoint_beta(fft2(data[0]))+u_wt*(adjoint_Ub(fft2(data[1]))+adjoint_Vb(fft2(data[2])))
+            b1 = h_wt*adjoint_w(fft2(data[0]))+u_wt*vel_locs*(adjoint_Uw(fft2(data[1]))+adjoint_Vw(fft2(data[2])))
+            b2 = h_wt*adjoint_beta(fft2(data[0]))+u_wt*vel_locs*(adjoint_Ub(fft2(data[1]))+adjoint_Vb(fft2(data[2])))
         elif vel_data == 0:
             b1 = adjoint_w(fft2(data[0]))
             b2 = adjoint_beta(fft2(data[0]))

@@ -1,15 +1,11 @@
 # this file creates synthetic data for inversion examples
 
 from params import L,x,y,t,Nt,Nx,Ny,ub0,t_final,dt
+from aux import nonlin_ex
 from operators import forward_w,forward_beta,forward_U,forward_V,sg_fwd
 import numpy as np
 from conj_grad import norm
 from scipy.fft import ifft2,fft2
-
-# flag for nonlinear example problem
-# set to 1 to use elevation data from a nonlinear Stokes model
-nonlin_ex = int(0)
-
 
 # Temporal box function for basal drag example
 def box(t):
@@ -30,13 +26,10 @@ def make_fields(inv_w,inv_beta):
     if nonlin_ex != 1:
         w_true = 5*np.exp(-0.5*(sigma**(-2))*(x**2+y**2 ))*np.sin(2*np.pi*t/t_final)*inv_w
     else:
-        w_true = np.load('./input/wb_true.npy')*inv_w
-
     # *EXAMPLE 2
-    # Bed bump: w_b = u_b*ds/dx
-    #bed = np.exp(-0.5*(sigma**(-2))*(np.abs(x+2*L)**2+np.abs(y-2*L)**2 ))
-    # bed_x = -100*(x/(sigma**2))*np.exp(-0.5*(sigma**(-2))*(np.abs(x+0*L)**2+np.abs(y-0*L)**2 ))
-    # w_true = ub0*bed_x*inv_w
+    # velocity from nonlinear subglacial lake model output
+    # (sawtooth volume change timeseries)
+        w_true = np.load('../input/wb_true.npy')*inv_w
 
     # (2) SLIPPERINESS ANOMALY
     # Gaussian friction perturbation (constant in time)
@@ -70,7 +63,7 @@ def make_data(inv_w,inv_beta,noise_level):
             u_true = ifft2(forward_U(w_true,0*w_true)).real
             v_true = ifft2(forward_V(w_true,0*w_true)).real
         else:
-            h_true = np.load('./input/h_true.npy')
+            h_true = np.load('../input/h_true.npy')
             s_true = 0*h_true
             u_true = 0*x
             v_true = 0*x
@@ -100,7 +93,7 @@ def make_data(inv_w,inv_beta,noise_level):
     noise_h = np.random.normal(size=(Nt,Nx,Ny))
     noise_u = np.random.normal(size=(Nt,Nx,Ny))
     noise_v = np.random.normal(size=(Nt,Nx,Ny))
-    #
+
     h_obs = h_true  + noise_level*norm(h_true)*noise_h/norm(noise_h)
     u_obs = u_true  + 0.1*noise_level*norm(u_true)*noise_u/norm(noise_u)
     v_obs = v_true  + 0.1*noise_level*norm(v_true)*noise_v/norm(noise_v)

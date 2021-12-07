@@ -2,9 +2,9 @@
 
 import numpy as np
 from scipy.fft import fftfreq
+from aux import nonlin_ex
 
 # --------------------joint inversion options ----------------------------------
-
 u_wt =  1e-1                # weight on surface velocity misfit for joint inversions
 h_wt =  1                   # weight on elevation misfit for joint inversion
 
@@ -32,17 +32,21 @@ g = 9.81                    # gravitational acceleration
 #-----------------"background flow" (default examples)--------------------------
 
 # slope of basal surface (radians): default 0.2 deg
-slope =  0.2*(np.pi/180.0)
+slope =  0.2*(np.pi/180.0)*(1-nonlin_ex)
 
 # background sliding velocity (m/s)
-ub = 200/3.154e7
+ub = (200/3.154e7)*(1-nonlin_ex)
 
 # background horizontal surface velocity (m/s)
-uh = ub + rho_i*g*np.sin(slope)*(H**2)/(2*eta)
+uh = (ub + rho_i*g*np.sin(slope)*(H**2)/(2*eta))*(1-nonlin_ex)
 
 
 # Set background drag coefficient and related parameters, depending on the bed slope
-beta_e = 2*(eta/H)*(uh/ub-1)     # background basal friction coeffcieint (Pa s/m)
+if nonlin_ex != 1:
+    beta_e = 2*(eta/H)*(uh/ub-1)     # background basal friction coeffcieint (Pa s/m)
+else:
+    beta_e = 5.0e9
+
 uzz = -rho_i*g*np.sin(slope)/eta # second derivative of basal horizontal velocity
 uz = rho_i*g*np.sin(slope)*H/eta # first derivative of basal horizontal velocity
 
@@ -76,12 +80,15 @@ beta0 = beta_e*H/(2*eta)   # friction coefficient relative to ice viscosity
 #---------------------- numerical parameters------------------------------------
 cg_tol = 1e-4               # stopping tolerance for conjugate gradient solver
 
-max_cg_iter =  200          # maximum conjugate gradient iterations
+max_cg_iter =  1000         # maximum conjugate gradient iterations
 
 # discretization parameters
 Nx = 101                    # number of grid points in x-direction
 Ny = 101                    # number of grid points in y-direction
-Nt = 100                    # number of time steps
+Nt = 100*(1-nonlin_ex)+200*nonlin_ex # number of time steps
+
+# Note: we use a higher resolution for the nonlinear example due to the shorter
+# oscillation period
 
 t0 = np.linspace(0,t_final,num=Nt) # time array
 
@@ -113,7 +120,7 @@ k = np.sqrt(kx**2+ky**2)
 
 
 # #-------------------------------------------------------------------------------
-# sanity check printing ....
+#sanity check printing ....
 # print('----------------Background state properties----------------')
 # print('Dimensional parameters:')
 # print('bed slope = '+str(slope*180/np.pi)+' deg.')
