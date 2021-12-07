@@ -609,6 +609,7 @@ def snapshots_1D(data,fwd,sol,sol_true):
     i = 47
     plt.subplot(231)
     plt.title(r'$t\, / \, T =$'+"{:.2f}".format(t0[i]/t0[-1]),fontsize=20 )
+    plt.annotate(r'(a)',xy=(-42.5,1.04),fontsize=20,bbox=dict(facecolor='w',alpha=1))
     plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'$h^{\mathrm{obs}}$')
     plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$h^{\mathrm{fwd}}$')
     plt.ylabel(r'$h \,/\,\Vert h^{\mathrm{obs}}\Vert_\infty$',fontsize=20)
@@ -619,6 +620,7 @@ def snapshots_1D(data,fwd,sol,sol_true):
     plt.gca().yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter('%.2f'))
 
     plt.subplot(234)
+    plt.annotate(r'(d)',xy=(-42.5,1.04),fontsize=20,bbox=dict(facecolor='w',alpha=1))
     plt.plot(x0,sol2[i,:,50],color='royalblue',linewidth=3,label=r'$w_b^{\mathrm{true}}$')
     plt.plot(x0,sol1[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$w_b^{\mathrm{inv}}$')
     plt.ylabel(r'$w_b\,/\,\Vert w_b^{\mathrm{true}}\Vert_\infty$',fontsize=20)
@@ -632,6 +634,7 @@ def snapshots_1D(data,fwd,sol,sol_true):
 
     i = 100
     plt.subplot(232)
+    plt.annotate(r'(b)',xy=(-42.5,1.04),fontsize=20,bbox=dict(facecolor='w',alpha=1))
     plt.title(r'$t\, / \, T =$'+"{:.2f}".format(t0[i]/t0[-1]),fontsize=20 )
     plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'$h^{\mathrm{obs}}$')
     plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$h^{\mathrm{fwd}}$')
@@ -640,6 +643,7 @@ def snapshots_1D(data,fwd,sol,sol_true):
     plt.gca().yaxis.set_ticklabels([])
 
     plt.subplot(235)
+    plt.annotate(r'(e)',xy=(-42.5,1.04),fontsize=20,bbox=dict(facecolor='w',alpha=1))
     plt.plot(x0,sol2[i,:,50],color='royalblue',linewidth=3,label=r'true sol.')
     plt.plot(x0,sol1[i,:,50],color='k',linestyle='--',linewidth=3,label=r'inversion')
     plt.ylim(-1.25,1.25)
@@ -649,6 +653,7 @@ def snapshots_1D(data,fwd,sol,sol_true):
 
     i = 113
     plt.subplot(233)
+    plt.annotate(r'(c)',xy=(-42.6,1.04),fontsize=20,bbox=dict(facecolor='w',alpha=1))
     plt.title(r'$t\, / \, T =$'+"{:.2f}".format(t0[i]/t0[-1]),fontsize=20 )
     plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'data')
     plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'model')
@@ -657,6 +662,7 @@ def snapshots_1D(data,fwd,sol,sol_true):
     plt.gca().yaxis.set_ticklabels([])
 
     plt.subplot(236)
+    plt.annotate(r'(f)',xy=(-42.6,1.04),fontsize=20,bbox=dict(facecolor='w',alpha=1))
     plt.plot(x0,sol2[i,:,50],color='royalblue',linewidth=3,label=r'true sol.')
     plt.plot(x0,sol1[i,:,50],color='k',linestyle='--',linewidth=3,label=r'inversion')
     plt.ylim(-1.25,1.25)
