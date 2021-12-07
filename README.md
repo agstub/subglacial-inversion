@@ -1,4 +1,5 @@
 subglacial-inversion
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/agstub/subglacial-inversion/HEAD?labpath=notebooks%2F1_Figs3-5.ipynb)
 
 Author: Aaron Stubblefield (Columbia University, LDEO).
 
