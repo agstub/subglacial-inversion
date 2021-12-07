@@ -52,6 +52,7 @@ operators depend on.
 
 ## Jupyter Notebooks
 To run the test problems, see the notebook files in the *notebooks* directory.
+These examples can be run in Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/agstub/subglacial-inversion/HEAD?labpath=notebooks%2F1_Figs3-5.ipynb)
 
 # Model options
 
