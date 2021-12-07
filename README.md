@@ -57,7 +57,7 @@ To run the test problems, see the notebook files in the *notebooks* directory.
 
 The primary inversion options are passed to the main function in **main.py**.
 
-The main optios are whether to invert for the basal vertical velocity anomaly "w" or the drag
+The main options are whether to invert for the basal vertical velocity anomaly "w" or the drag
 coefficient "beta" (or both), and whether surface velocity data is included. The regularization
 parameters are also passed to the main function. 
 
