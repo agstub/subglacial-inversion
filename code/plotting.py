@@ -629,7 +629,7 @@ def snapshots_1D(data,fwd,sol,sol_true,dV_inv,dV_true):
 
     i = 47
     plt.subplot(334)
-    plt.title(r'$t_1$',fontsize=20 )
+    plt.title(r'$t_1$',fontsize=24 )
     plt.annotate(r'(b)',xy=(-42,0.875),fontsize=20,bbox=dict(facecolor='w',alpha=1))
     plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'$h^{\mathrm{obs}}$')
     plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$h^{\mathrm{fwd}}$')
@@ -654,7 +654,7 @@ def snapshots_1D(data,fwd,sol,sol_true,dV_inv,dV_true):
     i = 100
     plt.subplot(335)
     plt.annotate(r'(c)',xy=(-42,0.875),fontsize=20,bbox=dict(facecolor='w',alpha=1))
-    plt.title(r'$t_2$',fontsize=20 )
+    plt.title(r'$t_2$',fontsize=24 )
     plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'$h^{\mathrm{obs}}$')
     plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$h^{\mathrm{fwd}}$')
     plt.ylim(-1.25,1.25)
@@ -672,7 +672,7 @@ def snapshots_1D(data,fwd,sol,sol_true,dV_inv,dV_true):
 
     i = 113
     plt.subplot(336)
-    plt.title(r'$t_3$',fontsize=20 )
+    plt.title(r'$t_3$',fontsize=24)
     plt.annotate(r'(d)',xy=(-42,0.875),fontsize=20,bbox=dict(facecolor='w',alpha=1))
     plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'$h^{\mathrm{obs}}$')
     plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$h^{\mathrm{fwd}}$')
