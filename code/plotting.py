@@ -244,11 +244,11 @@ def plot_joint(w,w_true,beta,beta_true,h,h_obs,u,u_obs,v,v_obs,i):
 
 
 #-------------------------------------------------------------------------------
-def snapshots(data,fwd,sol,sol_true,inv_w,inv_beta):
+def snapshots(data,fwd,sol,sol_true,inv_w,inv_beta,dV_inv=None,dV_true=None):
 
     dim = inv_w + inv_beta
     if nonlin_ex == 1 and dim==1:
-        snapshots_1D(data,fwd,sol,sol_true)
+        snapshots_1D(data,fwd,sol,sol_true,dV_inv,dV_true)
     else:
         Nt0 = Nt
         levels0 = [-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1]
@@ -594,7 +594,7 @@ def gps_plot(sol1,sol2,sol3,sol_true,vel_locs,inv_w,inv_beta):
 #-------------------------------------------------------------------------------
 
 
-def snapshots_1D(data,fwd,sol,sol_true):
+def snapshots_1D(data,fwd,sol,sol_true,dV_inv,dV_true):
 
     h_max = np.max(np.abs(data[0]))
     sol_max = np.max(np.abs(sol_true))
@@ -605,45 +605,64 @@ def snapshots_1D(data,fwd,sol,sol_true):
     sol1 = sol/sol_max
     sol2 = sol_true/sol_max
 
-    plt.figure(figsize=(12,8))
+    plt.figure(figsize=(10,8))
+    plt.subplot(311)
+    plt.annotate(r'(a)',xy=(-0.042,1.05),fontsize=20,bbox=dict(facecolor='w',alpha=1))
+    plt.plot(t0/t_final,dV_true,linewidth=3,color='royalblue',label=r'$\Delta V^\mathrm{true}$')
+    plt.plot(t0/t_final,dV_inv,linewidth=3,color='k',linestyle='--',label=r'$\Delta V^\mathrm{inv}$')
+    plt.annotate(r'$t_1$',xy=(t0[47]/t_final-0.025,dV_true[47]+4),fontsize=24)
+    plt.annotate(r'$t_2$',xy=(t0[100]/t_final-0.025,dV_true[100]-7),fontsize=24)
+    plt.annotate(r'$t_3$',xy=(t0[113]/t_final+0.008,dV_true[113]+3),fontsize=24)
+    plt.plot(t0[47]/t_final,dV_true[47],'o',color='crimson',markersize=12)
+    plt.plot(t0[100]/t_final,dV_true[100],'o',color='crimson',markersize=12)
+    plt.plot(t0[113]/t_final,dV_true[113],'o',color='crimson',markersize=12)
+    plt.gca().xaxis.tick_top()
+    plt.gca().xaxis.set_label_position('top')
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+    plt.xlim(-0.05,1)
+    plt.legend(fontsize=18,bbox_to_anchor=(1.01,0.8))
+    plt.xlabel(r'$t\,/\,T$', fontsize=20)
+    plt.ylabel(r'$\Delta V$', fontsize=20)
+    plt.tight_layout()
+
+
     i = 47
-    plt.subplot(231)
-    plt.title(r'$t\, / \, T =$'+"{:.2f}".format(t0[i]/t0[-1]),fontsize=20 )
-    plt.annotate(r'(a)',xy=(-42.5,1.04),fontsize=20,bbox=dict(facecolor='w',alpha=1))
+    plt.subplot(334)
+    plt.title(r'$t_1$',fontsize=20 )
+    plt.annotate(r'(b)',xy=(-42,0.875),fontsize=20,bbox=dict(facecolor='w',alpha=1))
     plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'$h^{\mathrm{obs}}$')
     plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$h^{\mathrm{fwd}}$')
     plt.ylabel(r'$h \,/\,\Vert h^{\mathrm{obs}}\Vert_\infty$',fontsize=20)
     plt.yticks(fontsize=16)
     plt.ylim(-1.25,1.25)
-    plt.legend(fontsize=18,loc='lower left')
     plt.gca().xaxis.set_ticklabels([])
     plt.gca().yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter('%.2f'))
 
-    plt.subplot(234)
-    plt.annotate(r'(d)',xy=(-42.5,1.04),fontsize=20,bbox=dict(facecolor='w',alpha=1))
+    plt.subplot(337)
+    plt.annotate(r'(e)',xy=(-42,0.885),fontsize=20,bbox=dict(facecolor='w',alpha=1))
     plt.plot(x0,sol2[i,:,50],color='royalblue',linewidth=3,label=r'$w_b^{\mathrm{true}}$')
     plt.plot(x0,sol1[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$w_b^{\mathrm{inv}}$')
     plt.ylabel(r'$w_b\,/\,\Vert w_b^{\mathrm{true}}\Vert_\infty$',fontsize=20)
     plt.ylim(-1.25,1.25)
     plt.gca().yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter('%.2f'))
     plt.xlabel(r'$x$',fontsize=20)
-    plt.legend(fontsize=18,loc='lower left')
     plt.xticks(fontsize=16)
     plt.yticks(fontsize=16)
 
 
     i = 100
-    plt.subplot(232)
-    plt.annotate(r'(b)',xy=(-42.5,1.04),fontsize=20,bbox=dict(facecolor='w',alpha=1))
-    plt.title(r'$t\, / \, T =$'+"{:.2f}".format(t0[i]/t0[-1]),fontsize=20 )
+    plt.subplot(335)
+    plt.annotate(r'(c)',xy=(-42,0.875),fontsize=20,bbox=dict(facecolor='w',alpha=1))
+    plt.title(r'$t_2$',fontsize=20 )
     plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'$h^{\mathrm{obs}}$')
     plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$h^{\mathrm{fwd}}$')
     plt.ylim(-1.25,1.25)
     plt.gca().xaxis.set_ticklabels([])
     plt.gca().yaxis.set_ticklabels([])
 
-    plt.subplot(235)
-    plt.annotate(r'(e)',xy=(-42.5,1.04),fontsize=20,bbox=dict(facecolor='w',alpha=1))
+    plt.subplot(338)
+    plt.annotate(r'(f)',xy=(-42,0.885),fontsize=20,bbox=dict(facecolor='w',alpha=1))
     plt.plot(x0,sol2[i,:,50],color='royalblue',linewidth=3,label=r'true sol.')
     plt.plot(x0,sol1[i,:,50],color='k',linestyle='--',linewidth=3,label=r'inversion')
     plt.ylim(-1.25,1.25)
@@ -652,20 +671,22 @@ def snapshots_1D(data,fwd,sol,sol_true):
     plt.xticks(fontsize=16)
 
     i = 113
-    plt.subplot(233)
-    plt.annotate(r'(c)',xy=(-42.6,1.04),fontsize=20,bbox=dict(facecolor='w',alpha=1))
-    plt.title(r'$t\, / \, T =$'+"{:.2f}".format(t0[i]/t0[-1]),fontsize=20 )
-    plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'data')
-    plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'model')
+    plt.subplot(336)
+    plt.title(r'$t_3$',fontsize=20 )
+    plt.annotate(r'(d)',xy=(-42,0.875),fontsize=20,bbox=dict(facecolor='w',alpha=1))
+    plt.plot(x0,data[i,:,50],color='royalblue',linewidth=3,label=r'$h^{\mathrm{obs}}$')
+    plt.plot(x0,fwd[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$h^{\mathrm{fwd}}$')
+    plt.legend(fontsize=18,bbox_to_anchor=(1.01,0.8))
     plt.ylim(-1.25,1.25)
     plt.gca().xaxis.set_ticklabels([])
     plt.gca().yaxis.set_ticklabels([])
 
-    plt.subplot(236)
-    plt.annotate(r'(f)',xy=(-42.6,1.04),fontsize=20,bbox=dict(facecolor='w',alpha=1))
-    plt.plot(x0,sol2[i,:,50],color='royalblue',linewidth=3,label=r'true sol.')
-    plt.plot(x0,sol1[i,:,50],color='k',linestyle='--',linewidth=3,label=r'inversion')
+    plt.subplot(339)
+    plt.annotate(r'(g)',xy=(-42,0.885),fontsize=20,bbox=dict(facecolor='w',alpha=1))
+    plt.plot(x0,sol2[i,:,50],color='royalblue',linewidth=3,label=r'$w_b^{\mathrm{true}}$')
+    plt.plot(x0,sol1[i,:,50],color='k',linestyle='--',linewidth=3,label=r'$w_b^{\mathrm{inv}}$')
     plt.ylim(-1.25,1.25)
+    plt.legend(fontsize=18,bbox_to_anchor=(1.01,0.8))
     plt.gca().yaxis.set_ticklabels([])
     plt.xlabel(r'$x$',fontsize=20)
     plt.xticks(fontsize=16)
