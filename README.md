@@ -1,4 +1,4 @@
-subglacial-inversion
+subglacial-inversion  [![DOI](https://zenodo.org/badge/341962445.svg)](https://zenodo.org/badge/latestdoi/341962445)
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/agstub/subglacial-inversion/HEAD?labpath=notebooks%2F1_Figs3-5.ipynb)
 
