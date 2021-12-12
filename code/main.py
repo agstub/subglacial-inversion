@@ -7,7 +7,7 @@
 #   least-squares minimization problem
 #
 # * the main model assumptions are (1) Newtonian viscous ice flow, (2) a linear basal sliding law,
-#   and (3) that all fields are small perturbations of a simple shear background flow.
+#   and (3) that all fields are small perturbations of a simple background flow.
 #   These assumptions allow for efficient solution of the forward model, with 2D (map-plane)
 #   Fourier transforms and convolution in time being the main operations.
 #
