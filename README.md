@@ -10,7 +10,7 @@ coefficient "beta" given the observed surface
 elevation change data "h_obs" (and possible horizontal surface velocity data) by solving a least-squares minimization problem
 
 The main model assumptions are (1) Newtonian viscous ice flow, (2) a linear
-basal sliding law, and (3) that all fields are small perturbations of a simple shear
+basal sliding law, and (3) that all fields are small perturbations of a simple 
 background flow. These assumptions allow for efficient solution of the forward
 model: 2D (map-plane) Fourier transforms and convolution in time are the main
 operations. The model and numerical method are described in a forthcoming manuscript.
